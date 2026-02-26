@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FÜR BABA → Roulette Analyse Tool</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(180deg,#0f0f0f,#1c1c1c);
+    color:white;
+    text-align:center;
+}
+
+h1 {
+    color:gold;
+    margin-top:30px;
+    font-size:32px;
+}
+
+.container {
+    width:90%;
+    max-width:900px;
+    margin:auto;
+}
+
+textarea {
+    width:100%;
+    height:120px;
+    font-size:18px;
+    padding:10px;
+    border-radius:8px;
+    border:none;
+}
+
+button {
+    margin-top:15px;
+    padding:15px 25px;
+    font-size:18px;
+    background:gold;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+button:hover {
+    background:#e6c200;
+}
+
+.result-box {
+    background:#222;
+    padding:20px;
+    margin-top:20px;
+    border-radius:10px;
+}
+
+.legend {
+    text-align:left;
+    background:#1a1a1a;
+    padding:20px;
+    border-radius:10px;
+    margin-top:30px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>FÜR BABA → Roulette Analyse Tool</h1>
+
+<div class="container">
+
+<h2>Zahlen hier einfügen:</h2>
+<textarea id="numbers" placeholder="Beispiel: 1, 5, 23, 17, 0, 32 ..."></textarea>
+<br>
+<button onclick="analyse()">Analyse starten</button>
+
+<div id="results"></div>
+
+<div class="legend">
+<h3>Erklärung (einfach erklärt)</h3>
+<p>
+• Es werden immer 60 Zahlen ausgewertet.<br>
+• Erste 20 Zahlen = nur beobachten.<br>
+• Danach 3 Spielrunden mit je 12 Zahlen.<br>
+• Jede gesetzte Zahl zählt als ein Versuch.<br>
+• Grün = richtig getroffen.<br>
+• Rot = nicht getroffen.<br>
+• Nach 60 Zahlen startet alles neu.
+</p>
+</div>
+
+</div>
+
+<script>
+
+function analyse(){
+
+let input = document.getElementById("numbers").value;
+let nums = input.split(/[\s,;]+/).map(n=>parseInt(n)).filter(n=>!isNaN(n));
+
+let resultsDiv = document.getElementById("results");
+resultsDiv.innerHTML="";
+
+if(nums.length < 60){
+resultsDiv.innerHTML="<div class='result-box'>Mindestens 60 Zahlen eingeben.</div>";
+return;
+}
+
+let blockCount = Math.floor(nums.length/60);
+
+for(let b=0;b<blockCount;b++){
+
+let block = nums.slice(b*60,(b+1)*60);
+let rounds = [
+block.slice(20,32),
+block.slice(32,44),
+block.slice(44,56)
+];
+
+let totalHits=0;
+let totalMiss=0;
+
+let blockDiv=document.createElement("div");
+blockDiv.className="result-box";
+blockDiv.innerHTML="<h2>Block "+(b+1)+"</h2>";
+resultsDiv.appendChild(blockDiv);
+
+rounds.forEach((round,index)=>{
+
+let hits=0;
+let miss=0;
+
+round.forEach(num=>{
+if(num % 2 === 0){hits++;} else {miss++;}
+});
+
+totalHits+=hits;
+totalMiss+=miss;
+
+let percentHit=((hits/(hits+miss))*100).toFixed(1);
+
+blockDiv.innerHTML += `
+<h3>Runde ${index+1}</h3>
+<p>Treffer: <span style="color:lightgreen">${hits}</span></p>
+<p>Nicht Treffer: <span style="color:red">${miss}</span></p>
+<p>Erfolg: ${percentHit}%</p>
+<canvas id="chart${b}${index}" height="100"></canvas>
+`;
+
+setTimeout(()=>{
+new Chart(document.getElementById(`chart${b}${index}`),{
+type:'bar',
+data:{
+labels:['Treffer','Nicht Treffer'],
+datasets:[{
+data:[hits,miss],
+backgroundColor:['green','red']
+}]
+},
+options:{
+plugins:{legend:{display:false}},
+scales:{y:{beginAtZero:true}}
+}
+});
+},100);
+
+});
+
+let totalPercent=((totalHits/(totalHits+totalMiss))*100).toFixed(1);
+
+blockDiv.innerHTML += `
+<h3>Gesamt Block ${b+1}</h3>
+<p>Gesamt Treffer: <span style="color:lightgreen">${totalHits}</span></p>
+<p>Gesamt Nicht Treffer: <span style="color:red">${totalMiss}</span></p>
+<p><strong>Gesamt Erfolg: ${totalPercent}%</strong></p>
+`;
+
+}
+
+}
+</script>
+
+</body>
+</html>  
