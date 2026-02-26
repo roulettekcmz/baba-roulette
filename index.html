@@ -3,188 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FÜR BABA → Roulette Analyse Tool</title>
-
+<title>FÜR BABA -> Roulette Analyse Tool</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-body {
-    margin:0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(180deg,#0f0f0f,#1c1c1c);
-    color:white;
-    text-align:center;
-}
-
-h1 {
-    color:gold;
-    margin-top:30px;
-    font-size:32px;
-}
-
-.container {
-    width:90%;
-    max-width:900px;
-    margin:auto;
-}
-
-textarea {
-    width:100%;
-    height:120px;
-    font-size:18px;
-    padding:10px;
-    border-radius:8px;
-    border:none;
-}
-
-button {
-    margin-top:15px;
-    padding:15px 25px;
-    font-size:18px;
-    background:gold;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:bold;
-}
-
-button:hover {
-    background:#e6c200;
-}
-
-.result-box {
-    background:#222;
-    padding:20px;
-    margin-top:20px;
-    border-radius:10px;
-}
-
-.legend {
-    text-align:left;
-    background:#1a1a1a;
-    padding:20px;
-    border-radius:10px;
-    margin-top:30px;
-}
+body { font-family: Arial, sans-serif; background: #f7f7f7; margin:0; padding:20px;}
+h1 { text-align:center; color:#2a2a2a; }
+textarea { width:100%; height:150px; font-size:16px; padding:10px; }
+button { width:100%; padding:15px; font-size:18px; background:#007bff; color:white; border:none; cursor:pointer; margin-top:10px; }
+button:hover { background:#0056b3; }
+table { width:100%; border-collapse: collapse; margin-top:15px; }
+th, td { border:1px solid #ccc; padding:8px; text-align:center; }
+th { background:#eee; }
+.block { background:white; padding:15px; margin-top:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+.chart-container { width:100%; height:300px; margin-top:20px; }
+.legend { margin-top:10px; font-size:14px; }
+.explanation { margin-top:20px; padding:15px; background:#fff; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
 </style>
 </head>
-
 <body>
+<h1>FÜR BABA -> Roulette Analyse Tool</h1>
 
-<h1>FÜR BABA → Roulette Analyse Tool</h1>
+<label for="zahlenInput">Hier die Permanenzen des Spieltags einfügen:</label>
+<textarea id="zahlenInput" placeholder="Zahlen hier einfügen, z.B. 28,19,15,..."></textarea>
+<button onclick="startAnalyse()">Analyse starten</button>
 
-<div class="container">
-
-<h2>Zahlen hier einfügen:</h2>
-<textarea id="numbers" placeholder="Beispiel: 1, 5, 23, 17, 0, 32 ..."></textarea>
-<br>
-<button onclick="analyse()">Analyse starten</button>
-
-<div id="results"></div>
-
-<div class="legend">
-<h3>Erklärung (einfach erklärt)</h3>
-<p>
-• Es werden immer 60 Zahlen ausgewertet.<br>
-• Erste 20 Zahlen = nur beobachten.<br>
-• Danach 3 Spielrunden mit je 12 Zahlen.<br>
-• Jede gesetzte Zahl zählt als ein Versuch.<br>
-• Grün = richtig getroffen.<br>
-• Rot = nicht getroffen.<br>
-• Nach 60 Zahlen startet alles neu.
-</p>
-</div>
-
-</div>
+<div id="output"></div>
 
 <script>
+// Finale Definition
+const finaleListe = {
+  1:[1,11,21,31], 2:[2,12,22,32], 3:[3,13,23,33],
+  4:[4,14,24,34], 5:[5,15,25,35], 6:[6,16,26,36],
+  7:[7,17,27], 8:[8,18,28], 9:[9,19,29], 10:[0]
+};
 
-function analyse(){
+// Farben für Diagramme
+const farben = {treffer:'green', ntreffer:'red'};
 
-let input = document.getElementById("numbers").value;
-let nums = input.split(/[\s,;]+/).map(n=>parseInt(n)).filter(n=>!isNaN(n));
+function startAnalyse(){
+  const input = document.getElementById("zahlenInput").value;
+  let zahlen = input.replace(/\n/g,",").split(",").map(s=>s.trim()).filter(s=>s!=="").map(Number);
 
-let resultsDiv = document.getElementById("results");
-resultsDiv.innerHTML="";
-
-if(nums.length < 60){
-resultsDiv.innerHTML="<div class='result-box'>Mindestens 60 Zahlen eingeben.</div>";
-return;
+  if(zahlen.length===0){ alert("Bitte Zahlen einfügen."); return; }
+  document.getElementById("output").innerHTML = "";
+  
+  // Arbeit in 60-Zahlen-Blöcken
+  let blockNummer = 0;
+  while(zahlen.length>0){
+    blockNummer++;
+    let block = zahlen.splice(0,60);
+    analyseBlock(block, blockNummer);
+  }
 }
 
-let blockCount = Math.floor(nums.length/60);
+function analyseBlock(block, blockNummer){
+  let output = document.getElementById("output");
+  let blockDiv = document.createElement("div");
+  blockDiv.className = "block";
+  blockDiv.innerHTML = `<h2>Block ${blockNummer} - ${block.length} Zahlen</h2>`;
+  output.appendChild(blockDiv);
+  
+  // Erste 20 Zahlen beobachten
+  const erste20 = block.slice(0,20);
+  let beobachtet = [];
+  for(let f in finaleListe){
+    let zahlenFinale = finaleListe[f];
+    let gefallen = zahlenFinale.filter(z => erste20.includes(z));
+    if(fallen > 0) gefallen = gefallen; // nur zur Anzeige
+    beobachtet.push({finale:f, gesetzt:zahlenFinale, gefallen: gefallen});
+  }
 
-for(let b=0;b<blockCount;b++){
+  let beobachtungHTML = "<h3>Erste 20 Zahlen beobachtet:</h3><ul>";
+  erste20.forEach(z=>beobachtungHTML += `<li>${z}</li>`);
+  beobachtungHTML += "</ul>";
+  blockDiv.innerHTML += beobachtungHTML;
+  
+  // Rundenanalyse
+  const runden = [];
+  let restZahlen = block.slice(20);
+  let offeneFinale = Object.keys(finaleListe).filter(f=>f!="10"); // 0 separiert
+  
+  for(let runde=1;runde<=3;runde++){
+    let start = (runde-1)*12;
+    let rundenZahlen = restZahlen.slice(start,start+12);
+    if(rundenZahlen.length===0) break;
 
-let block = nums.slice(b*60,(b+1)*60);
-let rounds = [
-block.slice(20,32),
-block.slice(32,44),
-block.slice(44,56)
-];
+    let einsatz = (runde<3)?1:2; // dritter Runde Doppel-Einsatz
+    let tabelle = [];
+    let totalGesetzt=0, totalTreffer=0;
 
-let totalHits=0;
-let totalMiss=0;
+    offeneFinale.forEach(f=>{
+      let finalZ = finaleListe[f];
+      let treffer = finalZ.filter(z=>rundenZahlen.includes(z));
+      tabelle.push({
+        finale:f,
+        zahlen:finalZ.join(","),
+        treffer:treffer.length,
+        nicht:finalZ.length - treffer.length,
+        einsatz:einsatz
+      });
+      totalGesetzt += finalZ.length;
+      totalTreffer += treffer.length;
+    });
 
-let blockDiv=document.createElement("div");
-blockDiv.className="result-box";
-blockDiv.innerHTML="<h2>Block "+(b+1)+"</h2>";
-resultsDiv.appendChild(blockDiv);
+    // Tabelle erzeugen
+    let tableHTML = `<h3>Runde ${runde} - Einsatz: ${einsatz}x</h3>`;
+    tableHTML += `<table><tr><th>Finale</th><th>Gesetzte Zahlen</th><th>Treffer</th><th>Nicht Treffer</th><th>Einsatz</th></tr>`;
+    tabelle.forEach(t=>tableHTML+=`<tr><td>${t.finale}</td><td>${t.zahlen}</td><td>${t.treffer}</td><td>${t.nicht}</td><td>${t.einsatz}</td></tr>`);
+    tableHTML += "</table>";
+    blockDiv.innerHTML += tableHTML;
 
-rounds.forEach((round,index)=>{
+    // Diagramm erstellen
+    let canvas = document.createElement("canvas");
+    blockDiv.appendChild(canvas);
+    new Chart(canvas,{
+      type:'bar',
+      data:{
+        labels:tabelle.map(t=>`F${t.finale}`),
+        datasets:[
+          {label:'Treffer', data:tabelle.map(t=>t.treffer), backgroundColor:farben.treffer},
+          {label:'Nicht Treffer', data:tabelle.map(t=>t.nicht), backgroundColor:farben.ntreffer}
+        ]
+      },
+      options:{
+        responsive:true,
+        plugins:{legend:{position:'top'}}
+      }
+    });
 
-let hits=0;
-let miss=0;
+    runden.push({runde,rundenZahlen,tabelle});
+  }
 
-round.forEach(num=>{
-if(num % 2 === 0){hits++;} else {miss++;}
-});
+  // Gesamtübersicht Block
+  let gesamtTreffer = runden.reduce((acc,r)=> acc + r.tabelle.reduce((a,b)=>a+b.treffer,0),0);
+  let gesamtGesetzt = runden.reduce((acc,r)=> acc + r.tabelle.reduce((a,b)=>a+b.treffer+b.nicht,0),0);
+  let gesamtProzent = ((gesamtTreffer/gesamtGesetzt)*100).toFixed(2);
 
-totalHits+=hits;
-totalMiss+=miss;
+  blockDiv.innerHTML += `<h3>Gesamtübersicht Block ${blockNummer}</h3>
+  <p>Gesetzte Zahlen insgesamt: ${gesamtGesetzt}</p>
+  <p>Treffer insgesamt: ${gesamtTreffer}</p>
+  <p>Erfolg in Prozent: ${gesamtProzent}%</p>`;
 
-let percentHit=((hits/(hits+miss))*100).toFixed(1);
-
-blockDiv.innerHTML += `
-<h3>Runde ${index+1}</h3>
-<p>Treffer: <span style="color:lightgreen">${hits}</span></p>
-<p>Nicht Treffer: <span style="color:red">${miss}</span></p>
-<p>Erfolg: ${percentHit}%</p>
-<canvas id="chart${b}${index}" height="100"></canvas>
-`;
-
-setTimeout(()=>{
-new Chart(document.getElementById(`chart${b}${index}`),{
-type:'bar',
-data:{
-labels:['Treffer','Nicht Treffer'],
-datasets:[{
-data:[hits,miss],
-backgroundColor:['green','red']
-}]
-},
-options:{
-plugins:{legend:{display:false}},
-scales:{y:{beginAtZero:true}}
-}
-});
-},100);
-
-});
-
-let totalPercent=((totalHits/(totalHits+totalMiss))*100).toFixed(1);
-
-blockDiv.innerHTML += `
-<h3>Gesamt Block ${b+1}</h3>
-<p>Gesamt Treffer: <span style="color:lightgreen">${totalHits}</span></p>
-<p>Gesamt Nicht Treffer: <span style="color:red">${totalMiss}</span></p>
-<p><strong>Gesamt Erfolg: ${totalPercent}%</strong></p>
-`;
-
-}
-
+  // Erklärungstext
+  blockDiv.innerHTML += `<div class="explanation">
+  <h3>Erklärung:</h3>
+  <p>Dieses Tool analysiert Roulette-Permanenzen:</p>
+  <ul>
+    <li>Erste 20 Zahlen werden nur beobachtet.</li>
+    <li>Danach wird auf offene Finale gesetzt. Runde 1 & 2 normale Einsätze, Runde 3 doppelter Einsatz.</li>
+    <li>Treffer/Nicht-Treffer pro Finale und Runde werden gezählt.</li>
+    <li>Diagramme zeigen, welche Finale getroffen wurden.</li>
+    <li>Gesamtübersicht zeigt alle Einsätze und Erfolgsquote.</li>
+  </ul>
+  </div>`;
 }
 </script>
 
 </body>
-</html>  
+</html>
