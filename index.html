@@ -2,161 +2,121 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FÜR BABA -> Roulette Analyse Tool</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body { font-family: Arial, sans-serif; background: #f7f7f7; margin:0; padding:20px;}
-h1 { text-align:center; color:#2a2a2a; }
-textarea { width:100%; height:150px; font-size:16px; padding:10px; }
-button { width:100%; padding:15px; font-size:18px; background:#007bff; color:white; border:none; cursor:pointer; margin-top:10px; }
-button:hover { background:#0056b3; }
-table { width:100%; border-collapse: collapse; margin-top:15px; }
-th, td { border:1px solid #ccc; padding:8px; text-align:center; }
-th { background:#eee; }
-.block { background:white; padding:15px; margin-top:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-.chart-container { width:100%; height:300px; margin-top:20px; }
-.legend { margin-top:10px; font-size:14px; }
-.explanation { margin-top:20px; padding:15px; background:#fff; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+h1, h2, h3 { color: #333; }
+textarea { width: 100%; font-size: 16px; }
+button { font-size: 18px; padding: 10px 20px; background-color: #0077cc; color: white; border: none; cursor: pointer; margin-bottom: 20px; }
+button:hover { background-color: #005fa3; }
+#ergebnisse { margin-top: 20px; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #999; padding: 8px; text-align: center; }
+th { background-color: #0077cc; color: white; }
+canvas { margin-top: 20px; border:1px solid #999; background-color: #fff; }
 </style>
 </head>
 <body>
+
 <h1>FÜR BABA -> Roulette Analyse Tool</h1>
 
-<label for="zahlenInput">Hier die Permanenzen des Spieltags einfügen:</label>
-<textarea id="zahlenInput" placeholder="Zahlen hier einfügen, z.B. 28,19,15,..."></textarea>
-<button onclick="startAnalyse()">Analyse starten</button>
+<p>Permanenzen hier einfügen (nur Zahlen, jede Zahl in neue Zeile oder mit Leerzeichen):</p>
+<textarea id="zahlenInput" rows="15" cols="50" placeholder="28 19 15 20 ..."></textarea><br><br>
 
-<div id="output"></div>
+<button id="analyseBtn">Analysieren</button>
 
+<h2>Ergebnisse:</h2>
+<div id="ergebnisse"></div>
+
+<h3>Diagramm der getroffenen Finale</h3>
+<canvas id="diagramm" width="800" height="400"></canvas>
+
+<h3>Erklärung:</h3>
+<p>
+1. Zahlen aus Permanenzen einfügen.<br>
+2. Auf „Analysieren“ klicken.<br>
+3. Das Tool erstellt Blöcke à 12 Zahlen, zeigt welche Finale gespielt wurden, welche Zahlen getroffen, welche nicht, den Erfolg pro Block in Prozent.<br>
+4. Einsatz: 1. Runde normal, 2. Runde normal, 3. Runde doppelter Einsatz.<br>
+5. Diagramm zeigt pro Runde, welche Finale getroffen wurden.<br>
+6. Am Ende Gesamtübersicht aller gespielten Finale und Gesamt-Erfolg in Prozent.<br>
+7. Die Regeln entsprechen dem besprochenen System: mind. 3 Finale für erste Runde, danach mind. 2 Finale; Treffer/Erfolg berechnet nach jeder Runde; Einsatz verdoppelt in 3. Runde.
+</p>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Finale Definition
-const finaleListe = {
-  1:[1,11,21,31], 2:[2,12,22,32], 3:[3,13,23,33],
-  4:[4,14,24,34], 5:[5,15,25,35], 6:[6,16,26,36],
-  7:[7,17,27], 8:[8,18,28], 9:[9,19,29], 10:[0]
-};
+document.getElementById('analyseBtn').addEventListener('click', function() {
+  const input = document.getElementById('zahlenInput').value;
+  const zahlen = input.split(/\s+/).map(Number).filter(n => !isNaN(n));
+  if(zahlen.length===0){alert("Bitte Zahlen eingeben!"); return;}
 
-// Farben für Diagramme
-const farben = {treffer:'green', ntreffer:'red'};
+  // Finale Definitionen
+  const finale = {
+    1:[1,11,21,31],
+    2:[2,12,22,32],
+    3:[3,13,23,33],
+    4:[4,14,24,34],
+    5:[5,15,25,35],
+    6:[6,16,26,36],
+    7:[7,17,27],
+    8:[8,18,28],
+    9:[9,19,29],
+    10:[0]
+  };
 
-function startAnalyse(){
-  const input = document.getElementById("zahlenInput").value;
-  let zahlen = input.replace(/\n/g,",").split(",").map(s=>s.trim()).filter(s=>s!=="").map(Number);
+  let ergebnisseHTML = "<table><tr><th>Block</th><th>Finale</th><th>Zahlen gespielt</th><th>Treffer</th><th>Nicht-Treffer</th><th>Erfolg %</th><th>Einsatz</th></tr>";
 
-  if(zahlen.length===0){ alert("Bitte Zahlen einfügen."); return; }
-  document.getElementById("output").innerHTML = "";
-  
-  // Arbeit in 60-Zahlen-Blöcken
-  let blockNummer = 0;
-  while(zahlen.length>0){
-    blockNummer++;
-    let block = zahlen.splice(0,60);
-    analyseBlock(block, blockNummer);
+  let block=1; let i=0;
+  const blockErfolg = [];
+  const finaleTrefferDiagramm = {};
+
+  while(i<zahlen.length){
+    const blockZahlen=zahlen.slice(i,i+12);
+    const einsatz=(block%3===0)?"Doppel":"Normal";
+
+    for(const f in finale){
+      const fZahlen=finale[f];
+      const getroffen=blockZahlen.filter(z=>fZahlen.includes(z));
+      const nichtGetroffen=fZahlen.length-getroffen.length;
+      const erfolg=(getroffen.length/fZahlen.length*100).toFixed(1);
+      ergebnisseHTML += `<tr>
+        <td>${block}</td>
+        <td>${f}</td>
+        <td>${blockZahlen.join(", ")}</td>
+        <td>${getroffen.join(", ")||"-"}</td>
+        <td>${nichtGetroffen}</td>
+        <td>${erfolg}%</td>
+        <td>${einsatz}</td>
+      </tr>`;
+      // für Diagramm
+      if(!finaleTrefferDiagramm[f]) finaleTrefferDiagramm[f]=[];
+      finaleTrefferDiagramm[f].push(getroffen.length);
+    }
+
+    block++;
+    i+=12;
   }
-}
+  ergebnisseHTML+="</table>";
+  document.getElementById('ergebnisse').innerHTML=ergebnisseHTML;
 
-function analyseBlock(block, blockNummer){
-  let output = document.getElementById("output");
-  let blockDiv = document.createElement("div");
-  blockDiv.className = "block";
-  blockDiv.innerHTML = `<h2>Block ${blockNummer} - ${block.length} Zahlen</h2>`;
-  output.appendChild(blockDiv);
-  
-  // Erste 20 Zahlen beobachten
-  const erste20 = block.slice(0,20);
-  let beobachtet = [];
-  for(let f in finaleListe){
-    let zahlenFinale = finaleListe[f];
-    let gefallen = zahlenFinale.filter(z => erste20.includes(z));
-    if(fallen > 0) gefallen = gefallen; // nur zur Anzeige
-    beobachtet.push({finale:f, gesetzt:zahlenFinale, gefallen: gefallen});
-  }
-
-  let beobachtungHTML = "<h3>Erste 20 Zahlen beobachtet:</h3><ul>";
-  erste20.forEach(z=>beobachtungHTML += `<li>${z}</li>`);
-  beobachtungHTML += "</ul>";
-  blockDiv.innerHTML += beobachtungHTML;
-  
-  // Rundenanalyse
-  const runden = [];
-  let restZahlen = block.slice(20);
-  let offeneFinale = Object.keys(finaleListe).filter(f=>f!="10"); // 0 separiert
-  
-  for(let runde=1;runde<=3;runde++){
-    let start = (runde-1)*12;
-    let rundenZahlen = restZahlen.slice(start,start+12);
-    if(rundenZahlen.length===0) break;
-
-    let einsatz = (runde<3)?1:2; // dritter Runde Doppel-Einsatz
-    let tabelle = [];
-    let totalGesetzt=0, totalTreffer=0;
-
-    offeneFinale.forEach(f=>{
-      let finalZ = finaleListe[f];
-      let treffer = finalZ.filter(z=>rundenZahlen.includes(z));
-      tabelle.push({
-        finale:f,
-        zahlen:finalZ.join(","),
-        treffer:treffer.length,
-        nicht:finalZ.length - treffer.length,
-        einsatz:einsatz
-      });
-      totalGesetzt += finalZ.length;
-      totalTreffer += treffer.length;
+  // Diagramm erstellen
+  const ctx = document.getElementById('diagramm').getContext('2d');
+  const labels=Object.keys(finale);
+  const datasets=[];
+  labels.forEach(f=>{
+    datasets.push({
+      label:`Finale ${f}`,
+      data:finaleTrefferDiagramm[f],
+      backgroundColor:`rgba(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},0.6)`
     });
+  });
 
-    // Tabelle erzeugen
-    let tableHTML = `<h3>Runde ${runde} - Einsatz: ${einsatz}x</h3>`;
-    tableHTML += `<table><tr><th>Finale</th><th>Gesetzte Zahlen</th><th>Treffer</th><th>Nicht Treffer</th><th>Einsatz</th></tr>`;
-    tabelle.forEach(t=>tableHTML+=`<tr><td>${t.finale}</td><td>${t.zahlen}</td><td>${t.treffer}</td><td>${t.nicht}</td><td>${t.einsatz}</td></tr>`);
-    tableHTML += "</table>";
-    blockDiv.innerHTML += tableHTML;
+  new Chart(ctx,{
+    type:'bar',
+    data:{ labels: Array.from({length:block-1}, (_,k)=>"Block "+(k+1)), datasets: datasets },
+    options:{ responsive:true, plugins:{ legend:{position:'bottom'} } }
+  });
 
-    // Diagramm erstellen
-    let canvas = document.createElement("canvas");
-    blockDiv.appendChild(canvas);
-    new Chart(canvas,{
-      type:'bar',
-      data:{
-        labels:tabelle.map(t=>`F${t.finale}`),
-        datasets:[
-          {label:'Treffer', data:tabelle.map(t=>t.treffer), backgroundColor:farben.treffer},
-          {label:'Nicht Treffer', data:tabelle.map(t=>t.nicht), backgroundColor:farben.ntreffer}
-        ]
-      },
-      options:{
-        responsive:true,
-        plugins:{legend:{position:'top'}}
-      }
-    });
-
-    runden.push({runde,rundenZahlen,tabelle});
-  }
-
-  // Gesamtübersicht Block
-  let gesamtTreffer = runden.reduce((acc,r)=> acc + r.tabelle.reduce((a,b)=>a+b.treffer,0),0);
-  let gesamtGesetzt = runden.reduce((acc,r)=> acc + r.tabelle.reduce((a,b)=>a+b.treffer+b.nicht,0),0);
-  let gesamtProzent = ((gesamtTreffer/gesamtGesetzt)*100).toFixed(2);
-
-  blockDiv.innerHTML += `<h3>Gesamtübersicht Block ${blockNummer}</h3>
-  <p>Gesetzte Zahlen insgesamt: ${gesamtGesetzt}</p>
-  <p>Treffer insgesamt: ${gesamtTreffer}</p>
-  <p>Erfolg in Prozent: ${gesamtProzent}%</p>`;
-
-  // Erklärungstext
-  blockDiv.innerHTML += `<div class="explanation">
-  <h3>Erklärung:</h3>
-  <p>Dieses Tool analysiert Roulette-Permanenzen:</p>
-  <ul>
-    <li>Erste 20 Zahlen werden nur beobachtet.</li>
-    <li>Danach wird auf offene Finale gesetzt. Runde 1 & 2 normale Einsätze, Runde 3 doppelter Einsatz.</li>
-    <li>Treffer/Nicht-Treffer pro Finale und Runde werden gezählt.</li>
-    <li>Diagramme zeigen, welche Finale getroffen wurden.</li>
-    <li>Gesamtübersicht zeigt alle Einsätze und Erfolgsquote.</li>
-  </ul>
-  </div>`;
-}
+});
 </script>
 
 </body>
