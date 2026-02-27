@@ -2,121 +2,142 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>FÜR BABA -> Roulette Analyse Tool</title>
+<title>FÜR BABA -> Roulette Analyse Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
-h1, h2, h3 { color: #333; }
-textarea { width: 100%; font-size: 16px; }
-button { font-size: 18px; padding: 10px 20px; background-color: #0077cc; color: white; border: none; cursor: pointer; margin-bottom: 20px; }
-button:hover { background-color: #005fa3; }
-#ergebnisse { margin-top: 20px; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { border: 1px solid #999; padding: 8px; text-align: center; }
-th { background-color: #0077cc; color: white; }
-canvas { margin-top: 20px; border:1px solid #999; background-color: #fff; }
+body {font-family: Arial; margin:20px; background:#f2f4f8;}
+h1 {text-align:center;}
+textarea {width:100%; height:150px; font-size:14px;}
+button {width:100%; padding:15px; font-size:18px; background:#1e88e5; color:white; border:none; margin-top:10px; cursor:pointer;}
+.dashboard {display:flex; gap:20px; margin-top:20px; flex-wrap:wrap;}
+.card {flex:1; background:white; padding:20px; border-radius:10px; box-shadow:0 3px 10px rgba(0,0,0,0.1); text-align:center;}
+.card h2 {margin:0; font-size:18px; color:#555;}
+.card p {font-size:26px; margin:5px 0 0 0;}
+.blocks {display:flex; flex-wrap:wrap; gap:10px; margin-top:20px;}
+.block {padding:15px; border-radius:8px; color:white; cursor:pointer; width:120px; text-align:center;}
+.green {background:#4caf50;}
+.yellow {background:#ff9800;}
+.red {background:#f44336;}
+.details {display:none; background:white; padding:15px; margin-top:10px; border-radius:8px;}
+canvas {margin-top:30px; background:white; padding:20px; border-radius:10px;}
 </style>
 </head>
 <body>
 
-<h1>FÜR BABA -> Roulette Analyse Tool</h1>
+<h1>FÜR BABA -> Roulette Analyse Dashboard</h1>
 
-<p>Permanenzen hier einfügen (nur Zahlen, jede Zahl in neue Zeile oder mit Leerzeichen):</p>
-<textarea id="zahlenInput" rows="15" cols="50" placeholder="28 19 15 20 ..."></textarea><br><br>
+<textarea id="input" placeholder='Beispiel:
+Permanenzen: "Touch Bet Autom.Sp.2 vom 02.02.2026"
+28 19 15 20 33 2 7 11 25 30 14 ...'></textarea>
 
-<button id="analyseBtn">Analysieren</button>
+<button onclick="analyse()">Analyse starten</button>
 
-<h2>Ergebnisse:</h2>
-<div id="ergebnisse"></div>
+<div id="dashboard"></div>
+<canvas id="capitalChart"></canvas>
+<div id="blockContainer"></div>
 
-<h3>Diagramm der getroffenen Finale</h3>
-<canvas id="diagramm" width="800" height="400"></canvas>
-
-<h3>Erklärung:</h3>
-<p>
-1. Zahlen aus Permanenzen einfügen.<br>
-2. Auf „Analysieren“ klicken.<br>
-3. Das Tool erstellt Blöcke à 12 Zahlen, zeigt welche Finale gespielt wurden, welche Zahlen getroffen, welche nicht, den Erfolg pro Block in Prozent.<br>
-4. Einsatz: 1. Runde normal, 2. Runde normal, 3. Runde doppelter Einsatz.<br>
-5. Diagramm zeigt pro Runde, welche Finale getroffen wurden.<br>
-6. Am Ende Gesamtübersicht aller gespielten Finale und Gesamt-Erfolg in Prozent.<br>
-7. Die Regeln entsprechen dem besprochenen System: mind. 3 Finale für erste Runde, danach mind. 2 Finale; Treffer/Erfolg berechnet nach jeder Runde; Einsatz verdoppelt in 3. Runde.
-</p>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.getElementById('analyseBtn').addEventListener('click', function() {
-  const input = document.getElementById('zahlenInput').value;
-  const zahlen = input.split(/\s+/).map(Number).filter(n => !isNaN(n));
-  if(zahlen.length===0){alert("Bitte Zahlen eingeben!"); return;}
 
-  // Finale Definitionen
-  const finale = {
-    1:[1,11,21,31],
-    2:[2,12,22,32],
-    3:[3,13,23,33],
-    4:[4,14,24,34],
-    5:[5,15,25,35],
-    6:[6,16,26,36],
-    7:[7,17,27],
-    8:[8,18,28],
-    9:[9,19,29],
-    10:[0]
-  };
+function analyse(){
 
-  let ergebnisseHTML = "<table><tr><th>Block</th><th>Finale</th><th>Zahlen gespielt</th><th>Treffer</th><th>Nicht-Treffer</th><th>Erfolg %</th><th>Einsatz</th></tr>";
+const text = document.getElementById("input").value;
+const numbers = text.match(/\b\d+\b/g)?.map(Number) || [];
 
-  let block=1; let i=0;
-  const blockErfolg = [];
-  const finaleTrefferDiagramm = {};
+if(numbers.length===0){alert("Keine Zahlen gefunden!"); return;}
 
-  while(i<zahlen.length){
-    const blockZahlen=zahlen.slice(i,i+12);
-    const einsatz=(block%3===0)?"Doppel":"Normal";
+const dateMatch = text.match(/\d{2}\.\d{2}\.\d{4}/);
+const date = dateMatch ? dateMatch[0] : "Unbekannt";
 
-    for(const f in finale){
-      const fZahlen=finale[f];
-      const getroffen=blockZahlen.filter(z=>fZahlen.includes(z));
-      const nichtGetroffen=fZahlen.length-getroffen.length;
-      const erfolg=(getroffen.length/fZahlen.length*100).toFixed(1);
-      ergebnisseHTML += `<tr>
-        <td>${block}</td>
-        <td>${f}</td>
-        <td>${blockZahlen.join(", ")}</td>
-        <td>${getroffen.join(", ")||"-"}</td>
-        <td>${nichtGetroffen}</td>
-        <td>${erfolg}%</td>
-        <td>${einsatz}</td>
-      </tr>`;
-      // für Diagramm
-      if(!finaleTrefferDiagramm[f]) finaleTrefferDiagramm[f]=[];
-      finaleTrefferDiagramm[f].push(getroffen.length);
-    }
+const tableMatch = text.match(/Touch Bet[^"]+/);
+const tableName = tableMatch ? tableMatch[0] : "Unbekannter Tisch";
 
-    block++;
-    i+=12;
-  }
-  ergebnisseHTML+="</table>";
-  document.getElementById('ergebnisse').innerHTML=ergebnisseHTML;
+const blockSize = 12;
+let blocks = [];
+for(let i=0;i<numbers.length;i+=blockSize){
+blocks.push(numbers.slice(i,i+blockSize));
+}
 
-  // Diagramm erstellen
-  const ctx = document.getElementById('diagramm').getContext('2d');
-  const labels=Object.keys(finale);
-  const datasets=[];
-  labels.forEach(f=>{
-    datasets.push({
-      label:`Finale ${f}`,
-      data:finaleTrefferDiagramm[f],
-      backgroundColor:`rgba(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},0.6)`
-    });
-  });
+let capital = 0;
+let capitalHistory = [];
+let bestBlock = 0;
+let worstBlock = 0;
+let bestValue = -999;
+let worstValue = 999;
 
-  new Chart(ctx,{
-    type:'bar',
-    data:{ labels: Array.from({length:block-1}, (_,k)=>"Block "+(k+1)), datasets: datasets },
-    options:{ responsive:true, plugins:{ legend:{position:'bottom'} } }
-  });
+blocks.forEach((block,index)=>{
+let hits = block.length; // jede Zahl zählt als Versuch
+let successRate = (hits / 12) * 100;
+let profit = hits - 6; // einfache Gewinnformel
+capital += profit;
+capitalHistory.push(capital);
 
+blocks[index].success = successRate.toFixed(1);
+blocks[index].profit = profit;
+
+if(successRate > bestValue){bestValue = successRate; bestBlock = index+1;}
+if(successRate < worstValue){worstValue = successRate; worstBlock = index+1;}
 });
+
+const totalSuccess = (blocks.reduce((a,b)=>a+parseFloat(b.success),0)/blocks.length).toFixed(1);
+
+document.getElementById("dashboard").innerHTML = `
+<div class="dashboard">
+<div class="card"><h2>Spieltag</h2><p>${date}</p></div>
+<div class="card"><h2>Tisch</h2><p>${tableName}</p></div>
+<div class="card"><h2>Blöcke</h2><p>${blocks.length}</p></div>
+<div class="card"><h2>Gesamt Erfolg</h2><p>${totalSuccess}%</p></div>
+<div class="card"><h2>Bester Block</h2><p>#${bestBlock}</p></div>
+<div class="card"><h2>Schlechtester Block</h2><p>#${worstBlock}</p></div>
+</div>
+`;
+
+const ctx = document.getElementById("capitalChart").getContext("2d");
+new Chart(ctx,{
+type:"line",
+data:{
+labels: blocks.map((_,i)=>"Block "+(i+1)),
+datasets:[{
+label:"Kapitalentwicklung",
+data: capitalHistory,
+fill:false,
+borderColor:"#1e88e5",
+tension:0.1
+}]
+},
+options:{
+responsive:true,
+plugins:{legend:{position:"bottom"}}
+}
+});
+
+let blockHTML = `<div class="blocks">`;
+blocks.forEach((b,i)=>{
+let colorClass = "green";
+if(b.success < 50) colorClass="red";
+else if(b.success < 65) colorClass="yellow";
+
+blockHTML += `
+<div class="block ${colorClass}" onclick="toggleDetails(${i})">
+Block ${i+1}<br>${b.success}%
+</div>
+<div id="details${i}" class="details">
+<h3>Block ${i+1}</h3>
+<p>Zahlen: ${b.join(", ")}</p>
+<p>Gewinn/Verlust: ${b.profit}</p>
+<p>Erfolg: ${b.success}%</p>
+</div>
+`;
+});
+blockHTML += `</div>`;
+document.getElementById("blockContainer").innerHTML = blockHTML;
+
+}
+
+function toggleDetails(i){
+const el = document.getElementById("details"+i);
+el.style.display = el.style.display==="block" ? "none" : "block";
+}
+
 </script>
 
 </body>
