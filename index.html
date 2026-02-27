@@ -11,44 +11,40 @@ background:#0e1117;
 color:white;
 padding:20px;
 }
-
-h1{
-text-align:center;
-color:#4da6ff;
-}
-
+h1{text-align:center;color:#4da6ff;}
 textarea{
 width:100%;
-height:180px;
-font-size:16px;
+height:160px;
+font-size:15px;
 padding:10px;
 border-radius:10px;
 }
-
 button{
-padding:15px;
-font-size:18px;
-margin:10px 5px;
+padding:12px 20px;
+font-size:16px;
+margin:5px;
 border:none;
-border-radius:10px;
+border-radius:8px;
 cursor:pointer;
 background:#4da6ff;
 color:black;
 font-weight:bold;
 }
-
-button:hover{
-background:#3399ff;
-}
-
-.block{
+button:hover{background:#3399ff;}
+.card{
 background:#1b1f27;
 padding:15px;
 margin-top:15px;
 border-radius:10px;
 cursor:pointer;
 }
-
+.smallChart{
+width:300px;
+height:200px;
+background:white;
+border-radius:10px;
+margin-top:10px;
+}
 .modal{
 display:none;
 position:fixed;
@@ -60,23 +56,15 @@ background:rgba(0,0,0,0.9);
 overflow:auto;
 padding:40px;
 }
-
 .modal-content{
 background:#1b1f27;
 padding:20px;
 border-radius:15px;
 }
-
 .close{
-font-size:25px;
+font-size:22px;
 cursor:pointer;
 float:right;
-}
-
-canvas{
-background:white;
-border-radius:10px;
-margin-top:20px;
 }
 </style>
 </head>
@@ -84,152 +72,197 @@ margin-top:20px;
 
 <h1>🎰 FÜR BABA → Roulette Analyse Tool</h1>
 
-<textarea id="input" placeholder="Hier Permanenzen einfügen..."></textarea>
-<br>
-<button onclick="analysieren()">Analysieren</button>
+<textarea id="input" placeholder="Spieltag einfügen (mit Datum)..."></textarea><br>
+<button onclick="analyse()">Analysieren</button>
 <button onclick="resetAll()">Alles löschen</button>
 
-<div id="ergebnis"></div>
+<div id="overview"></div>
 
 <div id="modal" class="modal">
 <div class="modal-content">
-<span class="close" onclick="closeModal()">❌ Schließen</span>
-<div id="modalText"></div>
+<span class="close" onclick="closeModal()">❌</span>
+<div id="modalContent"></div>
 </div>
 </div>
 
 <script>
 
-function finalOf(n){
-if(n===0)return 0;
-return n%10;
-}
+let globalStats={
+totalEinsatz:0,
+totalGewinn:0,
+totalTreffer:0,
+totalNicht:0
+};
 
-function analysieren(){
+function finalOf(n){ if(n===0)return 0; return n%10; }
+
+function analyse(){
 
 let raw=document.getElementById("input").value;
 let zahlen=raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g);
 if(!zahlen){alert("Keine Zahlen erkannt");return;}
 zahlen=zahlen.map(Number);
 
-let ergebnisDiv=document.getElementById("ergebnis");
-ergebnisDiv.innerHTML="";
+let overview=document.getElementById("overview");
+overview.innerHTML="";
 
 let blockNr=0;
+let tagEinsatz=0;
+let tagGewinn=0;
+let tagTreffer=0;
+let tagNicht=0;
 
 for(let start=0;start<zahlen.length;start+=60){
 
 blockNr++;
+let block=zahlen.slice(start,start+60);
+if(block.length<20)break;
 
-let blockZahlen=zahlen.slice(start,start+60);
-if(blockZahlen.length<20)break;
+let analyseIndex=20;
+let finale=[];
 
-let beobachtung=blockZahlen.slice(0,20);
-let countFinal={};
+while(true){
+
+let beobachtung=block.slice(0,analyseIndex);
+let count={};
+
 beobachtung.forEach(n=>{
 let f=finalOf(n);
-if(f!==0){
-countFinal[f]=(countFinal[f]||0)+1;
+if(f!==0){ count[f]=(count[f]||0)+1; }
+});
+
+finale=Object.keys(count).filter(f=>count[f]>=3);
+
+if(finale.length>=3)break;
+
+analyseIndex+=12;
+if(analyseIndex>=block.length)break;
+}
+
+if(finale.length<3)continue;
+
+let aktiveZahlen=[];
+finale.forEach(f=>{
+for(let i=0;i<=36;i++){
+if(finalOf(i)==f && i!=0)aktiveZahlen.push(i);
 }
 });
 
-let offeneFinale=Object.keys(countFinal).filter(f=>countFinal[f]>=3);
-
-if(offeneFinale.length<3)continue;
-
-let spielZahlen=blockZahlen.slice(20,32);
 let runde=1;
-let einsatzPlan=[1,1,2];
-let gesamtEinsatz=0;
-let gesamtTreffer=0;
-let gesamtNicht=0;
-let gewinn=0;
+let einsatzProZahl=1;
+let blockEinsatz=0;
+let blockGewinn=0;
+let blockTreffer=0;
+let blockNicht=0;
 
 let details="";
 
-spielZahlen.forEach((zahl,index)=>{
-let f=finalOf(zahl);
-let einsatz=einsatzPlan[Math.min(runde-1,2)];
-let wetten=offeneFinale.length;
+for(let i=analyseIndex;i<block.length;i++){
 
-gesamtEinsatz+=einsatz*wetten;
+if(aktiveZahlen.length===0)break;
 
-if(offeneFinale.includes(String(f))){
-gesamtTreffer++;
-gewinn+=einsatz*9 - (einsatz*(wetten-1));
-details+="Runde "+runde+": Zahl "+zahl+" → TREFFER | Einsatz "+einsatz+" pro Finale\n";
-offeneFinale=openeneNachTreffer(offeneFinale,f);
+if(runde>=3)einsatzProZahl=2;
+
+let zahl=block[i];
+
+let rundenEinsatz=aktiveZahlen.length*einsatzProZahl;
+blockEinsatz+=rundenEinsatz;
+
+if(aktiveZahlen.includes(zahl)){
+blockTreffer++;
+blockGewinn+=36*einsatzProZahl;
+aktiveZahlen=aktiveZahlen.filter(z=>z!=zahl);
+details+="Runde "+runde+" → "+zahl+" TREFFER | Einsatz "+rundenEinsatz+"E\n";
 }else{
-gesamtNicht++;
-gewinn-=einsatz*wetten;
-details+="Runde "+runde+": Zahl "+zahl+" → Nicht getroffen | Einsatz "+einsatz+" pro Finale\n";
+blockNicht++;
+details+="Runde "+runde+" → "+zahl+" Kein Treffer | Einsatz "+rundenEinsatz+"E\n";
 }
 
+blockGewinn-=rundenEinsatz;
 runde++;
-});
+}
 
-let quote=((gesamtTreffer/(gesamtTreffer+gesamtNicht))*100).toFixed(2);
+let netto=blockGewinn;
+let quote=((blockTreffer/(blockTreffer+blockNicht))*100 || 0).toFixed(2);
 
-let blockDiv=document.createElement("div");
-blockDiv.className="block";
-blockDiv.innerHTML="📦 Block "+blockNr+"<br>Trefferquote: "+quote+"%<br>Gewinn: "+gewinn+" Stücke";
-blockDiv.onclick=function(){
-openModal("BLOCK "+blockNr+
-"<br><br>Beobachtete 20 Zahlen:<br>"+beobachtung.join(", ")+
-"<br><br>Offene Finale:<br>"+offeneFinale.join(", ")+
-"<br><br>Gespielte 12 Zahlen:<br>"+spielZahlen.join(", ")+
-"<br><br>Treffer: "+gesamtTreffer+
-"<br>Nicht Treffer: "+gesamtNicht+
-"<br>Gesamteinsätze: "+gesamtEinsatz+
-"<br>Gewinn: "+gewinn+
-"<br><br>DETAILS:<br><pre>"+details+"</pre>");
+tagEinsatz+=blockEinsatz;
+tagGewinn+=netto;
+tagTreffer+=blockTreffer;
+tagNicht+=blockNicht;
+
+globalStats.totalEinsatz+=blockEinsatz;
+globalStats.totalGewinn+=netto;
+globalStats.totalTreffer+=blockTreffer;
+globalStats.totalNicht+=blockNicht;
+
+let card=document.createElement("div");
+card.className="card";
+card.innerHTML="<b>Block "+blockNr+"</b><br>"+
+"Trefferquote: "+quote+"%<br>"+
+"Einsatz: "+blockEinsatz+"E<br>"+
+"Gewinn: "+netto+"E";
+
+card.onclick=function(){
+openModal(
+"<h2>Block "+blockNr+"</h2>"+
+"<b>Analyse Zahlen:</b><br>"+block.slice(0,analyseIndex).join(", ")+"<br><br>"+
+"<b>Gespielt ab Zahl:</b> "+analyseIndex+"<br><br>"+
+"<b>Einsatz gesamt:</b> "+blockEinsatz+"E<br>"+
+"<b>Gewinn:</b> "+netto+"E<br>"+
+"<b>Treffer:</b> "+blockTreffer+"<br>"+
+"<b>Nicht Treffer:</b> "+blockNicht+"<br>"+
+"<pre>"+details+"</pre>"
+);
 };
 
-ergebnisDiv.appendChild(blockDiv);
+overview.appendChild(card);
 
-createChart(blockNr,gesamtTreffer,gesamtNicht);
-
-}
+createChart(blockNr,blockEinsatz,netto);
 
 }
 
-function openeneNachTreffer(arr,f){
-return arr.filter(x=>x!=f);
+let tagQuote=((tagTreffer/(tagTreffer+tagNicht))*100 || 0).toFixed(2);
+
+let summary=document.createElement("div");
+summary.className="card";
+summary.innerHTML="<h2>Spieltag Gesamt</h2>"+
+"Trefferquote: "+tagQuote+"%<br>"+
+"Einsatz Gesamt: "+tagEinsatz+"E<br>"+
+"Gewinn Gesamt: "+tagGewinn+"E";
+
+overview.prepend(summary);
+
 }
 
-function openModal(text){
-document.getElementById("modalText").innerHTML=text;
-document.getElementById("modal").style.display="block";
-}
-
-function closeModal(){
-document.getElementById("modal").style.display="none";
-}
-
-function resetAll(){
-document.getElementById("input").value="";
-document.getElementById("ergebnis").innerHTML="";
-}
-
-function createChart(nr,treffer,nicht){
+function createChart(nr,einsatz,gewinn){
 
 let canvas=document.createElement("canvas");
-canvas.id="chart"+nr;
-document.getElementById("ergebnis").appendChild(canvas);
+canvas.className="smallChart";
+document.getElementById("overview").appendChild(canvas);
 
 new Chart(canvas,{
 type:'bar',
 data:{
-labels:['Treffer','Nicht Treffer'],
-datasets:[{
-data:[treffer,nicht]
-}]
-}
+labels:['E gespielt','E Gewinn'],
+datasets:[{data:[einsatz,gewinn]}]
+},
+options:{plugins:{legend:{display:false}}}
 });
+}
 
+function openModal(text){
+document.getElementById("modalContent").innerHTML=text;
+document.getElementById("modal").style.display="block";
+}
+function closeModal(){
+document.getElementById("modal").style.display="none";
+}
+function resetAll(){
+document.getElementById("input").value="";
+document.getElementById("overview").innerHTML="";
+globalStats={totalEinsatz:0,totalGewinn:0,totalTreffer:0,totalNicht:0};
 }
 
 </script>
-
 </body>
 </html>
