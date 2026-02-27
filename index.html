@@ -2,140 +2,231 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>FÜR BABA -> Roulette Analyse Dashboard</title>
+<title>FÜR BABA → Roulette Analyse Tool</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body {font-family: Arial; margin:20px; background:#f2f4f8;}
-h1 {text-align:center;}
-textarea {width:100%; height:150px; font-size:14px;}
-button {width:100%; padding:15px; font-size:18px; background:#1e88e5; color:white; border:none; margin-top:10px; cursor:pointer;}
-.dashboard {display:flex; gap:20px; margin-top:20px; flex-wrap:wrap;}
-.card {flex:1; background:white; padding:20px; border-radius:10px; box-shadow:0 3px 10px rgba(0,0,0,0.1); text-align:center;}
-.card h2 {margin:0; font-size:18px; color:#555;}
-.card p {font-size:26px; margin:5px 0 0 0;}
-.blocks {display:flex; flex-wrap:wrap; gap:10px; margin-top:20px;}
-.block {padding:15px; border-radius:8px; color:white; cursor:pointer; width:120px; text-align:center;}
-.green {background:#4caf50;}
-.yellow {background:#ff9800;}
-.red {background:#f44336;}
-.details {display:none; background:white; padding:15px; margin-top:10px; border-radius:8px;}
-canvas {margin-top:30px; background:white; padding:20px; border-radius:10px;}
+body{
+font-family:Arial;
+background:#0e1117;
+color:white;
+padding:20px;
+}
+
+h1{
+text-align:center;
+color:#4da6ff;
+}
+
+textarea{
+width:100%;
+height:180px;
+font-size:16px;
+padding:10px;
+border-radius:10px;
+}
+
+button{
+padding:15px;
+font-size:18px;
+margin:10px 5px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+background:#4da6ff;
+color:black;
+font-weight:bold;
+}
+
+button:hover{
+background:#3399ff;
+}
+
+.block{
+background:#1b1f27;
+padding:15px;
+margin-top:15px;
+border-radius:10px;
+cursor:pointer;
+}
+
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.9);
+overflow:auto;
+padding:40px;
+}
+
+.modal-content{
+background:#1b1f27;
+padding:20px;
+border-radius:15px;
+}
+
+.close{
+font-size:25px;
+cursor:pointer;
+float:right;
+}
+
+canvas{
+background:white;
+border-radius:10px;
+margin-top:20px;
+}
 </style>
 </head>
 <body>
 
-<h1>FÜR BABA -> Roulette Analyse Dashboard</h1>
+<h1>🎰 FÜR BABA → Roulette Analyse Tool</h1>
 
-<textarea id="input" placeholder='Beispiel:
-Permanenzen: "Touch Bet Autom.Sp.2 vom 02.02.2026"
-28 19 15 20 33 2 7 11 25 30 14 ...'></textarea>
+<textarea id="input" placeholder="Hier Permanenzen einfügen..."></textarea>
+<br>
+<button onclick="analysieren()">Analysieren</button>
+<button onclick="resetAll()">Alles löschen</button>
 
-<button onclick="analyse()">Analyse starten</button>
+<div id="ergebnis"></div>
 
-<div id="dashboard"></div>
-<canvas id="capitalChart"></canvas>
-<div id="blockContainer"></div>
+<div id="modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeModal()">❌ Schließen</span>
+<div id="modalText"></div>
+</div>
+</div>
 
 <script>
 
-function analyse(){
-
-const text = document.getElementById("input").value;
-const numbers = text.match(/\b\d+\b/g)?.map(Number) || [];
-
-if(numbers.length===0){alert("Keine Zahlen gefunden!"); return;}
-
-const dateMatch = text.match(/\d{2}\.\d{2}\.\d{4}/);
-const date = dateMatch ? dateMatch[0] : "Unbekannt";
-
-const tableMatch = text.match(/Touch Bet[^"]+/);
-const tableName = tableMatch ? tableMatch[0] : "Unbekannter Tisch";
-
-const blockSize = 12;
-let blocks = [];
-for(let i=0;i<numbers.length;i+=blockSize){
-blocks.push(numbers.slice(i,i+blockSize));
+function finalOf(n){
+if(n===0)return 0;
+return n%10;
 }
 
-let capital = 0;
-let capitalHistory = [];
-let bestBlock = 0;
-let worstBlock = 0;
-let bestValue = -999;
-let worstValue = 999;
+function analysieren(){
 
-blocks.forEach((block,index)=>{
-let hits = block.length; // jede Zahl zählt als Versuch
-let successRate = (hits / 12) * 100;
-let profit = hits - 6; // einfache Gewinnformel
-capital += profit;
-capitalHistory.push(capital);
+let raw=document.getElementById("input").value;
+let zahlen=raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g);
+if(!zahlen){alert("Keine Zahlen erkannt");return;}
+zahlen=zahlen.map(Number);
 
-blocks[index].success = successRate.toFixed(1);
-blocks[index].profit = profit;
+let ergebnisDiv=document.getElementById("ergebnis");
+ergebnisDiv.innerHTML="";
 
-if(successRate > bestValue){bestValue = successRate; bestBlock = index+1;}
-if(successRate < worstValue){worstValue = successRate; worstBlock = index+1;}
+let blockNr=0;
+
+for(let start=0;start<zahlen.length;start+=60){
+
+blockNr++;
+
+let blockZahlen=zahlen.slice(start,start+60);
+if(blockZahlen.length<20)break;
+
+let beobachtung=blockZahlen.slice(0,20);
+let countFinal={};
+beobachtung.forEach(n=>{
+let f=finalOf(n);
+if(f!==0){
+countFinal[f]=(countFinal[f]||0)+1;
+}
 });
 
-const totalSuccess = (blocks.reduce((a,b)=>a+parseFloat(b.success),0)/blocks.length).toFixed(1);
+let offeneFinale=Object.keys(countFinal).filter(f=>countFinal[f]>=3);
 
-document.getElementById("dashboard").innerHTML = `
-<div class="dashboard">
-<div class="card"><h2>Spieltag</h2><p>${date}</p></div>
-<div class="card"><h2>Tisch</h2><p>${tableName}</p></div>
-<div class="card"><h2>Blöcke</h2><p>${blocks.length}</p></div>
-<div class="card"><h2>Gesamt Erfolg</h2><p>${totalSuccess}%</p></div>
-<div class="card"><h2>Bester Block</h2><p>#${bestBlock}</p></div>
-<div class="card"><h2>Schlechtester Block</h2><p>#${worstBlock}</p></div>
-</div>
-`;
+if(offeneFinale.length<3)continue;
 
-const ctx = document.getElementById("capitalChart").getContext("2d");
-new Chart(ctx,{
-type:"line",
+let spielZahlen=blockZahlen.slice(20,32);
+let runde=1;
+let einsatzPlan=[1,1,2];
+let gesamtEinsatz=0;
+let gesamtTreffer=0;
+let gesamtNicht=0;
+let gewinn=0;
+
+let details="";
+
+spielZahlen.forEach((zahl,index)=>{
+let f=finalOf(zahl);
+let einsatz=einsatzPlan[Math.min(runde-1,2)];
+let wetten=offeneFinale.length;
+
+gesamtEinsatz+=einsatz*wetten;
+
+if(offeneFinale.includes(String(f))){
+gesamtTreffer++;
+gewinn+=einsatz*9 - (einsatz*(wetten-1));
+details+="Runde "+runde+": Zahl "+zahl+" → TREFFER | Einsatz "+einsatz+" pro Finale\n";
+offeneFinale=openeneNachTreffer(offeneFinale,f);
+}else{
+gesamtNicht++;
+gewinn-=einsatz*wetten;
+details+="Runde "+runde+": Zahl "+zahl+" → Nicht getroffen | Einsatz "+einsatz+" pro Finale\n";
+}
+
+runde++;
+});
+
+let quote=((gesamtTreffer/(gesamtTreffer+gesamtNicht))*100).toFixed(2);
+
+let blockDiv=document.createElement("div");
+blockDiv.className="block";
+blockDiv.innerHTML="📦 Block "+blockNr+"<br>Trefferquote: "+quote+"%<br>Gewinn: "+gewinn+" Stücke";
+blockDiv.onclick=function(){
+openModal("BLOCK "+blockNr+
+"<br><br>Beobachtete 20 Zahlen:<br>"+beobachtung.join(", ")+
+"<br><br>Offene Finale:<br>"+offeneFinale.join(", ")+
+"<br><br>Gespielte 12 Zahlen:<br>"+spielZahlen.join(", ")+
+"<br><br>Treffer: "+gesamtTreffer+
+"<br>Nicht Treffer: "+gesamtNicht+
+"<br>Gesamteinsätze: "+gesamtEinsatz+
+"<br>Gewinn: "+gewinn+
+"<br><br>DETAILS:<br><pre>"+details+"</pre>");
+};
+
+ergebnisDiv.appendChild(blockDiv);
+
+createChart(blockNr,gesamtTreffer,gesamtNicht);
+
+}
+
+}
+
+function openeneNachTreffer(arr,f){
+return arr.filter(x=>x!=f);
+}
+
+function openModal(text){
+document.getElementById("modalText").innerHTML=text;
+document.getElementById("modal").style.display="block";
+}
+
+function closeModal(){
+document.getElementById("modal").style.display="none";
+}
+
+function resetAll(){
+document.getElementById("input").value="";
+document.getElementById("ergebnis").innerHTML="";
+}
+
+function createChart(nr,treffer,nicht){
+
+let canvas=document.createElement("canvas");
+canvas.id="chart"+nr;
+document.getElementById("ergebnis").appendChild(canvas);
+
+new Chart(canvas,{
+type:'bar',
 data:{
-labels: blocks.map((_,i)=>"Block "+(i+1)),
+labels:['Treffer','Nicht Treffer'],
 datasets:[{
-label:"Kapitalentwicklung",
-data: capitalHistory,
-fill:false,
-borderColor:"#1e88e5",
-tension:0.1
+data:[treffer,nicht]
 }]
-},
-options:{
-responsive:true,
-plugins:{legend:{position:"bottom"}}
 }
 });
 
-let blockHTML = `<div class="blocks">`;
-blocks.forEach((b,i)=>{
-let colorClass = "green";
-if(b.success < 50) colorClass="red";
-else if(b.success < 65) colorClass="yellow";
-
-blockHTML += `
-<div class="block ${colorClass}" onclick="toggleDetails(${i})">
-Block ${i+1}<br>${b.success}%
-</div>
-<div id="details${i}" class="details">
-<h3>Block ${i+1}</h3>
-<p>Zahlen: ${b.join(", ")}</p>
-<p>Gewinn/Verlust: ${b.profit}</p>
-<p>Erfolg: ${b.success}%</p>
-</div>
-`;
-});
-blockHTML += `</div>`;
-document.getElementById("blockContainer").innerHTML = blockHTML;
-
-}
-
-function toggleDetails(i){
-const el = document.getElementById("details"+i);
-el.style.display = el.style.display==="block" ? "none" : "block";
 }
 
 </script>
