@@ -3,48 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <title>FÜR BABA → Roulette Analyse Tool</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body{
-font-family:Arial;
-background:#0e1117;
-color:white;
+font-family: Arial, sans-serif;
+background:#f4f6f9;
+margin:0;
 padding:20px;
+color:#222;
 }
-h1{text-align:center;color:#4da6ff;}
-textarea{
-width:100%;
-height:160px;
-font-size:15px;
-padding:10px;
-border-radius:10px;
+
+h1{
+text-align:center;
 }
-button{
-padding:12px 20px;
-font-size:16px;
-margin:5px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-background:#4da6ff;
-color:black;
-font-weight:bold;
+
+.container{
+max-width:1200px;
+margin:auto;
 }
-button:hover{background:#3399ff;}
+
 .card{
-background:#1b1f27;
-padding:15px;
-margin-top:15px;
+background:white;
+padding:20px;
+margin-bottom:20px;
 border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+select,button{
+padding:10px;
+margin:5px 0;
+font-size:16px;
+}
+
+button{
+background:#1976d2;
+color:white;
+border:none;
+border-radius:6px;
 cursor:pointer;
 }
-.smallChart{
-width:300px;
-height:200px;
-background:white;
-border-radius:10px;
-margin-top:10px;
+
+button:hover{
+background:#125aa0;
 }
+
+.block{
+background:#e3f2fd;
+padding:10px;
+margin:5px 0;
+border-radius:6px;
+cursor:pointer;
+}
+
+.block:hover{
+background:#bbdefb;
+}
+
 .modal{
 display:none;
 position:fixed;
@@ -52,217 +67,188 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.9);
-overflow:auto;
-padding:40px;
+background:rgba(0,0,0,0.5);
 }
+
 .modal-content{
-background:#1b1f27;
+background:white;
+margin:5% auto;
 padding:20px;
-border-radius:15px;
+width:80%;
+max-height:80%;
+overflow:auto;
+border-radius:10px;
 }
-.close{
-font-size:22px;
-cursor:pointer;
-float:right;
+
+canvas{
+max-width:300px;
+max-height:200px;
 }
 </style>
 </head>
+
 <body>
 
-<h1>🎰 FÜR BABA → Roulette Analyse Tool</h1>
+<h1>FÜR BABA → Roulette Analyse Tool</h1>
 
-<textarea id="input" placeholder="Spieltag einfügen (mit Datum)..."></textarea><br>
-<button onclick="analyse()">Analysieren</button>
-<button onclick="resetAll()">Alles löschen</button>
+<div class="container">
 
-<div id="overview"></div>
+<div class="card">
+<textarea id="inputData" rows="8" style="width:100%;" placeholder="Hier komplette Monatsdaten einfügen..."></textarea>
+<br>
+<button onclick="verarbeiten()">Daten analysieren</button>
+</div>
 
-<div id="modal" class="modal">
+<div class="card">
+<select id="jahrSelect" onchange="updateMonate()"></select>
+<select id="monatSelect" onchange="updateTage()"></select>
+<select id="tagSelect" onchange="zeigeBloecke()"></select>
+</div>
+
+<div class="card" id="blockAnzeige"></div>
+
+</div>
+
+<div class="modal" id="detailModal">
 <div class="modal-content">
-<span class="close" onclick="closeModal()">❌</span>
-<div id="modalContent"></div>
+<button onclick="closeModal()">Schließen</button>
+<div id="detailInhalt"></div>
 </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 
-let globalStats={
-totalEinsatz:0,
-totalGewinn:0,
-totalTreffer:0,
-totalNicht:0
-};
+let datenStruktur={};
 
-function finalOf(n){ if(n===0)return 0; return n%10; }
+function verarbeiten(){
 
-function analyse(){
+datenStruktur={};
 
-let raw=document.getElementById("input").value;
-let zahlen=raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g);
-if(!zahlen){alert("Keine Zahlen erkannt");return;}
-zahlen=zahlen.map(Number);
+let text=document.getElementById("inputData").value;
 
-let overview=document.getElementById("overview");
-overview.innerHTML="";
+let tage=text.split("Permanenzen:");
 
-let blockNr=0;
-let tagEinsatz=0;
-let tagGewinn=0;
-let tagTreffer=0;
-let tagNicht=0;
+tage.forEach(t=>{
+if(t.includes("vom")){
+let datum=t.match(/\d{2}\.\d{2}\.\d{4}/);
+if(!datum)return;
 
-for(let start=0;start<zahlen.length;start+=60){
+let d=datum[0];
+let [tag,monat,jahr]=d.split(".");
 
-blockNr++;
+if(!datenStruktur[jahr])datenStruktur[jahr]={};
+if(!datenStruktur[jahr][monat])datenStruktur[jahr][monat]={};
+
+let zahlen=t.match(/\b\d+\b/g);
+if(!zahlen)return;
+
+zahlen=zahlen.map(z=>parseInt(z)).filter(z=>z<=36);
+
+datenStruktur[jahr][monat][tag]=zahlen;
+}
+});
+
+updateJahre();
+alert("Daten erfolgreich eingelesen");
+}
+
+function updateJahre(){
+let jahrSelect=document.getElementById("jahrSelect");
+jahrSelect.innerHTML="<option>Jahr wählen</option>";
+
+Object.keys(datenStruktur).forEach(j=>{
+jahrSelect.innerHTML+=`<option value="${j}">${j}</option>`;
+});
+}
+
+function updateMonate(){
+let jahr=document.getElementById("jahrSelect").value;
+let monatSelect=document.getElementById("monatSelect");
+monatSelect.innerHTML="<option>Monat wählen</option>";
+
+if(!datenStruktur[jahr])return;
+
+Object.keys(datenStruktur[jahr]).forEach(m=>{
+monatSelect.innerHTML+=`<option value="${m}">${m}</option>`;
+});
+}
+
+function updateTage(){
+let jahr=document.getElementById("jahrSelect").value;
+let monat=document.getElementById("monatSelect").value;
+let tagSelect=document.getElementById("tagSelect");
+tagSelect.innerHTML="<option>Tag wählen</option>";
+
+if(!datenStruktur[jahr]||!datenStruktur[jahr][monat])return;
+
+Object.keys(datenStruktur[jahr][monat]).forEach(t=>{
+tagSelect.innerHTML+=`<option value="${t}">${t}.${monat}.${jahr}</option>`;
+});
+}
+
+function zeigeBloecke(){
+let jahr=document.getElementById("jahrSelect").value;
+let monat=document.getElementById("monatSelect").value;
+let tag=document.getElementById("tagSelect").value;
+
+let zahlen=datenStruktur[jahr][monat][tag];
+let blockDiv=document.getElementById("blockAnzeige");
+blockDiv.innerHTML="";
+
+for(let i=0;i<zahlen.length;i+=60){
+let block=zahlen.slice(i,i+60);
+let blockNr=(i/60)+1;
+
+blockDiv.innerHTML+=`
+<div class="block" onclick="zeigeDetail('${jahr}','${monat}','${tag}',${blockNr})">
+Block ${blockNr} (60 Zahlen)
+</div>
+`;
+}
+}
+
+function zeigeDetail(jahr,monat,tag,blockNr){
+
+let zahlen=datenStruktur[jahr][monat][tag];
+let start=(blockNr-1)*60;
 let block=zahlen.slice(start,start+60);
-if(block.length<20)break;
 
-let analyseIndex=20;
-let finale=[];
+let gesEinsatz=block.length;
+let gewinn=0;
 
-while(true){
-
-let beobachtung=block.slice(0,analyseIndex);
-let count={};
-
-beobachtung.forEach(n=>{
-let f=finalOf(n);
-if(f!==0){ count[f]=(count[f]||0)+1; }
+block.forEach(z=>{
+if(z===0)gewinn-=1;
 });
 
-finale=Object.keys(count).filter(f=>count[f]>=3);
+let html=`
+<h2>Detail Block ${blockNr}</h2>
+<p>Gesamt Zahlen: ${block.length}</p>
+<p>Einsatz: ${gesEinsatz} E</p>
+<p>Gewinn/Verlust: ${gewinn} E</p>
+<canvas id="chart"></canvas>
+`;
 
-if(finale.length>=3)break;
+document.getElementById("detailInhalt").innerHTML=html;
+document.getElementById("detailModal").style.display="block";
 
-analyseIndex+=12;
-if(analyseIndex>=block.length)break;
-}
-
-if(finale.length<3)continue;
-
-let aktiveZahlen=[];
-finale.forEach(f=>{
-for(let i=0;i<=36;i++){
-if(finalOf(i)==f && i!=0)aktiveZahlen.push(i);
-}
-});
-
-let runde=1;
-let einsatzProZahl=1;
-let blockEinsatz=0;
-let blockGewinn=0;
-let blockTreffer=0;
-let blockNicht=0;
-
-let details="";
-
-for(let i=analyseIndex;i<block.length;i++){
-
-if(aktiveZahlen.length===0)break;
-
-if(runde>=3)einsatzProZahl=2;
-
-let zahl=block[i];
-
-let rundenEinsatz=aktiveZahlen.length*einsatzProZahl;
-blockEinsatz+=rundenEinsatz;
-
-if(aktiveZahlen.includes(zahl)){
-blockTreffer++;
-blockGewinn+=36*einsatzProZahl;
-aktiveZahlen=aktiveZahlen.filter(z=>z!=zahl);
-details+="Runde "+runde+" → "+zahl+" TREFFER | Einsatz "+rundenEinsatz+"E\n";
-}else{
-blockNicht++;
-details+="Runde "+runde+" → "+zahl+" Kein Treffer | Einsatz "+rundenEinsatz+"E\n";
-}
-
-blockGewinn-=rundenEinsatz;
-runde++;
-}
-
-let netto=blockGewinn;
-let quote=((blockTreffer/(blockTreffer+blockNicht))*100 || 0).toFixed(2);
-
-tagEinsatz+=blockEinsatz;
-tagGewinn+=netto;
-tagTreffer+=blockTreffer;
-tagNicht+=blockNicht;
-
-globalStats.totalEinsatz+=blockEinsatz;
-globalStats.totalGewinn+=netto;
-globalStats.totalTreffer+=blockTreffer;
-globalStats.totalNicht+=blockNicht;
-
-let card=document.createElement("div");
-card.className="card";
-card.innerHTML="<b>Block "+blockNr+"</b><br>"+
-"Trefferquote: "+quote+"%<br>"+
-"Einsatz: "+blockEinsatz+"E<br>"+
-"Gewinn: "+netto+"E";
-
-card.onclick=function(){
-openModal(
-"<h2>Block "+blockNr+"</h2>"+
-"<b>Analyse Zahlen:</b><br>"+block.slice(0,analyseIndex).join(", ")+"<br><br>"+
-"<b>Gespielt ab Zahl:</b> "+analyseIndex+"<br><br>"+
-"<b>Einsatz gesamt:</b> "+blockEinsatz+"E<br>"+
-"<b>Gewinn:</b> "+netto+"E<br>"+
-"<b>Treffer:</b> "+blockTreffer+"<br>"+
-"<b>Nicht Treffer:</b> "+blockNicht+"<br>"+
-"<pre>"+details+"</pre>"
-);
-};
-
-overview.appendChild(card);
-
-createChart(blockNr,blockEinsatz,netto);
-
-}
-
-let tagQuote=((tagTreffer/(tagTreffer+tagNicht))*100 || 0).toFixed(2);
-
-let summary=document.createElement("div");
-summary.className="card";
-summary.innerHTML="<h2>Spieltag Gesamt</h2>"+
-"Trefferquote: "+tagQuote+"%<br>"+
-"Einsatz Gesamt: "+tagEinsatz+"E<br>"+
-"Gewinn Gesamt: "+tagGewinn+"E";
-
-overview.prepend(summary);
-
-}
-
-function createChart(nr,einsatz,gewinn){
-
-let canvas=document.createElement("canvas");
-canvas.className="smallChart";
-document.getElementById("overview").appendChild(canvas);
-
-new Chart(canvas,{
-type:'bar',
+new Chart(document.getElementById("chart"),{
+type:"bar",
 data:{
-labels:['E gespielt','E Gewinn'],
-datasets:[{data:[einsatz,gewinn]}]
-},
-options:{plugins:{legend:{display:false}}}
+labels:["Einsatz","Gewinn"],
+datasets:[{
+data:[gesEinsatz,gewinn]
+}]
+}
 });
 }
 
-function openModal(text){
-document.getElementById("modalContent").innerHTML=text;
-document.getElementById("modal").style.display="block";
-}
 function closeModal(){
-document.getElementById("modal").style.display="none";
-}
-function resetAll(){
-document.getElementById("input").value="";
-document.getElementById("overview").innerHTML="";
-globalStats={totalEinsatz:0,totalGewinn:0,totalTreffer:0,totalNicht:0};
+document.getElementById("detailModal").style.display="none";
 }
 
 </script>
+
 </body>
 </html>
