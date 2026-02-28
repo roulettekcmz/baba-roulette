@@ -2,23 +2,25 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>FÜR BABA → Roulette Analyse Tool</title>
+<title>FÜR BABA → Roulette Analyse System</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{
-font-family: Arial, sans-serif;
-background:#f4f6f9;
+font-family:Arial, sans-serif;
+background:#f4f7fa;
 margin:0;
-padding:20px;
-color:#222;
+padding:30px;
 }
 
 h1{
 text-align:center;
+margin-bottom:30px;
 }
 
 .container{
-max-width:1200px;
+max-width:1300px;
 margin:auto;
 }
 
@@ -27,37 +29,33 @@ background:white;
 padding:20px;
 margin-bottom:20px;
 border-radius:10px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
-select,button{
+select{
 padding:10px;
-margin:5px 0;
-font-size:16px;
-}
-
-button{
-background:#1976d2;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-button:hover{
-background:#125aa0;
+margin-right:15px;
+margin-bottom:10px;
+font-size:15px;
 }
 
 .block{
 background:#e3f2fd;
-padding:10px;
-margin:5px 0;
+padding:12px;
+margin:8px 0;
 border-radius:6px;
 cursor:pointer;
+font-weight:bold;
 }
 
 .block:hover{
 background:#bbdefb;
+}
+
+.message{
+font-weight:bold;
+color:#c62828;
+margin-top:15px;
 }
 
 .modal{
@@ -67,43 +65,51 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.5);
+background:rgba(0,0,0,0.6);
 }
 
 .modal-content{
 background:white;
 margin:5% auto;
 padding:20px;
-width:80%;
-max-height:80%;
+width:85%;
+max-height:85%;
 overflow:auto;
 border-radius:10px;
 }
 
-canvas{
-max-width:300px;
-max-height:200px;
+.closeBtn{
+background:#c62828;
+color:white;
+padding:8px 12px;
+border:none;
+border-radius:5px;
+cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h1>FÜR BABA → Roulette Analyse Tool</h1>
+<h1>FÜR BABA → Roulette Analyse System</h1>
 
 <div class="container">
 
 <div class="card">
-<textarea id="inputData" rows="8" style="width:100%;" placeholder="Hier komplette Monatsdaten einfügen..."></textarea>
-<br>
-<button onclick="verarbeiten()">Daten analysieren</button>
+<label>Tisch:</label>
+<select id="tisch"></select>
+
+<label>Jahr:</label>
+<select id="jahr"></select>
+
+<label>Monat:</label>
+<select id="monat"></select>
+
+<label>Tag:</label>
+<select id="tag"></select>
 </div>
 
-<div class="card">
-<select id="jahrSelect" onchange="updateMonate()"></select>
-<select id="monatSelect" onchange="updateTage()"></select>
-<select id="tagSelect" onchange="zeigeBloecke()"></select>
-</div>
+<div class="card" id="übersicht"></div>
 
 <div class="card" id="blockAnzeige"></div>
 
@@ -111,126 +117,151 @@ max-height:200px;
 
 <div class="modal" id="detailModal">
 <div class="modal-content">
-<button onclick="closeModal()">Schließen</button>
+<button class="closeBtn" onclick="closeModal()">Schließen</button>
 <div id="detailInhalt"></div>
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 
-let datenStruktur={};
+let daten = {};
 
-function verarbeiten(){
-
-datenStruktur={};
-
-let text=document.getElementById("inputData").value;
-
-let tage=text.split("Permanenzen:");
-
-tage.forEach(t=>{
-if(t.includes("vom")){
-let datum=t.match(/\d{2}\.\d{2}\.\d{4}/);
-if(!datum)return;
-
-let d=datum[0];
-let [tag,monat,jahr]=d.split(".");
-
-if(!datenStruktur[jahr])datenStruktur[jahr]={};
-if(!datenStruktur[jahr][monat])datenStruktur[jahr][monat]={};
-
-let zahlen=t.match(/\b\d+\b/g);
-if(!zahlen)return;
-
-zahlen=zahlen.map(z=>parseInt(z)).filter(z=>z<=36);
-
-datenStruktur[jahr][monat][tag]=zahlen;
-}
+fetch("datenbank.json")
+.then(res=>res.json())
+.then(json=>{
+daten=json;
+initJahre();
 });
 
-updateJahre();
-alert("Daten erfolgreich eingelesen");
-}
+function initJahre(){
+let jahrSelect=document.getElementById("jahr");
+jahrSelect.innerHTML="<option value=''>Wählen</option>";
 
-function updateJahre(){
-let jahrSelect=document.getElementById("jahrSelect");
-jahrSelect.innerHTML="<option>Jahr wählen</option>";
-
-Object.keys(datenStruktur).forEach(j=>{
+Object.keys(daten).sort().forEach(j=>{
 jahrSelect.innerHTML+=`<option value="${j}">${j}</option>`;
 });
 }
 
+document.getElementById("jahr").onchange=function(){
+updateTische();
+};
+
+document.getElementById("tisch").onchange=function(){
+updateMonate();
+};
+
+document.getElementById("monat").onchange=function(){
+updateTage();
+};
+
+document.getElementById("tag").onchange=function(){
+anzeigen();
+};
+
+function updateTische(){
+let jahr=document.getElementById("jahr").value;
+let tischSelect=document.getElementById("tisch");
+tischSelect.innerHTML="<option value=''>Wählen</option>";
+
+if(!daten[jahr]){
+zeigeMeldung("Noch keine Daten vorhanden.");
+return;
+}
+
+Object.keys(daten[jahr]).forEach(t=>{
+tischSelect.innerHTML+=`<option value="${t}">${t}</option>`;
+});
+}
+
 function updateMonate(){
-let jahr=document.getElementById("jahrSelect").value;
-let monatSelect=document.getElementById("monatSelect");
-monatSelect.innerHTML="<option>Monat wählen</option>";
+let jahr=document.getElementById("jahr").value;
+let tisch=document.getElementById("tisch").value;
+let monatSelect=document.getElementById("monat");
+monatSelect.innerHTML="<option value=''>Wählen</option>";
 
-if(!datenStruktur[jahr])return;
+if(!daten[jahr]||!daten[jahr][tisch]) return;
 
-Object.keys(datenStruktur[jahr]).forEach(m=>{
+Object.keys(daten[jahr][tisch]).sort().forEach(m=>{
 monatSelect.innerHTML+=`<option value="${m}">${m}</option>`;
 });
 }
 
 function updateTage(){
-let jahr=document.getElementById("jahrSelect").value;
-let monat=document.getElementById("monatSelect").value;
-let tagSelect=document.getElementById("tagSelect");
-tagSelect.innerHTML="<option>Tag wählen</option>";
+let jahr=document.getElementById("jahr").value;
+let tisch=document.getElementById("tisch").value;
+let monat=document.getElementById("monat").value;
+let tagSelect=document.getElementById("tag");
+tagSelect.innerHTML="<option value=''>Wählen</option>";
 
-if(!datenStruktur[jahr]||!datenStruktur[jahr][monat])return;
+if(!daten[jahr]||!daten[jahr][tisch]||!daten[jahr][tisch][monat]) return;
 
-Object.keys(datenStruktur[jahr][monat]).forEach(t=>{
-tagSelect.innerHTML+=`<option value="${t}">${t}.${monat}.${jahr}</option>`;
+Object.keys(daten[jahr][tisch][monat]).sort().forEach(t=>{
+tagSelect.innerHTML+=`<option value="${t}">${t}</option>`;
 });
 }
 
-function zeigeBloecke(){
-let jahr=document.getElementById("jahrSelect").value;
-let monat=document.getElementById("monatSelect").value;
-let tag=document.getElementById("tagSelect").value;
+function anzeigen(){
 
-let zahlen=datenStruktur[jahr][monat][tag];
+let jahr=document.getElementById("jahr").value;
+let tisch=document.getElementById("tisch").value;
+let monat=document.getElementById("monat").value;
+let tag=document.getElementById("tag").value;
+
+let ausgabe=document.getElementById("übersicht");
 let blockDiv=document.getElementById("blockAnzeige");
+
 blockDiv.innerHTML="";
 
-for(let i=0;i<zahlen.length;i+=60){
-let block=zahlen.slice(i,i+60);
-let blockNr=(i/60)+1;
+if(!daten[jahr]||!daten[jahr][tisch]||!daten[jahr][tisch][monat]||!daten[jahr][tisch][monat][tag]){
+zeigeMeldung("Keine Permanenzen an diesem Tag.");
+return;
+}
 
+let zahlen=daten[jahr][tisch][monat][tag];
+
+if(zahlen.length===0){
+zeigeMeldung("Keine Permanenzen an diesem Tag.");
+return;
+}
+
+let blocks=Math.ceil(zahlen.length/60);
+
+ausgabe.innerHTML=
+"<b>Gesamt Zahlen:</b> "+zahlen.length+
+"<br><b>Anzahl Blöcke (60 Zahlen):</b> "+blocks;
+
+for(let i=0;i<blocks;i++){
+let blockNr=i+1;
 blockDiv.innerHTML+=`
-<div class="block" onclick="zeigeDetail('${jahr}','${monat}','${tag}',${blockNr})">
-Block ${blockNr} (60 Zahlen)
+<div class="block" onclick="zeigeDetail('${jahr}','${tisch}','${monat}','${tag}',${blockNr})">
+Block ${blockNr}
 </div>
 `;
 }
 }
 
-function zeigeDetail(jahr,monat,tag,blockNr){
+function zeigeDetail(jahr,tisch,monat,tag,blockNr){
 
-let zahlen=datenStruktur[jahr][monat][tag];
+let zahlen=daten[jahr][tisch][monat][tag];
 let start=(blockNr-1)*60;
 let block=zahlen.slice(start,start+60);
 
-let gesEinsatz=block.length;
-let gewinn=0;
+let einsatz=block.length;
+let treffer=0;
 
 block.forEach(z=>{
-if(z===0)gewinn-=1;
+if(z===0) treffer++;
 });
 
-let html=`
-<h2>Detail Block ${blockNr}</h2>
-<p>Gesamt Zahlen: ${block.length}</p>
-<p>Einsatz: ${gesEinsatz} E</p>
-<p>Gewinn/Verlust: ${gewinn} E</p>
-<canvas id="chart"></canvas>
-`;
+let gewinn=treffer*36-einsatz;
 
-document.getElementById("detailInhalt").innerHTML=html;
+document.getElementById("detailInhalt").innerHTML=
+"<h2>Block "+blockNr+"</h2>"+
+"<b>Einsatz:</b> "+einsatz+" E<br>"+
+"<b>Treffer:</b> "+treffer+"<br>"+
+"<b>Gewinn / Verlust:</b> "+gewinn+" E<br><br>"+
+"<canvas id='chart'></canvas>";
+
 document.getElementById("detailModal").style.display="block";
 
 new Chart(document.getElementById("chart"),{
@@ -238,7 +269,7 @@ type:"bar",
 data:{
 labels:["Einsatz","Gewinn"],
 datasets:[{
-data:[gesEinsatz,gewinn]
+data:[einsatz,gewinn]
 }]
 }
 });
@@ -246,6 +277,11 @@ data:[gesEinsatz,gewinn]
 
 function closeModal(){
 document.getElementById("detailModal").style.display="none";
+}
+
+function zeigeMeldung(text){
+document.getElementById("übersicht").innerHTML=
+"<div class='message'>"+text+"</div>";
 }
 
 </script>
