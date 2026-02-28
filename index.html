@@ -85,6 +85,13 @@ margin-top:10px;
 
 let daten={};
 
+// Mapping Anzeige → Originalname
+const tischMapping = {
+"TB AS1": "Touch Bet Autom.Sp.1",
+"TB AS2": "Touch Bet Autom.Sp.2",
+"TB R": "Touch Bet Raucher"
+};
+
 fetch("datenbank.json")
 .then(res=>res.json())
 .then(json=>{
@@ -94,38 +101,30 @@ init();
 
 function init(){
 
-// Zeitraum fest definieren
+// Zeitraum fest
 document.getElementById("von").min="2020-01-01";
 document.getElementById("von").max="2026-02-28";
 document.getElementById("bis").min="2020-01-01";
 document.getElementById("bis").max="2026-02-28";
 
-// Jahre füllen
+// Jahre fest definieren
 let jahrSelect=document.getElementById("jahr");
 jahrSelect.innerHTML="<option value=''>Wählen</option>";
-
 for(let j=2020;j<=2026;j++){
 jahrSelect.innerHTML+=`<option value="${j}">${j}</option>`;
 }
 
-// Tische sammeln
-let tischeSet=new Set();
-Object.values(daten).forEach(jahr=>{
-Object.keys(jahr).forEach(t=>tischeSet.add(t));
-});
-
+// Tische fest definieren
 let tischSelect=document.getElementById("tisch");
 tischSelect.innerHTML="<option value=''>Wählen</option>";
-tischeSet.forEach(t=>{
+Object.keys(tischMapping).forEach(t=>{
 tischSelect.innerHTML+=`<option value="${t}">${t}</option>`;
 });
 }
 
 document.getElementById("jahr").onchange=function(){
-let jahr=this.value;
 let monatSelect=document.getElementById("monat");
 monatSelect.innerHTML="<option value=''>Wählen</option>";
-
 for(let m=1;m<=12;m++){
 let mm=m.toString().padStart(2,"0");
 monatSelect.innerHTML+=`<option value="${mm}">${mm}</option>`;
@@ -135,7 +134,6 @@ monatSelect.innerHTML+=`<option value="${mm}">${mm}</option>`;
 document.getElementById("monat").onchange=function(){
 let tagSelect=document.getElementById("tag");
 tagSelect.innerHTML="<option value=''>Wählen</option>";
-
 for(let t=1;t<=31;t++){
 let tt=t.toString().padStart(2,"0");
 tagSelect.innerHTML+=`<option value="${tt}">${tt}</option>`;
@@ -144,43 +142,45 @@ tagSelect.innerHTML+=`<option value="${tt}">${tt}</option>`;
 
 function auswerten(){
 
-let tisch=document.getElementById("tisch").value;
+let tischAnzeige=document.getElementById("tisch").value;
 let modus=document.getElementById("modus").value;
 let jahr=document.getElementById("jahr").value;
 let monat=document.getElementById("monat").value;
 let tag=document.getElementById("tag").value;
 
-let zahlen=[];
-
-if(!tisch){
+if(!tischAnzeige){
 zeige("Bitte Tisch auswählen.");
 return;
 }
 
+let tischOriginal = tischMapping[tischAnzeige];
+
+let zahlen=[];
+
 if(modus==="tag"){
-if(!daten[jahr]||!daten[jahr][tisch]||!daten[jahr][tisch][monat]||!daten[jahr][tisch][monat][tag]){
+if(!daten[jahr]||!daten[jahr][tischOriginal]||!daten[jahr][tischOriginal][monat]||!daten[jahr][tischOriginal][monat][tag]){
 zeige("Keine Permanenzen an diesem Tag.");
 return;
 }
-zahlen=daten[jahr][tisch][monat][tag];
+zahlen=daten[jahr][tischOriginal][monat][tag];
 }
 
 if(modus==="monat"){
-if(!daten[jahr]||!daten[jahr][tisch]||!daten[jahr][tisch][monat]){
+if(!daten[jahr]||!daten[jahr][tischOriginal]||!daten[jahr][tischOriginal][monat]){
 zeige("Keine Daten vorhanden.");
 return;
 }
-Object.values(daten[jahr][tisch][monat]).forEach(arr=>{
+Object.values(daten[jahr][tischOriginal][monat]).forEach(arr=>{
 zahlen=zahlen.concat(arr);
 });
 }
 
 if(modus==="jahr"){
-if(!daten[jahr]||!daten[jahr][tisch]){
+if(!daten[jahr]||!daten[jahr][tischOriginal]){
 zeige("Keine Daten vorhanden.");
 return;
 }
-Object.values(daten[jahr][tisch]).forEach(monatObj=>{
+Object.values(daten[jahr][tischOriginal]).forEach(monatObj=>{
 Object.values(monatObj).forEach(arr=>{
 zahlen=zahlen.concat(arr);
 });
@@ -190,17 +190,16 @@ zahlen=zahlen.concat(arr);
 if(modus==="zeitraum"){
 let von=new Date(document.getElementById("von").value);
 let bis=new Date(document.getElementById("bis").value);
-
 if(!von||!bis){zeige("Zeitraum auswählen.");return;}
 
 for(let j=2020;j<=2026;j++){
-if(!daten[j]||!daten[j][tisch])continue;
+if(!daten[j]||!daten[j][tischOriginal])continue;
 
-Object.keys(daten[j][tisch]).forEach(m=>{
-Object.keys(daten[j][tisch][m]).forEach(t=>{
+Object.keys(daten[j][tischOriginal]).forEach(m=>{
+Object.keys(daten[j][tischOriginal][m]).forEach(t=>{
 let datum=new Date(j+"-"+m+"-"+t);
 if(datum>=von && datum<=bis){
-zahlen=zahlen.concat(daten[j][tisch][m][t]);
+zahlen=zahlen.concat(daten[j][tischOriginal][m][t]);
 }
 });
 });
@@ -212,12 +211,12 @@ zeige("Keine Permanenzen gefunden.");
 return;
 }
 
-// 60er Block
 let blocks=Math.ceil(zahlen.length/60);
 
 zeige(
-"Gesamt Zahlen: "+zahlen.length+
-"<br>60er Blöcke: "+blocks
+"<b>Tisch:</b> "+tischAnzeige+
+"<br><b>Gesamt Zahlen:</b> "+zahlen.length+
+"<br><b>60er Blöcke:</b> "+blocks
 );
 }
 
