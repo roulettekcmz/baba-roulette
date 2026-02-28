@@ -1,230 +1,741 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>FÜR BABA → Roulette Analyse System</title>
+<meta charset="utf-8" />
+<title>FÜR BABA → Roulette Analyse System (Final)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-body{
-font-family:Arial;
-background:#f4f7fa;
-padding:30px;
-}
-h1{text-align:center;}
-.card{
-background:white;
-padding:20px;
-margin-bottom:20px;
-border-radius:10px;
-box-shadow:0 3px 8px rgba(0,0,0,0.08);
-}
-select,input{
-padding:8px;
-margin:5px;
-}
-button{
-padding:8px 14px;
-background:#1976d2;
-color:white;
-border:none;
-border-radius:5px;
-cursor:pointer;
-}
-button:hover{
-background:#125aa0;
-}
-.message{
-color:#c62828;
-font-weight:bold;
-margin-top:10px;
-}
+  /* --- Design: hell, professionell, klar --- */
+  :root{--accent:#1976d2;--card:#ffffff;--bg:#f4f7fa;--muted:#666;}
+  body{font-family:Inter,ui-sans-serif,system-ui,Arial; margin:0; background:var(--bg); color:#111;}
+  header{background:var(--card); padding:18px 28px; box-shadow:0 2px 6px rgba(0,0,0,0.06);}
+  header h1{margin:0; font-size:20px; color:var(--accent);}
+  .wrap{max-width:1200px; margin:20px auto; padding:0 16px;}
+  .grid{display:grid; grid-template-columns: 320px 1fr; gap:18px;}
+  .card{background:var(--card); border-radius:10px; padding:14px; box-shadow:0 2px 8px rgba(18,18,18,0.04);}
+  label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px;}
+  select,input,textarea{width:100%; padding:8px 10px; font-size:14px; border-radius:8px; border:1px solid #e2e8f0; box-sizing:border-box;}
+  button.primary{background:var(--accent); color:#fff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; margin-top:8px;}
+  .controls-row{display:flex; gap:10px; align-items:center;}
+  .small{font-size:13px; color:var(--muted);}
+  .blocks-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-top:12px;}
+  .block-card{background:#fff; border:1px solid #e6eefc; padding:10px; border-radius:8px; cursor:pointer; transition:transform .12s ease; box-shadow:0 1px 4px rgba(16,24,40,0.04);}
+  .block-card:hover{transform:translateY(-4px);}
+  .block-title{font-weight:700; color:#0b5ed7;}
+  .muted{color:var(--muted); font-size:13px;}
+  .stats-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;}
+  .stat-pill{background:#f4f8ff; padding:8px 10px; border-radius:8px; font-weight:600; color:#08306b;}
+  .message{padding:10px; border-radius:8px; background:#fff3cd; border:1px solid #ffeeba; color:#856404; margin-top:10px;}
+  /* modal */
+  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); z-index:9999;}
+  .modal .panel{width:95%; max-width:1000px; max-height:90vh; overflow:auto; background:var(--card); padding:18px; border-radius:10px;}
+  .close-btn{float:right; border:none; background:#efefef; padding:6px 10px; border-radius:8px; cursor:pointer;}
+  table{width:100%; border-collapse:collapse; margin-top:10px;}
+  th,td{padding:8px; border-bottom:1px solid #f0f2f5; text-align:left; font-size:13px;}
+  .explain{font-size:13px; color:#333; margin-top:12px; line-height:1.45;}
+  .chart-inline{width:260px; height:150px;}
+  footer{margin-top:18px; font-size:13px; color:var(--muted);}
 </style>
 </head>
-
 <body>
+<header>
+  <div class="wrap">
+    <h1>FÜR BABA → Roulette Analyse System — final</h1>
+  </div>
+</header>
 
-<h1>FÜR BABA → Roulette Analyse System</h1>
+<div class="wrap">
+  <div class="grid">
+    <!-- Sidebar: Auswahl / Filter -->
+    <div class="card">
+      <label>Quelle: datenbank.json geladen</label>
+      <div class="small">Tisch:</div>
+      <select id="tischSelect"></select>
 
-<div class="card">
-<label>Tisch:</label>
-<select id="tisch"></select>
+      <div style="height:10px;"></div>
 
-<label>Auswertung:</label>
-<select id="modus">
-<option value="tag">Einzelner Tag</option>
-<option value="monat">Ganzer Monat</option>
-<option value="jahr">Ganzes Jahr</option>
-<option value="zeitraum">Zeitraum wählen</option>
-</select>
-<br>
+      <label>Auswertungs-Modus</label>
+      <select id="modeSelect" title="Wähle Tag / Monat / Jahr / Zeitraum">
+        <option value="tag">Einzelner Tag</option>
+        <option value="monat">Ganzer Monat</option>
+        <option value="jahr">Ganzes Jahr</option>
+        <option value="zeitraum">Zeitraum (von/bis)</option>
+      </select>
 
-<label>Jahr:</label>
-<select id="jahr"></select>
+      <div style="height:10px;"></div>
 
-<label>Monat:</label>
-<select id="monat"></select>
+      <label>Jahr</label>
+      <select id="jahrSelect"></select>
 
-<label>Tag:</label>
-<select id="tag"></select>
+      <label>Monat</label>
+      <select id="monatSelect"></select>
 
-<br>
+      <label>Tag</label>
+      <select id="tagSelect"></select>
 
-<label>Von:</label>
-<input type="date" id="von">
-<label>Bis:</label>
-<input type="date" id="bis">
+      <div style="height:8px;"></div>
 
-<br><br>
-<button onclick="auswerten()">Auswerten</button>
+      <label>Zeitraum (wenn Modus=Zeitraum)</label>
+      <input id="vonDate" type="date"/>
+      <input id="bisDate" type="date" style="margin-top:8px;" />
+
+      <div style="height:10px;"></div>
+
+      <label class="small">Einheit-E (Einsatz pro Zahl im 1. & 2. Block). In Runde 3 wird 2×E eingesetzt.</label>
+      <input id="Einput" type="number" min="0.01" step="0.01" value="1"/>
+
+      <button class="primary" id="runBtn">Auswerten</button>
+
+      <div style="height:14px;"></div>
+
+      <label class="small">Optional: Rohdaten (zum schnellen Testen) — 1 oder mehrere 60er Blöcke, Zahlen getrennt durch Leer/Zeilen</label>
+      <textarea id="rawInput" placeholder="28 19 15 20 ... (optional)"></textarea>
+      <button id="useRawBtn" style="margin-top:8px;">Rohdaten verwenden</button>
+
+      <div style="height:12px;"></div>
+      <div class="muted">Hinweis: datenbank.json muss im gleichen Ordner liegen. Sie enthält alle Jahre / Tische / Monate / Tage.</div>
+    </div>
+
+    <!-- Main -->
+    <div>
+      <div class="card" id="summaryCard">
+        <div class="stats-row" id="topStats"></div>
+        <div id="summaryMessage" class="muted">Wähle Tisch + Zeitraum + Auswertungsmodus, dann "Auswerten".</div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Blöcke</h3>
+        <div id="blocksContainer" class="blocks-list">
+          <!-- Block-Kacheln werden hier erzeugt -->
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Regeln (was das Programm 1:1 umgesetzt hat)</h3>
+        <div class="explain" id="rulesExplained">
+          <!-- Dynamisch gefüllt -->
+        </div>
+      </div>
+
+      <footer>
+        Erstellt basierend auf dem Chat: Systemregeln umgesetzt — 60er-Blöcke, Beobachtung 20 (+12), Auswahl 3–5 Finale, 3 Runden, Einsatzverdopplung in Runde 3, Auflösungsregel (3er→1, 4er→2), 0-Ausnahme, jede gesetzte Zahl = 1 Versuch.
+      </footer>
+    </div>
+  </div>
 </div>
 
-<div class="card" id="ergebnis"></div>
+<!-- Modal detail -->
+<div id="modal" class="modal">
+  <div class="panel">
+    <button class="close-btn" onclick="closeModal()">Schließen</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
 
 <script>
+/* ============================================================
+   FÜR BABA - Final Implementation
+   ============================================================
+   - Lädt datenbank.json (ein großes JSON mit allen Jahren)
+   - Mapping: Text-Tischnamen -> Anzeige TB AS1 / TB AS2 / TB R
+   - Wahl: Jahr/Monat/Tag/Zeitraum
+   - Verarbeitung: 60er-Blöcke, Beobachtung, Auswahl Finales, 3 Runden
+   - Exakte Profit- & Trefferberechnung in Einheit E
+   - Detaillierte Block-Modal mit allem (Versuche, Treffer, % ...)
+   ============================================================ */
 
-let daten={};
-
-// Mapping Anzeige → Originalname
-const tischMapping = {
-"TB AS1": "Touch Bet Autom.Sp.1",
-"TB AS2": "Touch Bet Autom.Sp.2",
-"TB R": "Touch Bet Raucher"
+/* --- Finale Definition (0-9) --- */
+const FINALES = {
+  "0":[0],
+  "1":[1,11,21,31],
+  "2":[2,12,22,32],
+  "3":[3,13,23,33],
+  "4":[4,14,24,34],
+  "5":[5,15,25,35],
+  "6":[6,16,26,36],
+  "7":[7,17,27],
+  "8":[8,18,28],
+  "9":[9,19,29]
 };
 
+/* Tisch mapping (Anzeige -> Original key in datenbank.json) */
+const TISCH_MAP = {
+  "TB AS1": "Touch Bet Autom.Sp.1",
+  "TB AS2": "Touch Bet Autom.Sp.2",
+  "TB R":   "Touch Bet Raucher"
+};
+
+/* Global data store */
+let DATABANK = {}; // wird durch datenbank.json gefüllt
+
+/* UI Elemente */
+const tischSelect = document.getElementById("tischSelect");
+const jahrSelect = document.getElementById("jahrSelect");
+const monatSelect = document.getElementById("monatSelect");
+const tagSelect = document.getElementById("tagSelect");
+const modeSelect = document.getElementById("modeSelect");
+const vonDate = document.getElementById("vonDate");
+const bisDate = document.getElementById("bisDate");
+const runBtn = document.getElementById("runBtn");
+const blocksContainer = document.getElementById("blocksContainer");
+const summaryMessage = document.getElementById("summaryMessage");
+const topStats = document.getElementById("topStats");
+const rulesExplained = document.getElementById("rulesExplained");
+const Einput = document.getElementById("Einput");
+const rawInput = document.getElementById("rawInput");
+const useRawBtn = document.getElementById("useRawBtn");
+
+/* Modal */
+const modal = document.getElementById("modal");
+const modalContent = document.getElementById("modalContent");
+
+/* Load datenbank.json automatically */
 fetch("datenbank.json")
-.then(res=>res.json())
-.then(json=>{
-daten=json;
-init();
-});
+  .then(r => {
+    if(!r.ok) throw new Error("datenbank.json nicht gefunden. Bitte hochladen.");
+    return r.json();
+  })
+  .then(json => {
+    DATABANK = json;
+    initUI();
+    renderRules();
+  })
+  .catch(err => {
+    summaryMessage.innerHTML = "<div class='message'>Fehler beim Laden von datenbank.json — bitte in Repo hochladen oder prüfen.<br><small>"+err.message+"</small></div>";
+    // trotzdem initialisiere UI minimal, damit Rohdaten getestet werden können
+    initUI(true);
+    renderRules();
+  });
 
-function init(){
+/* Initialize UI dropdowns */
+function initUI(fallback=false){
+  // fill tisch select with mapped names
+  tischSelect.innerHTML = "<option value=''>Tisch wählen</option>";
+  Object.keys(TISCH_MAP).forEach(k => {
+    tischSelect.innerHTML += `<option value="${k}">${k}</option>`;
+  });
 
-// Zeitraum fest
-document.getElementById("von").min="2020-01-01";
-document.getElementById("von").max="2026-02-28";
-document.getElementById("bis").min="2020-01-01";
-document.getElementById("bis").max="2026-02-28";
+  // Jahre fixed 2020..2026 (as requested)
+  jahrSelect.innerHTML = "<option value=''>Jahr</option>";
+  for(let y=2020; y<=2026; y++){
+    jahrSelect.innerHTML += `<option value="${y}">${y}</option>`;
+  }
 
-// Jahre fest definieren
-let jahrSelect=document.getElementById("jahr");
-jahrSelect.innerHTML="<option value=''>Wählen</option>";
-for(let j=2020;j<=2026;j++){
-jahrSelect.innerHTML+=`<option value="${j}">${j}</option>`;
+  // set min/max for von/bis
+  vonDate.min = "2020-01-01"; vonDate.max = "2026-02-28";
+  bisDate.min = "2020-01-01"; bisDate.max = "2026-02-28";
+
+  // events
+  jahrSelect.onchange = onJahrChange;
+  monatSelect.onchange = onMonatChange;
+  runBtn.onclick = onRun;
+  useRawBtn.onclick = onUseRaw;
+  modeSelect.onchange = onModeChange;
 }
 
-// Tische fest definieren
-let tischSelect=document.getElementById("tisch");
-tischSelect.innerHTML="<option value=''>Wählen</option>";
-Object.keys(tischMapping).forEach(t=>{
-tischSelect.innerHTML+=`<option value="${t}">${t}</option>`;
-});
+/* Mode change toggles visibility/enablement of date selects */
+function onModeChange(){
+  const mode = modeSelect.value;
+  if(mode === "zeitraum"){
+    vonDate.disabled = false; bisDate.disabled = false;
+    tagSelect.disabled = true; monatSelect.disabled = true; jahrSelect.disabled = false;
+  } else if(mode === "jahr"){
+    vonDate.disabled = true; bisDate.disabled = true;
+    jahrSelect.disabled = false; monatSelect.disabled = true; tagSelect.disabled = true;
+  } else if(mode === "monat"){
+    vonDate.disabled = true; bisDate.disabled = true;
+    jahrSelect.disabled = false; monatSelect.disabled = false; tagSelect.disabled = true;
+  } else { // tag
+    vonDate.disabled = true; bisDate.disabled = true;
+    jahrSelect.disabled = false; monatSelect.disabled = false; tagSelect.disabled = false;
+  }
 }
 
-document.getElementById("jahr").onchange=function(){
-let monatSelect=document.getElementById("monat");
-monatSelect.innerHTML="<option value=''>Wählen</option>";
-for(let m=1;m<=12;m++){
-let mm=m.toString().padStart(2,"0");
-monatSelect.innerHTML+=`<option value="${mm}">${mm}</option>`;
-}
-};
-
-document.getElementById("monat").onchange=function(){
-let tagSelect=document.getElementById("tag");
-tagSelect.innerHTML="<option value=''>Wählen</option>";
-for(let t=1;t<=31;t++){
-let tt=t.toString().padStart(2,"0");
-tagSelect.innerHTML+=`<option value="${tt}">${tt}</option>`;
-}
-};
-
-function auswerten(){
-
-let tischAnzeige=document.getElementById("tisch").value;
-let modus=document.getElementById("modus").value;
-let jahr=document.getElementById("jahr").value;
-let monat=document.getElementById("monat").value;
-let tag=document.getElementById("tag").value;
-
-if(!tischAnzeige){
-zeige("Bitte Tisch auswählen.");
-return;
+/* when year changes -> populate months (01..12) */
+function onJahrChange(){
+  const y = jahrSelect.value;
+  monatSelect.innerHTML = "<option value=''>Monat</option>";
+  for(let m=1; m<=12; m++){
+    const mm = String(m).padStart(2,"0");
+    monatSelect.innerHTML += `<option value="${mm}">${mm}</option>`;
+  }
+  tagSelect.innerHTML = "<option value=''>Tag</option>";
 }
 
-let tischOriginal = tischMapping[tischAnzeige];
-
-let zahlen=[];
-
-if(modus==="tag"){
-if(!daten[jahr]||!daten[jahr][tischOriginal]||!daten[jahr][tischOriginal][monat]||!daten[jahr][tischOriginal][monat][tag]){
-zeige("Keine Permanenzen an diesem Tag.");
-return;
-}
-zahlen=daten[jahr][tischOriginal][monat][tag];
+/* when month changes -> populate days 01..31 (we'll check for actual days at runtime) */
+function onMonatChange(){
+  tagSelect.innerHTML = "<option value=''>Tag</option>";
+  for(let d=1; d<=31; d++){
+    const dd = String(d).padStart(2,"0");
+    tagSelect.innerHTML += `<option value="${dd}">${dd}</option>`;
+  }
 }
 
-if(modus==="monat"){
-if(!daten[jahr]||!daten[jahr][tischOriginal]||!daten[jahr][tischOriginal][monat]){
-zeige("Keine Daten vorhanden.");
-return;
-}
-Object.values(daten[jahr][tischOriginal][monat]).forEach(arr=>{
-zahlen=zahlen.concat(arr);
-});
-}
-
-if(modus==="jahr"){
-if(!daten[jahr]||!daten[jahr][tischOriginal]){
-zeige("Keine Daten vorhanden.");
-return;
-}
-Object.values(daten[jahr][tischOriginal]).forEach(monatObj=>{
-Object.values(monatObj).forEach(arr=>{
-zahlen=zahlen.concat(arr);
-});
-});
+/* Use raw numbers from textarea (quick testing) */
+function onUseRaw(){
+  const raw = rawInput.value.trim();
+  if(!raw) { alert("Bitte Zahlen in das Rohdaten-Feld einfügen."); return; }
+  // parse digits
+  const nums = raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g);
+  if(!nums) { alert("Keine gültigen Zahlen gefunden."); return; }
+  // create single fake block in data structure, allow user to analyze it directly
+  const fake = nums.map(n=>Number(n));
+  // show blocks based on this array
+  analyzeAndRenderBlocksFromArray(fake);
 }
 
-if(modus==="zeitraum"){
-let von=new Date(document.getElementById("von").value);
-let bis=new Date(document.getElementById("bis").value);
-if(!von||!bis){zeige("Zeitraum auswählen.");return;}
+/* Main runner when user clicks Auswerten */
+function onRun(){
+  // determine numbers array based on selections or timeframe or raw
+  const tischDisplay = tischSelect.value;
+  if(!tischDisplay){ alert("Bitte einen Tisch auswählen."); return; }
+  const tischOriginal = TISCH_MAP[tischDisplay];
+  const mode = modeSelect.value;
+  const E = parseFloat(Einput.value) || 1;
 
-for(let j=2020;j<=2026;j++){
-if(!daten[j]||!daten[j][tischOriginal])continue;
+  let numbers = [];
 
-Object.keys(daten[j][tischOriginal]).forEach(m=>{
-Object.keys(daten[j][tischOriginal][m]).forEach(t=>{
-let datum=new Date(j+"-"+m+"-"+t);
-if(datum>=von && datum<=bis){
-zahlen=zahlen.concat(daten[j][tischOriginal][m][t]);
+  if(rawInput.value.trim()){
+    // raw input takes precedence
+    const nums = rawInput.value.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g);
+    if(!nums){ alert("Keine gültigen Zahlen in Rohdaten."); return; }
+    numbers = nums.map(n=>Number(n));
+    analyzeAndRenderBlocksFromArray(numbers, E, tischDisplay);
+    return;
+  }
+
+  // else we must fetch from DATABANK according to mode
+  if(mode === "tag"){
+    const jahr = jahrSelect.value;
+    const monat = monatSelect.value;
+    const tag = tagSelect.value;
+    if(!jahr || !monat || !tag){ alert("Bitte Jahr, Monat und Tag wählen."); return; }
+    if(!DATABANK[jahr] || !DATABANK[jahr][tischOriginal] || !DATABANK[jahr][tischOriginal][monat] || !DATABANK[jahr][tischOriginal][monat][tag]){
+      alert("Keine Permanenzen an diesem Tag.");
+      return;
+    }
+    numbers = DATABANK[jahr][tischOriginal][monat][tag].slice();
+    analyzeAndRenderBlocksFromArray(numbers, E, tischDisplay, {year:jahr, month:monat, day:tag});
+    return;
+  }
+
+  if(mode === "monat"){
+    const jahr = jahrSelect.value;
+    const monat = monatSelect.value;
+    if(!jahr || !monat){ alert("Bitte Jahr und Monat wählen."); return; }
+    if(!DATABANK[jahr] || !DATABANK[jahr][tischOriginal] || !DATABANK[jahr][tischOriginal][monat]){
+      alert("Keine Daten für diesen Monat.");
+      return;
+    }
+    Object.values(DATABANK[jahr][tischOriginal][monat]).forEach(arr => numbers = numbers.concat(arr));
+    analyzeAndRenderBlocksFromArray(numbers, E, tischDisplay, {year:jahr, month:monat});
+    return;
+  }
+
+  if(mode === "jahr"){
+    const jahr = jahrSelect.value;
+    if(!jahr){ alert("Bitte Jahr wählen."); return; }
+    if(!DATABANK[jahr] || !DATABANK[jahr][tischOriginal]){ alert("Keine Daten für dieses Jahr."); return; }
+    Object.values(DATABANK[jahr][tischOriginal]).forEach(monthObj => {
+      Object.values(monthObj).forEach(arr => numbers = numbers.concat(arr));
+    });
+    analyzeAndRenderBlocksFromArray(numbers, E, tischDisplay, {year:jahr});
+    return;
+  }
+
+  if(mode === "zeitraum"){
+    const v = vonDate.value, b = bisDate.value;
+    if(!v || !b){ alert("Bitte von- und bis-Datum wählen."); return; }
+    const von = new Date(v), bis = new Date(b);
+    if(von > bis){ alert("Startdatum darf nicht nach Enddatum sein."); return; }
+    // iterate all years 2020..2026 and pick dates in range
+    for(let j=2020;j<=2026;j++){
+      const js = String(j);
+      if(!DATABANK[js] || !DATABANK[js][tischOriginal]) continue;
+      Object.keys(DATABANK[js][tischOriginal]).forEach(m=>{
+        Object.keys(DATABANK[js][tischOriginal][m]).forEach(t=>{
+          // make date object
+          const date = new Date(`${js}-${m}-${t}`);
+          if(date >= von && date <= bis){
+            numbers = numbers.concat(DATABANK[js][tischOriginal][m][t]);
+          }
+        });
+      });
+    }
+    if(numbers.length === 0){ alert("Keine Permanenzen im gewählten Zeitraum."); return; }
+    analyzeAndRenderBlocksFromArray(numbers, E, tischDisplay, {from:v, to:b});
+    return;
+  }
 }
-});
-});
-}
+
+/* =========== Core: Analyze an array of numbers and render blocks =========== */
+function analyzeAndRenderBlocksFromArray(numbers, E = 1, tischDisplay = "Test", meta = {}) {
+  blocksContainer.innerHTML = "";
+  topStats.innerHTML = "";
+  summaryMessage.innerHTML = "<div class='muted'>Analysiere...</div>";
+
+  // split into 60er blocks
+  const blocks = [];
+  for(let i=0;i<numbers.length;i+=60){
+    blocks.push(numbers.slice(i,i+60));
+  }
+  if(blocks.length === 0){ summaryMessage.innerHTML = "<div class='message'>Keine Zahlen vorhanden.</div>"; return; }
+
+  // global aggregator across all blocks in selection
+  let global = {
+    totalBlocks: blocks.length,
+    totalAttempts:0,
+    totalHits:0,
+    totalNetE:0
+  };
+
+  // For each block, run the simulation according to rules
+  blocks.forEach((blockNumbers, index) => {
+    const analysis = analyzeBlock(blockNumbers, E);
+    // create card shown in blocksContainer
+    const card = document.createElement("div");
+    card.className = "block-card";
+    const idx = index+1;
+    card.innerHTML = `<div class="block-title">Block ${idx} — ${blockNumbers.length} Coups</div>
+                      <div class="muted">Selected finales: ${analysis.selectedFinales.join(", ") || "—"}</div>
+                      <div style="margin-top:8px;">
+                        <span class="stat-pill">Versuche ges.: ${analysis.totalAttempts}</span>
+                        <span class="stat-pill">Treffer ges.: ${analysis.totalHits}</span>
+                        <span class="stat-pill">Erfolg %: ${analysis.totalSuccessPct}%</span>
+                        <span class="stat-pill">Netto (E): ${analysis.netE.toFixed(2)}</span>
+                      </div>`;
+    card.onclick = ()=> openModalForBlock(analysis, blockNumbers, idx, E, tischDisplay, meta);
+    blocksContainer.appendChild(card);
+
+    // update global
+    global.totalAttempts += analysis.totalAttempts;
+    global.totalHits += analysis.totalHits;
+    global.totalNetE += analysis.netE;
+  });
+
+  // top summary
+  const totalPct = global.totalAttempts ? ((global.totalHits / global.totalAttempts) * 100).toFixed(2) : "0.00";
+  topStats.innerHTML = `
+    <div class="stat-pill">Blöcke: ${blocks.length}</div>
+    <div class="stat-pill">Versuche ges.: ${global.totalAttempts}</div>
+    <div class="stat-pill">Treffer ges.: ${global.totalHits}</div>
+    <div class="stat-pill">Erfolg ges.: ${totalPct}%</div>
+    <div class="stat-pill">Netto ges. (E): ${global.totalNetE.toFixed(2)}</div>
+  `;
+  summaryMessage.innerHTML = `<div class="muted">Auswertung fertig — ${blocks.length} Block(s) analysiert. Meta: ${JSON.stringify(meta)}</div>`;
 }
 
-if(zahlen.length===0){
-zeige("Keine Permanenzen gefunden.");
-return;
+/* -------- Analyze a single block (<=60 numbers) according to the full rules ---------- */
+/* Returns an object with all details for rendering & export */
+function analyzeBlock(blockNumbers, E){
+  // We'll produce:
+  // - selectedFinales: array of finale IDs selected for play (strings: "1","4","7","0"...)
+  // - rounds: array of rounds executed (1..3), each with attempts, hits, hitPct, stakeSpent, payout, netE
+  // - totalAttempts, totalHits, totalSuccessPct, netE
+
+  // Helper
+  const clone = arr => arr.slice();
+
+  // Observed numbers = first 20, but we may extend by +12 repeatedly if not enough finales >=3 open
+  let obsEnd = Math.min(20, blockNumbers.length);
+  let observed = new Set(blockNumbers.slice(0, obsEnd));
+
+  // Function to compute number-open counts for each finale based on observed set
+  const openCounts = (obsSet) => {
+    const res = {};
+    Object.keys(FINALES).forEach(f=>{
+      const numbers = FINALES[f];
+      let fell = 0;
+      for(const n of numbers) if(obsSet.has(n)) fell++;
+      res[f] = numbers.length - fell; // open count
+    });
+    return res;
+  };
+
+  // Extend observation by 12 until at least 3 finales (excluding 0) have openCount >=3 or exhaust
+  let open = openCounts(observed);
+  const MAX_INDEX = blockNumbers.length;
+  while(true){
+    // compute eligible finales (exclude "0" from this count)
+    const eligible = Object.keys(open).filter(f=>f!=="0" && open[f] >= 3);
+    if(eligible.length >= 3) break;
+    // need to extend observation by 12
+    if(obsEnd >= MAX_INDEX) break;
+    const add = Math.min(12, MAX_INDEX - obsEnd);
+    for(let i=obsEnd; i<obsEnd+add; i++) observed.add(blockNumbers[i]);
+    obsEnd += add;
+    open = openCounts(observed);
+  }
+
+  // If still fewer than 3 finales >=3 open after exhausting block -> no play
+  let candidateFinales = Object.keys(open).filter(f => f!=="0" && open[f] >= 3);
+
+  // Selection: choose up to 5 finales with highest open count, tie-breaker by numeric id
+  candidateFinales.sort((a,b)=> {
+    if(open[b] !== open[a]) return open[b]-open[a];
+    return Number(a)-Number(b);
+  });
+
+  let selected = candidateFinales.slice(0,5);
+
+  // If 0 did NOT appear in the very first 20 observed numbers (the initial base 20)
+  // then rule: add 0 as additional finale to play (if not already selected & selection size < 5)
+  const first20set = new Set(blockNumbers.slice(0, Math.min(20, blockNumbers.length)));
+  if(first20set.has(0) === false && selected.indexOf("0") === -1 && selected.length < 5){
+    selected.push("0");
+  }
+
+  // If still fewer than 3 selected, then there is no play (shouldn't happen because we extended obs until 3 exist).
+  if(selected.length < 3){
+    // no playable block
+    return {
+      selectedFinales: selected,
+      totalAttempts: 0,
+      totalHits: 0,
+      totalSuccessPct: "0.00",
+      netE: 0,
+      rounds: [],
+      note: "Nicht genügend finale (>=3 offene Zahlen) gefunden — Block nicht gespielt."
+    };
+  }
+
+  // Now start playing rounds. Rules:
+  // - Round 1: 12 spins starting at obsEnd index, stake per number = E, requires at least 3 finales at start.
+  // - Round 2: next 12 spins, stake = E, requires at least 2 finales active.
+  // - Round 3: next 12 spins, stake = 2E, requires at least 2 finales active. After round3 stop.
+  // Important: "During 12-coup round, no finale is resolved" -> activeNumbers for a round determined at round start (numbers not yet occurred).
+  // After each round, apply Auflösungsregel: 3er finale -> if >=1 numbers of that finale occurred in that round => finale removed; 4er finale -> if >=2 numbers occurred => removed.
+  // Additional rule: if in Round1 none of the finales had any hits -> stop overall.
+
+  let rounds = [];
+  let occurred = new Set(Array.from(first20set)); // numbers already occurred in observation (start)
+  // note: if obsEnd > 20 because we extended observation, we included those in 'observed' and initial occurred set? According to rules, we only treat the observed numbers as "occurred", yes. So set occurred to all observed numbers.
+  occurred = new Set(observed);
+
+  // convert selected to numeric arrays (open numbers are numbers in finale minus those that already occurred)
+  let activeFinales = clone(selected); // string ids
+
+  let currentIndex = obsEnd; // index where play starts
+  const roundsToDo = 3;
+  const roundSpinCount = 12;
+  let totalAttempts = 0, totalHits = 0, netE = 0;
+
+  for(let r=1; r<=roundsToDo; r++){
+    // pre-round checks
+    // before round1 require >=3 finales (applies to the 'entry' only) - we already ensured selected.length >=3
+    if(r===2 || r===3){
+      // require at least 2 active finales before starting round
+      if(activeFinales.length < 2){
+        // stop
+        break;
+      }
+    } else {
+      // r===1, ensure selected length >=3 by rule (already true)
+      if(activeFinales.length < 3){ break; }
+    }
+
+    // determine stake per number for this round
+    const stake = (r>=3) ? 2*E : E;
+
+    // determine active numbers (numbers that are open and not yet occurred)
+    const activeNumbersSet = new Set();
+    const activeFinaleOpenMap = {}; // finale id -> array of open numbers at start of round
+    activeFinales.forEach(f=>{
+      const numbers = FINALES[f];
+      const openNums = numbers.filter(n => !occurred.has(n)); // not yet occurred
+      if(openNums.length>0){
+        activeFinaleOpenMap[f] = openNums.slice();
+        openNums.forEach(n=>activeNumbersSet.add(n));
+      } else {
+        // if none open, finale effectively exhausted -> should be removed
+        activeFinaleOpenMap[f] = [];
+      }
+    });
+
+    const activeNumbers = Array.from(activeNumbersSet);
+
+    // if no numbers to bet (all already occurred), stop
+    if(activeNumbers.length === 0){
+      break;
+    }
+
+    // number of spins available for this round (may be fewer than 12 if block is short)
+    const spinsAvailable = Math.min(roundSpinCount, Math.max(0, blockNumbers.length - currentIndex));
+    if(spinsAvailable <= 0) break;
+
+    // During the round, activeNumbersSet remains constant (no resolution)
+    let roundAttempts = 0, roundHits = 0, roundPayout = 0, roundStake = 0;
+    // record per-finale hits in this round (for post-round removal)
+    const finaleHitsThisRound = {};
+    activeFinales.forEach(f=> finaleHitsThisRound[f]=0);
+
+    for(let s=0; s<spinsAvailable; s++){
+      const spinNumber = blockNumbers[currentIndex + s];
+      // each spin we placed stake on every active number
+      const stakeThisSpin = activeNumbers.length * stake;
+      roundStake += stakeThisSpin;
+      // attempts: each active number counted as attempt per spin
+      roundAttempts += activeNumbers.length;
+      // if spin number is one of activeNumbers => wins equal to stake for that number; BUT also if same number is among multiple finales? Not possible because finales partitions numbers by value -> a number maps to exactly one finale.
+      if(activeNumbersSet.has(spinNumber)){
+        // determine which finale this number belongs to
+        // find finale
+        let hitFinale = null;
+        for(const f of activeFinales){
+          if(FINALES[f].includes(spinNumber)){
+            hitFinale = f; break;
+          }
+        }
+        // payout for hitting this number: 36 * stake (stake is per number)
+        roundPayout += 36 * stake;
+        roundHits += 1;
+        if(hitFinale) finaleHitsThisRound[hitFinale] = (finaleHitsThisRound[hitFinale]||0) + 1;
+      }
+      // add spin number to occurred (it affects next rounds)
+      occurred.add(spinNumber);
+    } // end spins
+
+    currentIndex += spinsAvailable;
+
+    const roundNet = roundPayout - roundStake;
+    totalAttempts += roundAttempts;
+    totalHits += roundHits;
+    netE += roundNet;
+
+    // store round info
+    const roundInfo = {
+      round: r,
+      spins: spinsAvailable,
+      activeFinales: clone(activeFinales),
+      activeNumbers: activeNumbers.slice(),
+      attempts: roundAttempts,
+      hits: roundHits,
+      hitPct: roundAttempts ? ((roundHits / roundAttempts) * 100).toFixed(2) : "0.00",
+      stakeSpent: roundStake,
+      payout: roundPayout,
+      netE: roundNet,
+      finaleHitsThisRound: Object.assign({}, finaleHitsThisRound)
+    };
+    rounds.push(roundInfo);
+
+    // special rule: if in round1 no finales got any hits => stop entirely
+    if(r===1 && roundHits === 0){
+      break;
+    }
+
+    // After the round, apply Auflösungsregel to remove finales
+    // For each finale: if 3er -> if finaleHitsThisRound[f] >=1 -> remove; if 4er -> if finaleHitsThisRound[f] >=2 -> remove
+    const newActive = [];
+    activeFinales.forEach(f=>{
+      const size = FINALES[f].length;
+      const hits = finaleHitsThisRound[f] || 0;
+      let remove = false;
+      if(size === 3 && hits >= 1) remove = true;
+      if(size === 4 && hits >= 2) remove = true;
+      // also if all numbers of that finale already occurred -> remove
+      const remainingOpen = FINALES[f].filter(n => !occurred.has(n));
+      if(remainingOpen.length === 0) remove = true;
+
+      if(!remove) newActive.push(f);
+    });
+    activeFinales = newActive;
+    // next round continues with updated activeFinales
+  } // end rounds loop
+
+  const totalSuccessPct = totalAttempts ? ((totalHits / totalAttempts) * 100).toFixed(2) : "0.00";
+
+  return {
+    selectedFinales: selected,
+    rounds: rounds,
+    totalAttempts: totalAttempts,
+    totalHits: totalHits,
+    totalSuccessPct: totalSuccessPct,
+    netE: netE
+  };
 }
 
-let blocks=Math.ceil(zahlen.length/60);
+/* ---------- Modal display for block detail ------------ */
+function openModalForBlock(analysis, blockNumbers, blockIndex, E, tischDisplay, meta){
+  // build modal HTML with full details
+  let html = `<h2>Block ${blockIndex} — Details</h2>`;
+  html += `<div class="muted">Tisch: ${tischDisplay} | Meta: ${JSON.stringify(meta)}</div>`;
+  html += `<p><b>Ausgewählte Finales:</b> ${analysis.selectedFinales.join(", ")}</p>`;
 
-zeige(
-"<b>Tisch:</b> "+tischAnzeige+
-"<br><b>Gesamt Zahlen:</b> "+zahlen.length+
-"<br><b>60er Blöcke:</b> "+blocks
-);
+  html += `<table><thead><tr><th>Runde</th><th>Spins</th><th>Einsatz (E)</th><th>Versuche</th><th>Treffer</th><th>Treffer %</th><th>Auszahlung</th><th>Netto (E)</th></tr></thead><tbody>`;
+  analysis.rounds.forEach(r=>{
+    html += `<tr>
+      <td>${r.round}</td>
+      <td>${r.spins}</td>
+      <td>${r.round === 3 ? "2×E" : "1×E"}</td>
+      <td>${r.attempts}</td>
+      <td>${r.hits}</td>
+      <td>${r.hitPct}%</td>
+      <td>${r.payout.toFixed(2)}</td>
+      <td>${r.netE.toFixed(2)}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+
+  html += `<p style="margin-top:10px;"><b>Block Gesamt:</b> Versuche=${analysis.totalAttempts}, Treffer=${analysis.totalHits}, Treffer %=${analysis.totalSuccessPct}%, Netto E=${analysis.netE.toFixed(2)}</p>`;
+
+  // show which numbers were in block
+  html += `<h4>Zahlen (Block)</h4>`;
+  html += `<p class="muted">${blockNumbers.join(", ")}</p>`;
+
+  // add tiny chart: attempts vs hits vs netE
+  html += `<div style="display:flex; gap:12px; margin-top:12px;"><canvas id="miniChart" class="chart-inline"></canvas></div>`;
+
+  modalContent.innerHTML = html;
+  modal.style.display = "flex";
+
+  // draw chart
+  const ctx = document.getElementById("miniChart").getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Versuche','Treffer','Netto E'],
+      datasets: [{
+        label: 'Block',
+        data: [analysis.totalAttempts, analysis.totalHits, analysis.netE],
+        backgroundColor: ['#8fb9ff','#4caf50','#ffd966']
+      }]
+    },
+    options: { plugins:{legend:{display:false}} }
+  });
 }
 
-function zeige(text){
-document.getElementById("ergebnis").innerHTML="<div class='message'>"+text+"</div>";
+function closeModal(){
+  modal.style.display = "none";
+  modalContent.innerHTML = "";
 }
 
+/* Render rules explanation (clear list of implemented rules) */
+function renderRules(){
+  const text = `
+  <b>Regeln, 1:1 aus dem Chat umgesetzt:</b>
+  <ol>
+    <li>Bearbeitung erfolgt in 60er-Blöcken; nach jedem 60. Coup Neu-Start.</li>
+    <li>Beobachtung: erste 20 Coups ohne Einsatz. Falls nicht mindestens 3 Finales mit ≥3 offenen Zahlen (0 ausgenommen), werden weitere 12 Coups beobachtet; das wiederholt sich, bis ≥3 Finales vorhanden oder Block erschöpft ist.</li>
+    <li>Finales: 0–9 (0 ist isoliert; 3er-Finales: 7,8,9; 4er-Finales: 1–6).</li>
+    <li>Ist 0 in den ersten 20 Coups nicht gefallen, wird Finale 0 zusätzlich in die Auswahl aufgenommen (wenn Platz, max. 5 Finales).</li>
+    <li>Auswahl: es werden 3–5 Finales gespielt (max. 5). Auswahl basiert auf open-count nach Beobachtung (höchste offenen Zahlen zuerst).</li>
+    <li>Gespielt werden nur die offenen Zahlen (Zahlen des Finales, die in der Beobachtung noch nicht gefallen sind).</li>
+    <li>Runde 1: 12 Coups, Einsatz pro Zahl = E; mindestens 3 Finales beim Einstieg erforderlich.</li>
+    <li>Runde 2: 12 Coups, Einsatz per Zahl = E; nur wenn mindestens 2 Finales aktiv.</li>
+    <li>Runde 3: 12 Coups, Einsatz per Zahl = 2×E; nur wenn mindestens 2 Finales aktiv; nach Runde 3 immer Stop.</li>
+    <li>Während eines 12er-Blocks: keine Finale-Auflösung (Mengen der gesetzten Zahlen bleiben während der 12 Coups konstant).</li>
+    <li>Auflösung nach jedem 12er-Block: 3er-Finale → fällt weg bei ≥1 Treffer im Block; 4er-Finale → fällt weg bei ≥2 Treffern im Block.</li>
+    <li>Spezialregel: Falls in Runde 1 kein einziger Treffer auf den Finales erfolgt, wird gestoppt.</li>
+    <li>Jede gesetzte Zahl zählt als 1 Versuch; Trefferquote = Treffer / Versuche × 100.</li>
+    <li>Gewinnrechnung: Treffer auf Zahl mit Stake s → Auszahlung 36×s. Netto = Sum(Auszahlungen) − Sum(Einsätze).</li>
+  </ol>
+  <p class="small">Das Tool zeigt pro Block: gewählte Finales, Versuche, Treffer, Treffer-%, Einsatz gesamt, Auszahlung, Netto (in E) und kleine Diagramme. Detaillierte Block-Ansicht über Klick.</p>
+  `;
+  rulesExplained.innerHTML = text;
+}
+
+/* end of script */
 </script>
-
 </body>
 </html>
