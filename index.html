@@ -1,132 +1,69 @@
 <!doctype html>
 <html lang="de"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>FÜR BABA — Roulette Analyse (Dark Neon)</title>
+<title>FÜR BABA — Minimal Analyse</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  @font-face{font-family:RockwellLocal; src: local('Rockwell'), local('Rockwell Regular');}
-  :root{--bg:#0b0f1a;--card:#0f1724;--muted:#94a3b8;--accent:#00d4ff;--good:#00ff94;--bad:#ff4d6d;}
-  body{background:var(--bg); color:#e6eef6; font-family:RockwellLocal, Rockwell, 'Segoe UI', Arial; margin:0;}
-  header{display:flex; justify-content:space-between; padding:14px 18px; background:linear-gradient(90deg,#07102a 0%,#0b1220 100%);}
-  header h1{margin:0; color:var(--accent); font-size:20px;}
-  header .sub{color:var(--muted); font-size:13px;}
-  .wrap{max-width:1200px;margin:18px auto;padding:0 12px;}
-  .grid{display:grid;grid-template-columns:320px 1fr;gap:14px;}
-  .card{background:var(--card); padding:12px; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.6);}
-  label{color:var(--muted); font-size:13px;}
-  select,input,textarea{width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:#eaf6ff; border-radius:8px;}
-  .btn{background:var(--accent); color:#001; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:700;}
-  .blocks{margin-top:12px;}
-  .row{display:flex; gap:8px; align-items:center;}
-  .tile{display:flex; justify-content:space-between; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:8px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.03);}
-  .tile h4{margin:0;color:var(--accent);}
-  .small{color:var(--muted);font-size:13px;}
-  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(1,1,3,0.6); z-index:50;}
-  .panel{background:#07142b; padding:12px; border-radius:10px; width:95%; max-width:1100px; max-height:90vh; overflow:auto; color:#e6f6ff;}
-  table{width:100%; border-collapse:collapse; margin-top:8px;}
-  th,td{padding:8px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:13px;}
+  body{font-family:Rockwell, 'Segoe UI', Arial; margin:0; background:#fbfdff; color:#111;}
+  header{padding:16px; background:#fff; border-bottom:1px solid #eef2f7;}
+  .wrap{max-width:1000px;margin:18px auto;padding:12px;}
+  .card{background:#fff;padding:14px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.03); margin-bottom:12px;}
+  label{display:block;color:#556;}
+  select,input,textarea{width:100%;padding:10px;border:1px solid #e6eef8;border-radius:8px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .btn{background:#0b5ed7;color:#fff;padding:10px;border-radius:8px;border:none;cursor:pointer;}
+  table{width:100%;border-collapse:collapse;margin-top:8px;}
+  th,td{padding:8px;border-bottom:1px solid #f0f3f7;}
 </style>
-</head>
-<body>
-<header><div><h1>Roulette Analyse</h1><div class="sub">Für Baba — mkderechte</div></div><div class="sub">Dark Neon UI</div></header>
+</head><body>
+<header><h1>FÜR BABA — Roulette Minimal</h1><div class="small">made by mkderechte</div></header>
 <div class="wrap">
-  <div class="grid">
-    <div class="card">
-      <label>Tisch</label><select id="tisch"></select>
-      <label>Modus</label><select id="mode"><option value="tag">Tag</option><option value="monat">Monat</option><option value="jahr">Jahr</option><option value="zeitraum">Zeitraum</option></select>
-      <label>Datum</label><select id="jahr"></select><select id="monat"></select><select id="tag"></select>
-      <label style="margin-top:8px">E Runde1 / Runde2 / Runde3</label>
-      <div style="display:flex;gap:6px;"><input id="E1" type="number" value="1"><input id="E2" type="number" value="1"><input id="E3" type="number" value="2"></div>
-      <label style="margin-top:8px">Rohdaten</label><textarea id="raw"></textarea>
-      <div style="display:flex; gap:8px; margin-top:8px;"><button class="btn" id="btnRaw">Rohdaten</button><button class="btn" id="run">Analysieren</button></div>
-    </div>
-
-    <div>
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;"><h3 style="margin:0">Blöcke</h3><div class="small">Netto E pro Block</div></div>
-        <div id="blocks" class="blocks"></div>
-      </div>
-      <div class="card">
-        <h3 style="margin:0">Übersicht</h3>
-        <canvas id="chartAll" style="height:220px;"></canvas>
-      </div>
-    </div>
+  <div class="card">
+    <label>Rohdaten eingeben</label>
+    <textarea id="raw" placeholder="Zahlen ..."></textarea>
+    <label style="margin-top:8px">E Runde1/R2/R3</label>
+    <input id="E1" value="1"><input id="E2" value="1" style="margin-top:6px"><input id="E3" value="2" style="margin-top:6px">
+    <div style="margin-top:8px;"><button class="btn" id="run">Analysieren</button></div>
   </div>
-</div>
 
-<div class="modal" id="modal"><div class="panel"><button onclick="closeModal()">✕</button><div id="mcontent"></div></div></div>
+  <div class="card" id="result"></div>
+  <div class="card"><canvas id="chart" style="height:180px"></canvas></div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/* re-use same logic as variant 1 but compact code to save space */
 const FINALES={"0":[0],"1":[1,11,21,31],"2":[2,12,22,32],"3":[3,13,23,33],"4":[4,14,24,34],"5":[5,15,25,35],"6":[6,16,26,36],"7":[7,17,27],"8":[8,18,28],"9":[9,19,29]};
-const TISCH_MAP={"TB AS1":"Touch Bet Autom.Sp.1","TB AS2":"Touch Bet Autom.Sp.2","TB R":"Touch Bet Raucher"};
-let DB={};
-fetch('datenbank.json').then(r=>r.json()).then(j=>DB=j).catch(()=>{});
-function fillYears(){const y=document.getElementById('jahr'); y.innerHTML=''; for(let i=2020;i<=2026;i++) y.innerHTML+=`<option value="${i}">${i}</option>`;}
-fillYears();
-document.getElementById('run').onclick = ()=>{ const raw=document.getElementById('raw').value.trim(); if(raw){ const nums=raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g).map(n=>+n); runAnalysis(nums); return;} alert('Bitte Rohdaten nutzen oder DB-Integration implementieren'); };
-document.getElementById('btnRaw').onclick = ()=>{ const nums=document.getElementById('raw').value.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g)?.map(n=>+n)||[]; runAnalysis(nums); };
-function runAnalysis(numbers){
-  const blocks=[]; for(let i=0;i<numbers.length;i+=60) blocks.push(numbers.slice(i,i+60));
-  const E1=+document.getElementById('E1').value||1, E2=+document.getElementById('E2').value||1, E3=+document.getElementById('E3').value||2;
-  const analyses = blocks.map(b => analyzeBlockCompact(b,E1,E2,E3));
-  renderBlocks(analyses);
-  renderChart(analyses.map(a=>a.netE));
-  window._LAST={blocks,analyses};
-}
-function analyzeBlockCompact(block,E1,E2,E3){
-  /* simplified but equivalent */
-  let obsEnd=Math.min(20,block.length); let observed=new Set(block.slice(0,obsEnd));
-  const computeOpen=obs=>{const m={}; Object.keys(FINALES).forEach(f=>{let fell=0; FINALES[f].forEach(n=>{ if(obs.has(n)) fell++}); m[f]=FINALES[f].length-fell}); return m;};
-  let open=computeOpen(observed);
-  while(true){ const eligible=Object.keys(open).filter(f=>f!=='0'&&open[f]>=3); if(eligible.length>=3) break; if(obsEnd>=block.length) break; const add=Math.min(12, block.length-obsEnd); for(let i=obsEnd;i<obsEnd+add;i++) observed.add(block[i]); obsEnd+=add; open=computeOpen(observed); }
-  let candidates=Object.keys(open).filter(f=>f!=='0'&&open[f]>=3).sort((a,b)=>open[b]-open[a]||Number(a)-Number(b));
-  let sel=candidates.slice(0,5); if(!new Set(block.slice(0,Math.min(20,block.length))).has(0) && sel.indexOf('0')===-1 && sel.length<5) sel.push('0');
-  if(sel.length<3) return {selected:sel,obsEnd,rounds:[],totalAttempts:0,totalHits:0,totalSuccessPct:"0",netE:0};
-  let rounds=[]; let occurred=new Set(observed); let active=sel.slice(); let idx=obsEnd; let totalA=0,totalH=0,net=0;
-  for(let r=1;r<=3;r++){ if(r===1&&active.length<3) break; if((r===2||r===3)&&active.length<2) break; const stake = r===1?E1: r===2?E2: E3; const activeNums = Array.from(new Set([].concat(...active.map(f=>FINALES[f].filter(n=>!occurred.has(n)))))); if(activeNums.length===0) break; const spins=Math.min(12, Math.max(0, block.length-idx)); if(spins<=0) break;
-    let attempts=0,hits=0,payout=0, stakeSpent=0; const finaleHits={}; active.forEach(f=>finaleHits[f]=0); const spinLog=[];
-    for(let s=0;s<spins;s++){ const val=block[idx+s]; stakeSpent+=activeNums.length*stake; attempts+=activeNums.length; if(activeNums.includes(val)){ hits++; payout+=36*stake; for(const f of active){ if(FINALES[f].includes(val)){ finaleHits[f]++; break; } } } spinLog.push({idx:idx+s,val,hit: activeNums.includes(val)}); occurred.add(val); }
-    idx+=spins; const netr=payout-stakeSpent; totalA+=attempts; totalH+=hits; net+=netr;
-    const perFinale={}; active.forEach(f=> perFinale[f]={open: FINALES[f].filter(n=>!observed.has(n)), hits: finaleHits[f]||0});
-    rounds.push({r,spins,attempts,hits,stake,stakeSpent,payout,net:netr,perFinale,spinLog});
-    if(r===1 && hits===0) break;
-    // remove finales per rule
-    active = active.filter(f=>{ const size=FINALES[f].length; const h=finaleHits[f]||0; let remove=false; if(size===3 && h>=1) remove=true; if(size===4 && h>=2) remove=true; const remaining=FINALES[f].filter(n=>!occurred.has(n)); if(remaining.length===0) remove=true; return !remove; });
-  }
-  return {selected:sel,obsEnd,rounds,totalAttempts:totalA,totalHits:totalH,totalSuccessPct: totalA?((totalH/totalA)*100).toFixed(2):"0",netE:net};
-}
-
-function renderBlocks(analyses){
-  const c=document.getElementById('blocks'); c.innerHTML=''; analyses.forEach((a,i)=>{
-    const div=document.createElement('div'); div.className='tile';
-    div.innerHTML=`<div><h4>Block ${i+1}</h4><div class="small">Finales: ${a.selected.join(', ')}</div></div>
-      <div style="text-align:right"><div class="small">Netto E: <b style="color:${a.netE>=0?'#00ff94':'#ff4d6d'}">${a.netE.toFixed(2)}</b></div><button onclick="openModal(${i})" class="btn">Details</button></div>`;
-    c.appendChild(div);
-  });
-  window._LAST={analyses};
-}
-
-function renderChart(arr){
-  const ctx=document.getElementById('chartAll').getContext('2d');
+document.getElementById('run').onclick = ()=>{
+  const raw=document.getElementById('raw').value.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g)?.map(n=>+n)||[];
+  if(!raw.length) return alert('Bitte Zahlen');
+  const E1=+document.getElementById('E1').value||1,E2=+document.getElementById('E2').value||1,E3=+document.getElementById('E3').value||2;
+  const blocks=[]; for(let i=0;i<raw.length;i+=60) blocks.push(raw.slice(i,i+60));
+  const analyses = blocks.map(b=> analyzeBlock(b,E1,E2,E3));
+  const html = analyses.map((a,i)=>`<h3>Block ${i+1}</h3><div>Versuche:${a.totalAttempts} Treffer:${a.totalHits} NettoE:${a.netE.toFixed(2)}</div>`).join("<hr>");
+  document.getElementById('result').innerHTML = html;
+  const ctx=document.getElementById('chart').getContext('2d');
   if(window.ch) window.ch.destroy();
-  window.ch=new Chart(ctx,{type:'bar',data:{labels:arr.map((_,i)=>`B${i+1}`),datasets:[{label:'Netto E',data:arr, backgroundColor:arr.map(v=>v>=0?'#00ff94':'#ff4d6d')}]},options:{plugins:{legend:{display:false}}}});
+  window.ch = new Chart(ctx,{type:'bar',data:{labels:analyses.map((_,i)=>'B'+(i+1)),datasets:[{label:'NettoE',data:analyses.map(a=>a.netE)}]}});
+};
+
+function analyzeBlock(blockNumbers, E1,E2,E3){
+  // simplified but follows the same rules (see other variants)
+  let obsEnd=Math.min(20, blockNumbers.length); let observed=new Set(blockNumbers.slice(0,obsEnd)); const computeOpen=obs=>{const m={}; for(let f in FINALES){let fell=0; FINALES[f].forEach(n=>{if(obs.has(n)) fell++}); m[f]=FINALES[f].length-fell} return m};
+  let open=computeOpen(observed); while(true){ const eligible=Object.keys(open).filter(f=>f!=='0'&&open[f]>=3); if(eligible.length>=3) break; if(obsEnd>=blockNumbers.length) break; const add=Math.min(12, blockNumbers.length-obsEnd); for(let i=obsEnd;i<obsEnd+add;i++) observed.add(blockNumbers[i]); obsEnd+=add; open=computeOpen(observed); }
+  let candidates=Object.keys(open).filter(f=>f!=='0'&&open[f]>=3).sort((a,b)=>open[b]-open[a]); let sel=candidates.slice(0,5); if(!new Set(blockNumbers.slice(0,Math.min(20,blockNumbers.length))).has(0) && sel.indexOf('0')===-1 && sel.length<5) sel.push('0'); if(sel.length<3) return {selected:sel,obsEnd,rounds:[],totalAttempts:0,totalHits:0,totalSuccessPct:"0",netE:0};
+  // rounds...
+  let occurred=new Set(observed); let active=sel.slice(); let idx=obsEnd; let totalA=0,totalH=0,net=0; const stakes=[E1,E2,E3];
+  for(let r=1;r<=3;r++){
+    if(r===1&&active.length<3) break; if((r===2||r===3)&&active.length<2) break;
+    const stake=stakes[r-1]; const activeNums=[...new Set([].concat(...active.map(f=>FINALES[f].filter(n=>!occurred.has(n)))))]); if(activeNums.length===0) break;
+    const spins=Math.min(12, Math.max(0, blockNumbers.length-idx)); if(spins<=0) break;
+    let attempts=0,hits=0,payout=0,stakeSpent=0, finaleHits={}; active.forEach(f=>finaleHits[f]=0);
+    for(let s=0;s<spins;s++){ const val=blockNumbers[idx+s]; stakeSpent+=activeNums.length*stake; attempts+=activeNums.length; if(activeNums.includes(val)){ hits++; payout+=36*stake; for(const f of active){ if(FINALES[f].includes(val)){ finaleHits[f]++; break;} } } occurred.add(val); }
+    idx+=spins; const netr=payout-stakeSpent; totalA+=attempts; totalH+=hits; net+=netr;
+    if(r===1 && hits===0) break;
+    active = active.filter(f=>{ const size=FINALES[f].length, h=finaleHits[f]||0; let remove=false; if(size===3 && h>=1) remove=true; if(size===4 && h>=2) remove=true; const remaining=FINALES[f].filter(n=>!occurred.has(n)); if(remaining.length===0) remove=true; return !remove;});
+  }
+  return {selected:sel,obsEnd,rounds:[],totalAttempts:totalA,totalHits:totalH,totalSuccessPct: totalA?((totalH/totalA)*100).toFixed(2):"0",netE:net};
 }
-
-function openModal(i){
-  const last=window._LAST;
-  if(!last) return;
-  const a=last.analyses[i];
-  let html=`<h3>Block ${i+1}</h3><div class="small">obsEnd: ${a.obsEnd}</div>`;
-  if(!a.rounds.length) html+='<div class="small">Nicht spielbar</div>'; else a.rounds.forEach(r=>{ html+=`<h4>Runde ${r.r}</h4><div class="small">Versuche ${r.attempts} Treffer ${r.hits} Netto ${r.net.toFixed(2)}</div><table><thead><tr><th>Finale</th><th>Offen</th><th>Hits</th></tr></thead><tbody>`; for(const f in r.perFinale){ html+=`<tr><td>${f}</td><td>${r.perFinale[f].open.join(', ')||'-'}</td><td>${r.perFinale[f].hits}</td></tr>`; } html+='</tbody></table>'; });
-  document.getElementById('mcontent').innerHTML = html; document.getElementById('modal').style.display='flex';
-}
-function closeModal(){ document.getElementById('modal').style.display='none'; }
-
-/* wire minimal events for raw test */
-document.getElementById('btnRaw').onclick = ()=>{ const raw=document.getElementById('raw').value.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g)?.map(n=>+n)||[]; runAnalysis(raw); };
-document.getElementById('run').onclick = ()=>{ alert('DB search not implemented in this demo. Bitte Rohdaten nutzen oder erweitern.'); };
-
 </script>
-</body></html>
+</html>
