@@ -1,291 +1,857 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<title>Roulette Analyse</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FÜR BABA → Roulette Analyse — Finale Version (UI & Vollständige Rückverfolgbarkeit)</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
-body{
-background:#f4f6fb;
-font-family:Rockwell, serif;
-margin:0;
-}
-
-header{
-background:#111;
-color:white;
-padding:20px;
-text-align:center;
-}
-
-header img{
-width:180px;
-border-radius:10px;
-margin-bottom:10px;
-}
-
-h1{
-margin:5px;
-}
-
-.sub{
-font-size:14px;
-opacity:0.8;
-}
-
-.container{
-max-width:1400px;
-margin:auto;
-padding:20px;
-}
-
-.card{
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-margin-bottom:20px;
-}
-
-.controls{
-display:flex;
-gap:20px;
-flex-wrap:wrap;
-}
-
-select,input{
-padding:8px;
-border-radius:6px;
-border:1px solid #ccc;
-}
-
-button{
-background:#0b5ed7;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:6px;
-cursor:pointer;
-}
-
-.blocks{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-gap:15px;
-}
-
-.block{
-background:white;
-border-radius:8px;
-padding:15px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-cursor:pointer;
-}
-
-.win{color:green;font-weight:bold;}
-.loss{color:red;font-weight:bold;}
-
-canvas{
-max-height:220px;
-}
-
+  /* --- Clean, professional, light theme --- */
+  :root{
+    --bg: #f6f8fb;
+    --card: #ffffff;
+    --muted: #6b7280;
+    --accent: #0b5ed7;
+    --good: #0f9d58;
+    --bad: #d93025;
+    --glass: rgba(15,23,42,0.04);
+    --pill-bg: #eef6ff;
+  }
+  html,body{height:100%; margin:0; font-family:Inter,system-ui,Arial; background:var(--bg); color:#111;}
+  header{background:var(--card); padding:18px 28px; box-shadow:0 2px 10px rgba(11,78,215,0.06); display:flex; align-items:center; gap:18px; justify-content:space-between; position:sticky; top:0; z-index:10;}
+  header h1{margin:0; font-size:18px; color:var(--accent);}
+  .wrap{max-width:1300px; margin:20px auto; padding:0 16px;}
+  .layout{display:grid; grid-template-columns:340px 1fr; gap:18px;}
+  .card{background:var(--card); border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(14,22,37,0.04);}
+  label{display:block; margin:8px 0 6px; color:var(--muted); font-size:13px;}
+  select,input,textarea{width:100%; padding:10px 12px; border-radius:10px; border:1px solid #e8eef8; font-size:14px; box-sizing:border-box; background:linear-gradient(180deg,#fff,#fbfdff);}
+  textarea{min-height:110px; resize:vertical;}
+  .btn{display:inline-block; padding:10px 12px; border-radius:10px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:600; margin-top:8px;}
+  .btn.secondary{background:#1f2937; color:white;}
+  .muted{color:var(--muted); font-size:13px;}
+  .small{font-size:13px; color:var(--muted);}
+  .controls{display:flex; gap:8px; align-items:center;}
+  .pill{display:inline-block; background:var(--pill-bg); padding:8px 10px; border-radius:999px; color:#08306b; font-weight:700; margin-right:6px;}
+  .blocks-grid{display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:12px;}
+  .block-tile{background:#fff; border-radius:10px; padding:12px; cursor:pointer; border:1px solid #e7f1ff; transition:transform .12s ease, box-shadow .12s ease; box-shadow:0 2px 6px rgba(12,48,120,0.03);}
+  .block-tile:hover{transform:translateY(-6px); box-shadow:0 10px 30px rgba(11,78,215,0.08);}
+  .block-title{font-weight:800; color:var(--accent); margin-bottom:6px;}
+  .block-meta{font-size:13px; color:var(--muted);}
+  .stat-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
+  .stat{background:var(--glass); padding:8px 10px; border-radius:8px; font-weight:700; font-size:13px;}
+  .good{color:var(--good);} .bad{color:var(--bad);}
+  .legend{display:flex; gap:8px; align-items:center; margin-top:10px;}
+  .legend .sw{width:14px; height:14px; border-radius:3px; display:inline-block; margin-right:6px;}
+  .controls-bottom{display:flex; gap:8px; margin-top:10px; align-items:center; justify-content:space-between;}
+  /* modal */
+  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(3,6,23,0.45); z-index:9999;}
+  .modal .panel{width:96%; max-width:1100px; max-height:90vh; overflow:auto; background:var(--card); padding:18px; border-radius:12px;}
+  .close{float:right; background:#f1f5f9; border:none; padding:8px 10px; border-radius:8px; cursor:pointer;}
+  table{width:100%; border-collapse:collapse; margin-top:12px;}
+  th,td{padding:8px; border-bottom:1px solid #f0f3f7; text-align:left; font-size:13px;}
+  th{background:#fbfdff; font-weight:700; color:#123;}
+  .mini-chart{width:220px; height:140px;}
+  .export-btn{background:#10b981; color:white; padding:8px 10px; border-radius:8px; border:none; cursor:pointer;}
+  .toggle{display:inline-flex; gap:8px; align-items:center;}
+  .section-title{font-weight:800; color:#0b5ed7;}
+  .explain{font-size:13px; color:#333; line-height:1.45;}
+  .footer-note{font-size:13px; color:var(--muted); margin-top:8px;}
 </style>
 </head>
-
 <body>
 
 <header>
-
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Roulette.jpg/640px-Roulette.jpg">
-
-<h1>Roulette Analyse</h1>
-
-<div class="sub">Für Baba</div>
-<div class="sub">made by mkderechte</div>
-
+  <div style="display:flex; align-items:center; gap:16px;">
+    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><rect rx='6' ry='6' width='32' height='32' fill='%230b5ed7'/><text x='50%' y='55%' font-size='18' fill='white' text-anchor='middle' font-family='Arial'>B</text></svg>" alt="logo" />
+    <h1>FÜR BABA → Roulette Analyse</h1>
+  </div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <div class="small">E pro Zahl:</div>
+    <input id="EinputTop" type="number" step="0.1" value="1" style="width:80px; padding:8px; border-radius:8px; border:1px solid #e6eef8;">
+    <button id="helpBtn" class="btn secondary">Hilfe / Regeln</button>
+  </div>
 </header>
 
-<div class="container">
+<div class="wrap">
+  <div class="layout">
+    <!-- Sidebar -->
+    <div class="card">
+      <label>Tisch (Anzeige)</label>
+      <select id="tischSelect">
+        <option value="">Lade datenbank.json...</option>
+      </select>
 
-<div class="card">
+      <label>Auswertungs-Modus</label>
+      <select id="modeSelect">
+        <option value="tag">Einzelner Tag</option>
+        <option value="monat">Ganzer Monat</option>
+        <option value="jahr">Ganzes Jahr</option>
+        <option value="zeitraum">Zeitraum wählen</option>
+      </select>
 
-<h3>Einsatz Einstellungen</h3>
+      <label>Jahr</label>
+      <select id="jahrSelect"></select>
 
-<div class="controls">
+      <label>Monat</label>
+      <select id="monatSelect"></select>
 
-<div>
-Runde 1 Einsatz  
-<input id="stake1" type="number" value="1">
+      <label>Tag</label>
+      <select id="tagSelect"></select>
+
+      <label style="margin-top:8px">Zeitraum (bei Modus: Zeitraum)</label>
+      <input id="vonDate" type="date" />
+      <input id="bisDate" type="date" style="margin-top:8px;" />
+
+      <label style="margin-top:12px">Einfügen Rohdaten (optional, Zahlen durch Leer/Zeile)</label>
+      <textarea id="rawInput" placeholder="28 19 15 20 ... (optional)"></textarea>
+      <div class="controls-bottom">
+        <div style="display:flex; gap:8px;">
+          <button id="useRawBtn" class="btn">Rohdaten verwenden</button>
+          <button id="clearRawBtn" class="btn" style="background:#64748b">Feld löschen</button>
+        </div>
+        <div style="text-align:right;">
+          <button id="runBtn" class="btn">Auswerten</button>
+        </div>
+      </div>
+
+      <div style="height:12px;"></div>
+      <div class="muted">Hinweis: lade vorher <b>datenbank.json</b> in dasselbe Verzeichnis. Alternativ Rohdaten testen.</div>
+      <div style="height:12px;"></div>
+      <div>
+        <label class="small">Anzeige-Optionen</label>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <input id="compactToggle" type="checkbox"/> <span class="small">kompakte Block-Ansicht</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div>
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="section-title">Übersicht</div>
+            <div class="muted">Wähle Tisch & Zeitraum, klicke "Auswerten".</div>
+          </div>
+          <div>
+            <button id="exportAllCSV" class="export-btn" title="Export aller aktuell sichtbaren Blocks als CSV">Export (CSV)</button>
+          </div>
+        </div>
+
+        <div id="topMetrics" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div><h3 style="margin:0">Blöcke</h3><div class="muted">Klicke einen Block für vollständige Details</div></div>
+          <div class="legend">
+            <div style="display:flex; gap:6px; align-items:center;">
+              <span class="sw" style="background:#e6f3ff"></span><span class="small">Block</span>
+              <span style="width:8px;"></span>
+              <span class="sw" style="background:var(--good)"></span><span class="small">Netto positiv</span>
+              <span style="width:8px;"></span>
+              <span class="sw" style="background:var(--bad)"></span><span class="small">Netto negativ</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="blocksContainer" class="blocks-grid" style="margin-top:12px;">
+          <!-- blocks injected here -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Erläuterung / Legende</div>
+        <div class="explain">
+          <p><b>Was das Tool genau macht (1:1 aus Chat umgesetzt):</b></p>
+          <ol>
+            <li>Arbeitet in 60er-Blöcken (nach 60 Zahlen Neustart).</li>
+            <li>Beobachtung: erste 20 Coups. Falls nicht mindestens 3 Finales mit ≥3 offenen Zahlen (0 ausgenommen), erweitert das Tool Beobachtung um +12 Coups wiederholt bis Bedingung erfüllt oder Block endet.</li>
+            <li>Finales (0–9) wie definiert; 3er-Finales (7/8/9), 4er-Finales (1–6).</li>
+            <li>Auswahl: bis zu 5 Finales mit größter Anzahl offener Zahlen; wenn 0 in ersten 20 nicht gefallen ist, wird 0 zusätzlich aufgenommen (wenn Platz).</li>
+            <li>Runde1: 12 Spins, Einsatz E pro gesetzter Zahl. R2: 12 Spins, E. R3: 12 Spins, 2×E. Runden spielen nur, wenn Mindestanzahl Finales erfüllt ist (R1 initial ≥3, R2/R3 ≥2).</li>
+            <li>Während einer 12er-Runde bleibt die Menge der gesetzten Zahlen gleich. Erst nach der Runde wird Auflösung geprüft.</li>
+            <li>Auflösung: 3er-Finale → bei ≥1 Treffer in der Runde fällt raus; 4er-Finale → bei ≥2 Treffern fällt raus.</li>
+            <li>Spezial: Wenn in Runde1 kein einziger Treffer auf den Finales ist, stoppt die Block-Auswertung.</li>
+            <li>Jede gesetzte Zahl = 1 Versuch. Trefferquote = Treffer / Versuche.</li>
+            <li>Gewinn: Treffer auf Zahl mit Stake s → Auszahlung 36×s. Netto E = Sum(Auszahlungen) − Sum(Einsätze).</li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<div>
-Runde 2 Einsatz  
-<input id="stake2" type="number" value="1">
-</div>
-
-<div>
-Runde 3 Einsatz  
-<input id="stake3" type="number" value="2">
-</div>
-
-<button onclick="run()">Analyse starten</button>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<h3>Gewinn / Verlust pro Block</h3>
-
-<canvas id="profitChart"></canvas>
-
-</div>
-
-<div class="card">
-
-<h3>Block Übersicht</h3>
-
-<div id="blocks" class="blocks"></div>
-
-</div>
-
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="panel">
+    <button class="close" onclick="closeModal()">✕ schließen</button>
+    <div id="modalBody"></div>
+  </div>
 </div>
 
 <script>
+/* ====== Core constants & helpers ====== */
+const FINALES = {
+  "0":[0],
+  "1":[1,11,21,31],
+  "2":[2,12,22,32],
+  "3":[3,13,23,33],
+  "4":[4,14,24,34],
+  "5":[5,15,25,35],
+  "6":[6,16,26,36],
+  "7":[7,17,27],
+  "8":[8,18,28],
+  "9":[9,19,29]
+};
+const TISCH_MAP = { "TB AS1":"Touch Bet Autom.Sp.1", "TB AS2":"Touch Bet Autom.Sp.2", "TB R":"Touch Bet Raucher" };
 
-const FINALES={
-0:[0],
-1:[1,11,21,31],
-2:[2,12,22,32],
-3:[3,13,23,33],
-4:[4,14,24,34],
-5:[5,15,25,35],
-6:[6,16,26,36],
-7:[7,17,27],
-8:[8,18,28],
-9:[9,19,29]
+/* UI references */
+const tischSelect = document.getElementById("tischSelect");
+const jahrSelect = document.getElementById("jahrSelect");
+const monatSelect = document.getElementById("monatSelect");
+const tagSelect = document.getElementById("tagSelect");
+const modeSelect = document.getElementById("modeSelect");
+const vonDate = document.getElementById("vonDate");
+const bisDate = document.getElementById("bisDate");
+const useRawBtn = document.getElementById("useRawBtn");
+const clearRawBtn = document.getElementById("clearRawBtn");
+const rawInput = document.getElementById("rawInput");
+const runBtn = document.getElementById("runBtn");
+const blocksContainer = document.getElementById("blocksContainer");
+const topMetrics = document.getElementById("topMetrics");
+const exportAllCSV = document.getElementById("exportAllCSV");
+const compactToggle = document.getElementById("compactToggle");
+const EinputTop = document.getElementById("EinputTop");
+const helpBtn = document.getElementById("helpBtn");
+
+/* modal */
+const modal = document.getElementById("modal");
+const modalBody = document.getElementById("modalBody");
+
+let DATABANK = {}; // loaded from datenbank.json
+
+/* Init */
+function init(){
+  // fill tisch display names
+  tischSelect.innerHTML = "<option value=''>Wähle Tisch</option>";
+  Object.keys(TISCH_MAP).forEach(k => tischSelect.innerHTML += `<option value="${k}">${k}</option>`);
+
+  // years fixed
+  jahrSelect.innerHTML = "<option value=''>Jahr</option>";
+  for(let y=2020; y<=2026; y++) jahrSelect.innerHTML += `<option value="${y}">${y}</option>`;
+
+  vonDate.min = "2020-01-01"; vonDate.max = "2026-02-28";
+  bisDate.min = "2020-01-01"; bisDate.max = "2026-02-28";
+
+  // events
+  jahrSelect.onchange = onJahrChange;
+  monatSelect.onchange = onMonatChange;
+  runBtn.onclick = onRun;
+  useRawBtn.onclick = onUseRaw;
+  clearRawBtn.onclick = ()=>{ rawInput.value=""; };
+  exportAllCSV.onclick = exportVisibleAsCSV;
+  helpBtn.onclick = ()=>{ openHelp(); };
+}
+init();
+
+/* Try to load datenbank.json */
+fetch("datenbank.json").then(r=>{
+  if(!r.ok) throw new Error("datenbank.json nicht gefunden.");
+  return r.json();
+}).then(json=>{
+  DATABANK = json;
+  // populate tisch select only with those that exist in DATABANK keys
+  // But we still show mapped three tische; hide those not present
+  const present = new Set();
+  Object.keys(DATABANK).forEach(y=>{
+    Object.keys(DATABANK[y]).forEach(t => present.add(t));
+  });
+  // rebuild tischSelect with only TB AS1/AS2/R that are present
+  tischSelect.innerHTML = "<option value=''>Wähle Tisch</option>";
+  Object.keys(TISCH_MAP).forEach(display=>{
+    const orig = TISCH_MAP[display];
+    if(present.has(orig)){
+      tischSelect.innerHTML += `<option value="${display}">${display}</option>`;
+    }
+  });
+}).catch(err=>{
+  console.warn(err);
+  // leave default tisch list (all three) so user can test with raw input
+});
+
+/* UI functions */
+function onJahrChange(){
+  // fill months 01..12
+  monatSelect.innerHTML = "<option value=''>Monat</option>";
+  for(let m=1;m<=12;m++){
+    const mm = String(m).padStart(2,"0");
+    monatSelect.innerHTML += `<option value="${mm}">${mm}</option>`;
+  }
+  tagSelect.innerHTML = "<option value=''>Tag</option>";
+}
+function onMonatChange(){
+  tagSelect.innerHTML = "<option value=''>Tag</option>";
+  for(let d=1; d<=31; d++){
+    tagSelect.innerHTML += `<option value="${String(d).padStart(2,"0")}">${String(d).padStart(2,"0")}</option>`;
+  }
 }
 
-function run(){
-
-let numbers=prompt("Zahlen eingeben getrennt mit Leerzeichen")
-
-if(!numbers)return
-
-numbers=numbers.split(" ").map(Number)
-
-let blocks=[]
-
-for(let i=0;i<numbers.length;i+=60){
-blocks.push(numbers.slice(i,i+60))
+/* Raw data handling */
+function onUseRaw(){
+  const raw = rawInput.value.trim();
+  if(!raw){ alert("Bitte Zahlen eingeben."); return; }
+  const nums = raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g);
+  if(!nums){ alert("Keine gültigen Zahlen gefunden (0-36)."); return; }
+  const arr = nums.map(n=>Number(n));
+  analyzeAndRenderBlocksFromArray(arr, parseFloat(EinputTop.value)||1, "Rohdaten");
 }
 
-let profits=[]
+/* Run button */
+function onRun(){
+  const tischDisplay = tischSelect.value;
+  const mode = modeSelect.value;
+  const E = parseFloat(EinputTop.value) || 1;
 
-document.getElementById("blocks").innerHTML=""
+  if(rawInput.value.trim()){
+    onUseRaw();
+    return;
+  }
 
-blocks.forEach((block,i)=>{
+  if(!tischDisplay){ alert("Bitte Tisch auswählen."); return; }
+  const tischOrig = TISCH_MAP[tischDisplay];
 
-let result=analyze(block)
+  if(mode === "tag"){
+    const y = jahrSelect.value; const m = monatSelect.value; const d = tagSelect.value;
+    if(!y || !m || !d){ alert("Bitte Jahr/Monat/Tag wählen."); return; }
+    if(!DATABANK[y] || !DATABANK[y][tischOrig] || !DATABANK[y][tischOrig][m] || !DATABANK[y][tischOrig][m][d]){
+      alert("Keine Permanenzen an diesem Tag.");
+      return;
+    }
+    const arr = DATABANK[y][tischOrig][m][d].slice();
+    analyzeAndRenderBlocksFromArray(arr, E, tischDisplay, {year:y,month:m,day:d});
+    return;
+  }
 
-profits.push(result.net)
+  if(mode === "monat"){
+    const y = jahrSelect.value; const m = monatSelect.value;
+    if(!y || !m){ alert("Bitte Jahr und Monat wählen."); return; }
+    if(!DATABANK[y] || !DATABANK[y][tischOrig] || !DATABANK[y][tischOrig][m]){ alert("Keine Daten für diesen Monat."); return; }
+    let arr = [];
+    Object.values(DATABANK[y][tischOrig][m]).forEach(a=> arr = arr.concat(a));
+    analyzeAndRenderBlocksFromArray(arr, E, tischDisplay, {year:y,month:m});
+    return;
+  }
 
-let div=document.createElement("div")
-div.className="block"
+  if(mode === "jahr"){
+    const y = jahrSelect.value;
+    if(!y){ alert("Bitte Jahr wählen."); return; }
+    if(!DATABANK[y] || !DATABANK[y][tischOrig]){ alert("Keine Daten für dieses Jahr."); return; }
+    let arr = [];
+    Object.values(DATABANK[y][tischOrig]).forEach(monthObj => {
+      Object.values(monthObj).forEach(a => arr = arr.concat(a));
+    });
+    analyzeAndRenderBlocksFromArray(arr, E, tischDisplay, {year:y});
+    return;
+  }
 
-div.innerHTML=`
-<h4>Block ${i+1}</h4>
-Finales: ${result.finales.join(",")}
-
-<br><br>
-
-Versuche: ${result.attempts}<br>
-Treffer: ${result.hits}<br>
-Treffer %: ${result.percent}%<br>
-
-<div class="${result.net>=0?'win':'loss'}">
-Netto: ${result.net} E
-</div>
-`
-
-document.getElementById("blocks").appendChild(div)
-
-})
-
-drawChart(profits)
-
+  if(mode === "zeitraum"){
+    const v = vonDate.value; const b = bisDate.value;
+    if(!v || !b){ alert("Bitte von- und bis-Datum wählen."); return; }
+    const von = new Date(v), bis = new Date(b);
+    if(von > bis){ alert("Startdatum darf nicht nach Enddatum sein."); return; }
+    let arr = [];
+    for(let y=2020; y<=2026; y++){
+      const ys = String(y);
+      if(!DATABANK[ys] || !DATABANK[ys][tischOrig]) continue;
+      Object.keys(DATABANK[ys][tischOrig]).forEach(m=>{
+        Object.keys(DATABANK[ys][tischOrig][m]).forEach(d=>{
+          const date = new Date(`${ys}-${m}-${d}`);
+          if(date >= von && date <= bis){
+            arr = arr.concat(DATABANK[ys][tischOrig][m][d]);
+          }
+        });
+      });
+    }
+    if(arr.length === 0){ alert("Keine Permanenzen im Zeitraum."); return; }
+    analyzeAndRenderBlocksFromArray(arr, E, tischDisplay, {from:v, to:b});
+    return;
+  }
 }
 
-function analyze(block){
+/* ============ Main analysis & render logic ============ */
+/* analyzeAndRenderBlocksFromArray: splits into 60er blocks, calls analyzeBlock (core rules), renders tiles */
+function analyzeAndRenderBlocksFromArray(numbers, E, tischDisplay="Daten", meta = {}){
+  blocksContainer.innerHTML = "";
+  topMetrics.innerHTML = "";
+  if(!numbers || numbers.length === 0){ topMetrics.innerHTML = `<div class="muted">Keine Zahlen gefunden.</div>`; return; }
 
-let stake1=parseFloat(document.getElementById("stake1").value)
-let stake2=parseFloat(document.getElementById("stake2").value)
-let stake3=parseFloat(document.getElementById("stake3").value)
+  // slice into 60er blocks
+  const blocks = [];
+  for(let i=0;i<numbers.length;i+=60) blocks.push(numbers.slice(i,i+60));
 
-let stakes=[stake1,stake2,stake3]
+  // global accumulators
+  let globalAttempts=0, globalHits=0, globalNet=0;
+  const tiles = [];
 
-let attempts=0
-let hits=0
-let net=0
+  blocks.forEach((blockArr, idx)=>{
+    const analysis = analyzeBlock(blockArr, E);
+    // store tile info array to be exported if needed
+    tiles.push({index: idx+1, blockArr, analysis});
+    // render tile
+    const tile = document.createElement("div");
+    tile.className = "block-tile";
+    // color coding for net
+    const net = analysis.netE;
+    const netColor = net > 0 ? "good" : (net < 0 ? "bad" : "");
+    tile.innerHTML = `
+      <div class="block-title">Block ${idx+1} — ${blockArr.length} Coups</div>
+      <div class="block-meta">Finales: ${analysis.selectedFinales.join(", ") || "—"} &nbsp; | &nbsp; StartIdx Obs: ${analysis.obsEnd}</div>
+      <div class="stat-row" style="margin-top:8px">
+        <div class="stat">Versuche: ${analysis.totalAttempts}</div>
+        <div class="stat">Treffer: ${analysis.totalHits}</div>
+        <div class="stat">${analysis.totalSuccessPct}% Treffer</div>
+        <div class="stat ${netColor}">Netto E: ${analysis.netE.toFixed(2)}</div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+        <button class="btn" onclick="openModalBlock(event, ${idx}, '${tischDisplay}')">Details</button>
+        <button class="export-btn" onclick="exportBlockCSV(event, ${idx})">CSV</button>
+      </div>
+    `;
+    blocksContainer.appendChild(tile);
 
-let finales=["1","2","3"]
+    globalAttempts += analysis.totalAttempts;
+    globalHits += analysis.totalHits;
+    globalNet += analysis.netE;
+  });
 
-for(let r=0;r<3;r++){
+  // show top metrics
+  const pct = globalAttempts ? ((globalHits/globalAttempts)*100).toFixed(2) : "0.00";
+  topMetrics.innerHTML = `
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <div class="pill">Tisch: ${tischDisplay}</div>
+      <div class="pill">Blocks: ${blocks.length}</div>
+      <div class="pill">Versuche ges.: ${globalAttempts}</div>
+      <div class="pill">Treffer ges.: ${globalHits}</div>
+      <div class="pill">Erfolg ges.: ${pct}%</div>
+      <div class="pill">Netto ges. (E): ${globalNet.toFixed(2)}</div>
+    </div>
+    <div class="muted" style="margin-top:8px;">Meta: ${JSON.stringify(meta)}</div>
+  `;
 
-let stake=stakes[r]
-
-for(let i=0;i<12;i++){
-
-let spin=block[i]
-
-attempts+=finales.length
-
-if(finales.includes(String(spin%10))){
-hits++
-net+=36*stake
+  // save last analysis for export
+  window.__LAST_ANALYSIS = {tisch: tischDisplay, E, meta, blocks: blocks.map((b,i)=> ({index:i+1, block:b, analysis: analyzeBlock(b,E)}))};
 }
 
-net-=stake*finales.length
+/* ============ Core: analyzeBlock with full traceability ============ */
+function analyzeBlock(blockNumbers, E){
+  // returns object with:
+  // selectedFinales, obsEnd, rounds: [ {round, spins, stakePerNum, attempts, hits, hitPct, stakeSpent, payout, netE, perFinale: {f: {openNumbers, hitsThisRound, hitIndices}} , spinLog:[{spinIndex, value, hit:boolean, hitFinale}] } ] , totalAttempts, totalHits, totalSuccessPct, netE
 
+  // helper
+  const clone = a => a.slice();
+
+  // 1) Observation phase: start with first 20, extend by +12 until at least 3 finales (excluding 0) have openCount >=3 or block exhausted
+  let obsEnd = Math.min(20, blockNumbers.length);
+  let observedSet = new Set(blockNumbers.slice(0, obsEnd));
+  const maxIndex = blockNumbers.length;
+  function computeOpen(obsSet){
+    const map = {};
+    Object.keys(FINALES).forEach(f=>{
+      const nums = FINALES[f];
+      let fell = 0;
+      nums.forEach(n => { if(obsSet.has(n)) fell++; });
+      map[f] = nums.length - fell;
+    });
+    return map;
+  }
+  let open = computeOpen(observedSet);
+  while(true){
+    const eligible = Object.keys(open).filter(f => f!=="0" && open[f] >= 3);
+    if(eligible.length >= 3) break;
+    if(obsEnd >= maxIndex) break;
+    const add = Math.min(12, maxIndex - obsEnd);
+    for(let i=obsEnd; i<obsEnd+add; i++) observedSet.add(blockNumbers[i]);
+    obsEnd += add;
+    open = computeOpen(observedSet);
+  }
+
+  // candidate finales (excluding 0) with open>=3
+  let candidates = Object.keys(open).filter(f => f!=="0" && open[f] >= 3);
+  // sort by open count desc, id asc
+  candidates.sort((a,b)=> open[b] - open[a] || Number(a)-Number(b));
+  let selected = candidates.slice(0,5);
+
+  // if 0 did NOT appear in the first 20 (initial), include 0 if not already in and space
+  const first20set = new Set(blockNumbers.slice(0, Math.min(20, blockNumbers.length)));
+  if(!first20set.has(0) && selected.indexOf("0") === -1 && selected.length < 5){
+    selected.push("0");
+  }
+
+  if(selected.length < 3){
+    // no play
+    return { selectedFinales: selected, obsEnd, rounds: [], totalAttempts:0, totalHits:0, totalSuccessPct:"0.00", netE:0, note:"Nicht genügend Finale (>=3 offene) für Einstieg." };
+  }
+
+  // Setup for rounds
+  let rounds = [];
+  let occurred = new Set(observedSet); // everything observed is already occurred
+  let activeFinales = clone(selected); // string ids
+  let currentIndex = obsEnd;
+  const ROUNDS = 3;
+  const SPINS = 12;
+  let totalAttempts = 0, totalHits = 0, netE = 0;
+
+  // spinLog (global) tracking all spins of playing phase
+  let globalSpinLog = [];
+
+  for(let r=1;r<=ROUNDS;r++){
+    // pre checks for minimum active finales
+    if(r===1){
+      if(activeFinales.length < 3) break;
+    } else {
+      if(activeFinales.length < 2) break;
+    }
+
+    const stakePerNum = (r>=3) ? 2*E : E;
+    // build activeNumbers and per-finale open sets at start of round
+    const perFinaleOpen = {};
+    const activeNumbersSet = new Set();
+    activeFinales.forEach(f=>{
+      const openNums = FINALES[f].filter(n => !occurred.has(n));
+      perFinaleOpen[f] = openNums.slice();
+      openNums.forEach(n => activeNumbersSet.add(n));
+    });
+    const activeNumbers = Array.from(activeNumbersSet);
+
+    if(activeNumbers.length === 0) break; // nothing to bet on
+
+    const spinsThisRound = Math.min(SPINS, Math.max(0, blockNumbers.length - currentIndex));
+    if(spinsThisRound <= 0) break;
+
+    // per-finale hits in this round
+    const finaleHits = {}; activeFinales.forEach(f => finaleHits[f] = 0);
+    let roundAttempts = 0, roundHits = 0, roundPayout = 0, roundStake = 0;
+    const roundSpinLog = [];
+
+    for(let s=0;s<spinsThisRound;s++){
+      const spinIdx = currentIndex + s; // index in blockNumbers
+      const spinVal = blockNumbers[spinIdx];
+      // stake for this spin = activeNumbers.length * stakePerNum
+      const stakeThisSpin = activeNumbers.length * stakePerNum;
+      roundStake += stakeThisSpin;
+      roundAttempts += activeNumbers.length;
+
+      // check hit
+      let hit = false;
+      let hitFinale = null;
+      if(activeNumbersSet.has(spinVal)){
+        // find which finale contains spinVal
+        for(const f of activeFinales){
+          if(FINALES[f].includes(spinVal)){ hit = true; hitFinale = f; break; }
+        }
+        roundPayout += 36 * stakePerNum;
+        roundHits += 1;
+        if(hitFinale) finaleHits[hitFinale] = (finaleHits[hitFinale]||0) + 1;
+      }
+      // record spin log
+      roundSpinLog.push({spinIndex: spinIdx, value: spinVal, hit, hitFinale});
+      // occurred set updated at spin time, affects next rounds (not this round's activeNumbers)
+      occurred.add(spinVal);
+    } // spins
+
+    currentIndex += spinsThisRound;
+
+    const roundNet = roundPayout - roundStake;
+    totalAttempts += roundAttempts;
+    totalHits += roundHits;
+    netE += roundNet;
+
+    // assemble per-finale detail: which numbers were played (open at start), which were hit and on which local spin indices
+    const perFinaleDetail = {};
+    activeFinales.forEach(f=>{
+      const openNums = perFinaleOpen[f];
+      // find in roundSpinLog which of openNums were hit and at which spin index
+      const hitsDetail = [];
+      roundSpinLog.forEach((sl, localIdx) => {
+        if(openNums.includes(sl.value) && sl.hit){
+          hitsDetail.push({value:sl.value, spinIndex: sl.spinIndex});
+        }
+      });
+      perFinaleDetail[f] = {
+        openNumbers: openNums,
+        hits: hitsDetail,
+        hitsCount: finaleHits[f] || 0
+      };
+    });
+
+    rounds.push({
+      round: r,
+      spins: spinsThisRound,
+      stakePerNum,
+      attempts: roundAttempts,
+      hits: roundHits,
+      hitPct: roundAttempts ? ((roundHits/roundAttempts)*100).toFixed(2) : "0.00",
+      stakeSpent: roundStake,
+      payout: roundPayout,
+      netE: roundNet,
+      perFinaleDetail,
+      roundSpinLog
+    });
+
+    // special rule: if r===1 and roundHits === 0 => stop playing further
+    if(r===1 && roundHits === 0) break;
+
+    // apply auflösungsregel to remove finales
+    const newActive = [];
+    activeFinales.forEach(f=>{
+      const size = FINALES[f].length;
+      const hits = finaleHits[f] || 0;
+      let remove = false;
+      if(size === 3 && hits >= 1) remove = true;
+      if(size === 4 && hits >= 2) remove = true;
+      // also remove if no open numbers left (all occurred)
+      const remainingOpen = FINALES[f].filter(n => !occurred.has(n));
+      if(remainingOpen.length === 0) remove = true;
+      if(!remove) newActive.push(f);
+    });
+    activeFinales = newActive;
+  } // rounds loop
+
+  const totalSuccessPct = totalAttempts ? ((totalHits/totalAttempts)*100).toFixed(2) : "0.00";
+  return {
+    selectedFinales: selected,
+    obsEnd,
+    rounds,
+    totalAttempts, totalHits, totalSuccessPct,
+    netE
+  };
 }
 
+/* ===== Modal & exports ===== */
+function openModalBlock(evt, blockIndex, tischDisplay){
+  // analysis for blockIndex is stored in window.__LAST_ANALYSIS if available; we recompute for reliability
+  const last = window.__LAST_ANALYSIS;
+  if(!last || !last.blocks || !last.blocks[blockIndex]){ alert("Blockdaten nicht verfügbar."); return; }
+  const entry = last.blocks[blockIndex];
+  const analysis = entry.analysis;
+  const block = entry.block;
+
+  // build modal HTML
+  let html = `<h2>Block ${entry.index} — Detailansicht</h2>`;
+  html += `<div class="muted">Tisch: ${last.tisch} | E: ${last.E} | Meta: ${JSON.stringify(last.meta)}</div>`;
+  html += `<p><b>Beobachtungs-Ende (obsEnd):</b> ${analysis.obsEnd} (erste ${analysis.obsEnd} Coups sind Beobachtung)</p>`;
+  html += `<p><b>Ausgewählte Finales:</b> ${analysis.selectedFinales.join(", ")}</p>`;
+
+  // spins list (full block) for clarity
+  html += `<h4>Block Zahlen (Index 0..${block.length-1})</h4>`;
+  html += `<div class="muted" style="max-height:120px; overflow:auto; padding:8px; border-radius:8px; background:#fbfdff;">${block.map((n,i)=>`[${i}] ${n}`).join(" · ")}</div>`;
+
+  // rounds table
+  html += `<h4 style="margin-top:12px">Runden</h4>`;
+  if(analysis.rounds.length === 0){ html += `<div class="muted">Keine Runden gespielt (Block nicht spielbar).</div>`; }
+  else {
+    html += `<table><thead><tr><th>Runde</th><th>Spins</th><th>Stake/Num</th><th>Versuche</th><th>Treffer</th><th>Treffer %</th><th>Einsatz</th><th>Auszahlung</th><th>Netto E</th></tr></thead><tbody>`;
+    analysis.rounds.forEach(r=>{
+      html += `<tr>
+        <td>${r.round}</td>
+        <td>${r.spins}</td>
+        <td>${r.stakePerNum}</td>
+        <td>${r.attempts}</td>
+        <td>${r.hits}</td>
+        <td>${r.hitPct}%</td>
+        <td>${r.stakeSpent.toFixed(2)}</td>
+        <td>${r.payout.toFixed(2)}</td>
+        <td>${r.netE.toFixed(2)}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+
+  // per-round per-finale details
+  analysis.rounds.forEach(r=>{
+    html += `<h4 style="margin-top:10px">Runde ${r.round} — Finale Details</h4>`;
+    html += `<div class="muted">Gewettete Zahlen pro Finale (zum Start der Runde) — Treffer & Spin-Indizes in Klammern</div>`;
+    html += `<table><thead><tr><th>Finale</th><th>Gespielte Zahlen (offen)</th><th>Treffer in dieser Runde</th></tr></thead><tbody>`;
+    Object.keys(r.perFinaleDetail).forEach(f=>{
+      const pd = r.perFinaleDetail[f];
+      const playedList = pd.openNumbers.map(n=>`${n}`).join(", ");
+      const hitsStr = pd.hits.map(h=> `${h.value} (idx ${h.spinIndex})`).join(", ");
+      html += `<tr><td>${f}</td><td>${playedList}</td><td>${hitsStr || "-"}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+
+    // show spin-by-spin log for the round
+    html += `<div style="margin-top:8px;"><b>Spin Log (global index in Block)</b></div>`;
+    html += `<div style="max-height:180px; overflow:auto; background:#fafafa; padding:8px; border-radius:8px; margin-top:6px;">`;
+    html += r.roundSpinLog.map(sl => {
+      const hitMark = sl.hit ? `<span style="color:${sl.hitFinale? '#0f9d58' : '#0f9d58'}">HIT (${sl.hitFinale})</span>` : `<span style="color:#9aa0a6">—</span>`;
+      return `[#${sl.spinIndex}] ${sl.value} → ${hitMark}`;
+    }).join("<br>");
+    html += `</div>`;
+  });
+
+  html += `<h4 style="margin-top:12px">Block Gesamt</h4>`;
+  html += `<p class="muted">Versuche: ${analysis.totalAttempts} · Treffer: ${analysis.totalHits} · Treffer %: ${analysis.totalSuccessPct}% · Netto E: ${analysis.netE.toFixed(2)}</p>`;
+
+  // export button for this block
+  html += `<div style="margin-top:12px;"><button class="export-btn" onclick="exportSingleBlockCSV(event, ${entry.index-1})">Export Block als CSV</button></div>`;
+
+  modalBody.innerHTML = html;
+  modal.style.display = "flex";
 }
 
-let percent=((hits/attempts)*100).toFixed(2)
+function closeModal(){ modal.style.display = "none"; modalBody.innerHTML = ""; }
 
-return{
-attempts,
-hits,
-percent,
-net,
-finales
+/* Export helpers */
+function exportBlockCSV(evt, idx){
+  evt.stopPropagation();
+  const last = window.__LAST_ANALYSIS;
+  if(!last || !last.blocks || !last.blocks[idx]){ alert("Blockdaten nicht verfügbar."); return; }
+  const entry = last.blocks[idx];
+  const csv = blockToCSV(entry, last);
+  downloadString(csv, `block_${entry.index}.csv`, 'text/csv');
 }
 
+function exportSingleBlockCSV(evt, idx){
+  // idx corresponds to index in __LAST_ANALYSIS.blocks
+  const last = window.__LAST_ANALYSIS;
+  if(!last || !last.blocks || !last.blocks[idx]){ alert("Blockdaten nicht verfügbar."); return; }
+  const csv = blockToCSV(last.blocks[idx], last);
+  downloadString(csv, `block_${last.blocks[idx].index}.csv`, 'text/csv');
 }
 
-function drawChart(data){
-
-new Chart(document.getElementById("profitChart"),{
-
-type:"bar",
-
-data:{
-labels:data.map((_,i)=>"Block "+(i+1)),
-datasets:[{
-label:"Gewinn / Verlust (E)",
-data:data
-}]
+function exportVisibleAsCSV(){
+  const last = window.__LAST_ANALYSIS;
+  if(!last || !last.blocks){ alert("Keine Analyse verfügbar."); return; }
+  let combined = "";
+  last.blocks.forEach(b => {
+    combined += blockToCSV(b, last) + "\n\n";
+  });
+  downloadString(combined, `analysis_export.csv`, 'text/csv');
 }
 
-})
-
+function blockToCSV(entry, last){
+  const analysis = entry.analysis;
+  const header = ["Block","Round","SpinIndex","SpinValue","Hit","HitFinale","StakePerNum","AttemptCountThisSpin","CumulativeAttempts","PayoutThisSpin"];
+  let rows = [];
+  let cumAttempts = 0;
+  analysis.rounds.forEach(r=>{
+    // reconstruct spins for round using roundSpinLog
+    r.roundSpinLog.forEach(sl=>{
+      cumAttempts += r.activeNumbers ? r.activeNumbers?.length || 0 : 0; // approximation: attempts counted per spin = activeNumbers at round start
+      rows.push([
+        entry.index,
+        r.round,
+        sl.spinIndex,
+        sl.value,
+        sl.hit ? 1 : 0,
+        sl.hitFinale || "",
+        r.stakePerNum,
+        r.activeNumbers ? r.activeNumbers.length : "", // available in this closure?
+        cumAttempts,
+        sl.hit ? (36 * r.stakePerNum).toFixed(2) : 0
+      ]);
+    });
+  });
+  // build CSV
+  let csv = header.join(",") + "\n";
+  rows.forEach(r => csv += r.join(",") + "\n");
+  return csv;
 }
 
+function downloadString(text, fileName, mimeType){
+  const blob = new Blob([text], {type: mimeType});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+/* Small help modal */
+function openHelp(){
+  const html = `
+    <h2>Hilfe & Kontrolle — Wie du alles nachvollziehst</h2>
+    <p class="muted">Diese Seite implementiert exakt die Regeln aus deinem Chat (Beobachtung 20, Erweiterung +12 bis 3 Finales >=3 offen, Auswahl 3-5 Finales, 12er-Runden, Auflösungsregeln, Einsatz E/E/2E, Neustart nach 60). Du kannst:</p>
+    <ol>
+      <li>Tisch + Zeitraum wählen oder Rohdaten einfügen und <b>Auswerten</b> klicken.</li>
+      <li>In der Block-Übersicht siehst du pro Block Kurzstatistiken (Versuche, Treffer, Netto E).</li>
+      <li>Klicke Block → Detailliertes Modal: dort findest du <b>für jede Runde</b> die exakte Liste der gesetzten Zahlen pro Finale, welche Spins getroffenen wurden (mit globalen Spin-Indizes), Einsatz/Auszahlung/Netto pro Runde und den kompletten Spin-Log.</li>
+      <li>Exportiere einzelne Blöcke oder alle sichtbaren Blocks als CSV für eigene Prüfungen.</li>
+    </ol>
+    <p class="muted">Wenn du eine Abweichung findest — sag mir die exakte Stelle (z.B. Block #3, Runde 2, Finale X, Spin idx Y). Dann passe ich es sofort an.</p>
+  `;
+  modalBody.innerHTML = html;
+  modal.style.display = "flex";
+}
+
+/* small utility: compute & store last analysis for export usage (to avoid recompute) */
+window.__LAST_ANALYSIS = null;
+
+// Modify analyzeAndRenderBlocksFromArray to also fill __LAST_ANALYSIS in a correct structure
+// (We already call analyzeBlock twice earlier; to avoid double-work we will call analyzeBlock once and store.)
+
+// Slight patch: redefine analyzeAndRenderBlocksFromArray to set __LAST_ANALYSIS properly
+// But we implemented it earlier to call analyzeBlock and build tiles and final 'last analysis' may not be set.
+// To ensure it's set correctly, we re-run minimal wrapper:
+const origAnalyze = analyzeAndRenderBlocksFromArray;
+function analyzeAndRenderBlocksFromArray(numbers, E, tischDisplay="Data", meta = {}){
+  // compute blocks
+  const blocks = [];
+  for(let i=0;i<numbers.length;i+=60) blocks.push(numbers.slice(i,i+60));
+  const storedBlocks = [];
+  blocks.forEach((b, idx) => {
+    const analysis = analyzeBlock(b, E);
+    storedBlocks.push({index: idx+1, block: b, analysis});
+  });
+  window.__LAST_ANALYSIS = {tisch: tischDisplay, E, meta, blocks: storedBlocks};
+  // now render UI using this storedBlocks
+  blocksContainer.innerHTML = "";
+  let globalAttempts=0, globalHits=0, globalNet=0;
+  storedBlocks.forEach((entry, idx)=>{
+    const analysis = entry.analysis;
+    const tile = document.createElement("div"); tile.className="block-tile";
+    const net = analysis.netE;
+    const netColor = net>0 ? "good" : net<0 ? "bad" : "";
+    tile.innerHTML = `
+      <div class="block-title">Block ${entry.index} — ${entry.block.length} Coups</div>
+      <div class="block-meta">Ausgewählte Finales: ${analysis.selectedFinales.join(", ") || "—"} • obsEnd: ${analysis.obsEnd}</div>
+      <div class="stat-row" style="margin-top:8px;">
+        <div class="stat">Versuche: ${analysis.totalAttempts}</div>
+        <div class="stat">Treffer: ${analysis.totalHits}</div>
+        <div class="stat">${analysis.totalSuccessPct}%</div>
+        <div class="stat ${netColor}">Netto E: ${analysis.netE.toFixed(2)}</div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="btn" onclick="openModalBlock(event, ${idx}, '${tischDisplay}')">Details</button>
+        <button class="export-btn" onclick="exportBlockCSV(event, ${idx})">CSV</button>
+      </div>
+    `;
+    if(compactToggle.checked){
+      tile.style.padding = "8px"; tile.querySelector(".block-title").style.fontSize="14px";
+    }
+    blocksContainer.appendChild(tile);
+    globalAttempts += analysis.totalAttempts;
+    globalHits += analysis.totalHits;
+    globalNet += analysis.netE;
+  });
+  const pct = globalAttempts ? ((globalHits/globalAttempts)*100).toFixed(2) : "0.00";
+  topMetrics.innerHTML = `
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <div class="pill">Tisch: ${tischDisplay}</div>
+      <div class="pill">Blocks: ${storedBlocks.length}</div>
+      <div class="pill">Versuche: ${globalAttempts}</div>
+      <div class="pill">Treffer: ${globalHits}</div>
+      <div class="pill">Treffer %: ${pct}%</div>
+      <div class="pill">Netto E: ${globalNet.toFixed(2)}</div>
+    </div>
+  `;
+  // store already done above
+  window.__LAST_ANALYSIS = {tisch: tischDisplay, E, meta, blocks: storedBlocks};
+}
+
+/* end script */
 </script>
-
 </body>
 </html>
