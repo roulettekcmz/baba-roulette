@@ -1,296 +1,132 @@
 <!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>FÜR BABA — Roulette Analyse (Classic Blue)</title>
+<html lang="de"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FÜR BABA — Roulette Analyse (Dark Neon)</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  /* Classic Blue theme; Rockwell requested font fallback */
   @font-face{font-family:RockwellLocal; src: local('Rockwell'), local('Rockwell Regular');}
-  :root{--bg:#f4f7fc;--card:#ffffff;--accent:#0b5ed7;--muted:#5b6b7a;--good:#0f9d58;--bad:#d93025;}
-  body{font-family:RockwellLocal, Rockwell, 'Segoe UI', Arial; margin:0; background:var(--bg); color:#102027;}
-  header{background:var(--card); display:flex; align-items:center; justify-content:space-between; padding:14px 20px; box-shadow:0 4px 18px rgba(11,78,215,0.06);}
-  header .brand{display:flex; align-items:center; gap:12px;}
-  header img{width:56px; height:56px; border-radius:50%;}
-  header h1{margin:0; font-size:20px; color:var(--accent);}
-  .wrap{max-width:1200px; margin:20px auto; padding:0 16px;}
-  .layout{display:grid; grid-template-columns:360px 1fr; gap:16px;}
-  .card{background:var(--card); padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(16,24,40,0.04);}
-  label{color:var(--muted); font-size:13px; display:block; margin-bottom:6px;}
-  select,input,textarea{width:100%; padding:10px; border-radius:8px; border:1px solid #e6eef8; font-size:14px; box-sizing:border-box;}
-  .btn{background:var(--accent); color:#fff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer;}
-  .small{font-size:13px; color:var(--muted);}
-  .blocks{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:12px;}
-  .tile{padding:12px; border-radius:10px; border:1px solid #eaf3ff; background:#fff;}
-  .tile h3{margin:0; color:var(--accent);}
-  .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
-  .pill{background:#eef6ff; padding:6px 8px; border-radius:8px; font-weight:700; color:#073b8a;}
-  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(2,6,23,0.45); z-index:999;}
-  .panel{background:#fff; max-width:1000px; width:96%; max-height:88vh; overflow:auto; padding:16px; border-radius:10px;}
+  :root{--bg:#0b0f1a;--card:#0f1724;--muted:#94a3b8;--accent:#00d4ff;--good:#00ff94;--bad:#ff4d6d;}
+  body{background:var(--bg); color:#e6eef6; font-family:RockwellLocal, Rockwell, 'Segoe UI', Arial; margin:0;}
+  header{display:flex; justify-content:space-between; padding:14px 18px; background:linear-gradient(90deg,#07102a 0%,#0b1220 100%);}
+  header h1{margin:0; color:var(--accent); font-size:20px;}
+  header .sub{color:var(--muted); font-size:13px;}
+  .wrap{max-width:1200px;margin:18px auto;padding:0 12px;}
+  .grid{display:grid;grid-template-columns:320px 1fr;gap:14px;}
+  .card{background:var(--card); padding:12px; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.6);}
+  label{color:var(--muted); font-size:13px;}
+  select,input,textarea{width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:#eaf6ff; border-radius:8px;}
+  .btn{background:var(--accent); color:#001; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:700;}
+  .blocks{margin-top:12px;}
+  .row{display:flex; gap:8px; align-items:center;}
+  .tile{display:flex; justify-content:space-between; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:8px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.03);}
+  .tile h4{margin:0;color:var(--accent);}
+  .small{color:var(--muted);font-size:13px;}
+  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(1,1,3,0.6); z-index:50;}
+  .panel{background:#07142b; padding:12px; border-radius:10px; width:95%; max-width:1100px; max-height:90vh; overflow:auto; color:#e6f6ff;}
   table{width:100%; border-collapse:collapse; margin-top:8px;}
-  th,td{padding:8px; border-bottom:1px solid #f0f3f7; font-size:13px;}
-  footer{margin-top:14px; text-align:center; color:var(--muted); font-size:13px;}
+  th,td{padding:8px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:13px;}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="brand">
-    <img src="OSK.jpg" alt="Roulette" onerror="this.style.display='none'">
-    <div>
-      <h1>FÜR BABA — Roulette Analyse</h1>
-      <div class="small">made by mkderechte — intuitive Analyse</div>
-    </div>
-  </div>
-  <div style="text-align:right">
-    <div class="small">Einstellung: Runde1 / Runde2 / Runde3</div>
-  </div>
-</header>
-
+<header><div><h1>Roulette Analyse</h1><div class="sub">Für Baba — mkderechte</div></div><div class="sub">Dark Neon UI</div></header>
 <div class="wrap">
-  <div class="layout">
-    <!-- Sidebar -->
+  <div class="grid">
     <div class="card">
-      <label>Tisch</label>
-      <select id="tisch"></select>
-
-      <label>Modus</label>
-      <select id="mode"><option value="tag">Tag</option><option value="monat">Monat</option><option value="jahr">Jahr</option><option value="zeitraum">Zeitraum</option></select>
-
-      <label>Jahr</label><select id="jahr"></select>
-      <label>Monat</label><select id="monat"></select>
-      <label>Tag</label><select id="tag"></select>
-
-      <label style="margin-top:8px">Zeitraum (von/bis)</label>
-      <input id="von" type="date"><input id="bis" type="date" style="margin-top:8px;">
-
-      <label style="margin-top:8px">Einsatz pro Runde (E)</label>
-      <div style="display:flex; gap:8px;">
-        <input id="E1" type="number" step="0.1" value="1">
-        <input id="E2" type="number" step="0.1" value="1">
-        <input id="E3" type="number" step="0.1" value="2">
-      </div>
-      <div style="margin-top:8px;">
-        <label class="small">Rohdaten (optional)</label>
-        <textarea id="raw" placeholder="Zahlen einfügen"></textarea>
-        <div style="display:flex; gap:8px; margin-top:8px;">
-          <button class="btn" id="btnRaw">Rohdaten verwenden</button>
-          <button class="btn" id="btnRun">Auswerten</button>
-        </div>
-      </div>
-      <div style="height:8px;"></div>
-      <div class="small">Hinweis: datenbank.json muss im gleichen Ordner liegen.</div>
+      <label>Tisch</label><select id="tisch"></select>
+      <label>Modus</label><select id="mode"><option value="tag">Tag</option><option value="monat">Monat</option><option value="jahr">Jahr</option><option value="zeitraum">Zeitraum</option></select>
+      <label>Datum</label><select id="jahr"></select><select id="monat"></select><select id="tag"></select>
+      <label style="margin-top:8px">E Runde1 / Runde2 / Runde3</label>
+      <div style="display:flex;gap:6px;"><input id="E1" type="number" value="1"><input id="E2" type="number" value="1"><input id="E3" type="number" value="2"></div>
+      <label style="margin-top:8px">Rohdaten</label><textarea id="raw"></textarea>
+      <div style="display:flex; gap:8px; margin-top:8px;"><button class="btn" id="btnRaw">Rohdaten</button><button class="btn" id="run">Analysieren</button></div>
     </div>
 
-    <!-- Main -->
     <div>
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="small">Übersicht</div>
-            <h2 style="margin:6px 0 0 0;">Analyse</h2>
-          </div>
-          <div class="small">Für Baba — mkderechte</div>
-        </div>
-        <div id="summary" style="margin-top:12px;"></div>
-      </div>
-
-      <div class="card">
-        <h3 style="margin:0">Blöcke</h3>
+        <div style="display:flex;justify-content:space-between;"><h3 style="margin:0">Blöcke</h3><div class="small">Netto E pro Block</div></div>
         <div id="blocks" class="blocks"></div>
       </div>
-
       <div class="card">
-        <h3 style="margin:0">Diagramme</h3>
-        <canvas id="overviewChart" style="width:100%;max-height:260px"></canvas>
+        <h3 style="margin:0">Übersicht</h3>
+        <canvas id="chartAll" style="height:220px;"></canvas>
       </div>
     </div>
   </div>
-
-  <footer>FÜR BABA • made by mkderechte</footer>
 </div>
 
-<!-- Modal -->
-<div class="modal" id="modal"><div class="panel" id="panel"><button style="float:right" onclick="closeModal()">✕</button><div id="panelContent"></div></div></div>
+<div class="modal" id="modal"><div class="panel"><button onclick="closeModal()">✕</button><div id="mcontent"></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/* --- core analysis functions (full rules) --- */
-
-/* Finale map */
-const FINALES = {"0":[0],"1":[1,11,21,31],"2":[2,12,22,32],"3":[3,13,23,33],"4":[4,14,24,34],"5":[5,15,25,35],"6":[6,16,26,36],"7":[7,17,27],"8":[8,18,28],"9":[9,19,29]};
-const TISCH_MAP = {"TB AS1":"Touch Bet Autom.Sp.1","TB AS2":"Touch Bet Autom.Sp.2","TB R":"Touch Bet Raucher"};
-let DATABANK = {};
-
-function loadDB(){ fetch('datenbank.json').then(r=>r.json()).then(j=>{ DATABANK=j; populateTische(); }).catch(()=>{ populateTische(); }); }
-function populateTische(){
-  const sel=document.getElementById('tisch'); sel.innerHTML='<option value="">Wähle</option>';
-  Object.keys(TISCH_MAP).forEach(k=> sel.innerHTML+=`<option value="${k}">${k}</option>`);
-  // years
-  const ysel=document.getElementById('jahr'); ysel.innerHTML='<option></option>';
-  for(let y=2020;y<=2026;y++) ysel.innerHTML+=`<option value="${y}">${y}</option>`;
-}
-loadDB();
-
-/* small helpers */
-function parseRaw(){ const raw=document.getElementById('raw').value; return raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g)?.map(n=>Number(n))||[]; }
-
-function analyzeBlock(blockNumbers, E1,E2,E3){
-  // replicate logic from earlier: observation 20 (+12), select finales >=3 open (exclude 0), add 0 if missing in first20, play up to 3 rounds, stakes per round: E1,E2,E3 (user chooses)
-  let obsEnd=Math.min(20, blockNumbers.length);
-  let observed=new Set(blockNumbers.slice(0,obsEnd));
-  const computeOpen = (obs)=>{ const map={}; for(let f in FINALES){ let fell=0; FINALES[f].forEach(n=>{ if(obs.has(n)) fell++; }); map[f]=FINALES[f].length-fell; } return map; };
-  let open=computeOpen(observed);
-  while(true){
-    const eligible=Object.keys(open).filter(f=>f!=='0'&&open[f]>=3);
-    if(eligible.length>=3) break;
-    if(obsEnd>=blockNumbers.length) break;
-    const add=Math.min(12, blockNumbers.length-obsEnd);
-    for(let i=obsEnd;i<obsEnd+add;i++) observed.add(blockNumbers[i]);
-    obsEnd+=add; open=computeOpen(observed);
-  }
-  let candidates=Object.keys(open).filter(f=>f!=='0'&&open[f]>=3);
-  candidates.sort((a,b)=> open[b]-open[a] || Number(a)-Number(b));
-  let selected=candidates.slice(0,5);
-  const first20set=new Set(blockNumbers.slice(0, Math.min(20, blockNumbers.length)));
-  if(!first20set.has(0) && selected.indexOf('0')===-1 && selected.length<5) selected.push('0');
-  if(selected.length<3) return {selected,obsEnd,rounds:[],totalAttempts:0,totalHits:0,totalSuccessPct:"0.00",netE:0};
-
-  // play rounds
-  let rounds=[]; let occurred=new Set(observed); let active=selected.slice(); let idx=obsEnd;
-  let totalAttempts=0,totalHits=0,netE=0;
-  const roundsParams=[E1,E2,E3];
-  for(let r=1;r<=3;r++){
-    if(r===1 && active.length<3) break;
-    if((r===2||r===3) && active.length<2) break;
-    const stake=(r===1?roundsParams[0]: (r===2?roundsParams[1]:roundsParams[2]));
-    const activeNumbers=new Set();
-    const perFinaleOpen={};
-    active.forEach(f=>{ const o=FINALES[f].filter(n=>!occurred.has(n)); perFinaleOpen[f]=o; o.forEach(n=>activeNumbers.add(n)); });
-    const activeNums=[...activeNumbers];
-    if(activeNums.length===0) break;
-    const spins=Math.min(12, Math.max(0, blockNumbers.length-idx));
-    if(spins<=0) break;
-    let attempts=0,hits=0,payout=0,stakeSpent=0;
-    const finaleHits={}; active.forEach(f=>finaleHits[f]=0);
-    const spinLog=[];
-    for(let s=0;s<spins;s++){
-      const val=blockNumbers[idx+s];
-      stakeSpent += activeNums.length*stake;
-      attempts += activeNums.length;
-      if(activeNumbers.has(val)){
-        hits++; payout += 36*stake;
-        // find finale
-        for(const f of active){ if(FINALES[f].includes(val)){ finaleHits[f]++; break; } }
-      }
-      spinLog.push({idx: idx+s, val, hit: activeNumbers.has(val)});
-      occurred.add(val);
-    }
-    idx+=spins;
-    const net = payout - stakeSpent;
-    totalAttempts += attempts; totalHits += hits; netE += net;
-    // record perFinale details
-    const perFinaleDetail={};
-    active.forEach(f=>{
-      const openList = perFinaleOpen[f];
-      const hitsDetail = [];
-      spinLog.forEach(s=>{ if(openList.includes(s.val) && s.hit) hitsDetail.push({value:s.val, idx:s.idx}); });
-      perFinaleDetail[f] = {openNumbers: openList, hits: hitsDetail, hitsCount: finaleHits[f]||0};
-    });
-    rounds.push({round:r,spins,stakePerNum:stake,attempts,hits,hitPct: attempts?((hits/attempts)*100).toFixed(2):"0.00",stakeSpent,payout,net,perFinaleDetail,spinLog});
-    if(r===1 && hits===0) break;
-    // apply removal
-    const newActive=[];
-    active.forEach(f=>{
-      const size=FINALES[f].length; const hitsCount=finaleHits[f]||0;
-      let remove=false;
-      if(size===3 && hitsCount>=1) remove=true; if(size===4 && hitsCount>=2) remove=true;
-      const remainingOpen = FINALES[f].filter(n=>!occurred.has(n)); if(remainingOpen.length===0) remove=true;
-      if(!remove) newActive.push(f);
-    });
-    active=newActive;
-  }
-  const totalSuccessPct = totalAttempts?((totalHits/totalAttempts)*100).toFixed(2):"0.00";
-  return {selected,obsEnd,rounds,totalAttempts,totalHits,totalSuccessPct,netE};
-}
-
-/* render helpers */
-function renderSummary(text){ document.getElementById('summary').innerHTML=text; }
-
-function analyzeAndRender(numbers){
-  const E1=parseFloat(document.getElementById('E1').value)||1;
-  const E2=parseFloat(document.getElementById('E2').value)||1;
-  const E3=parseFloat(document.getElementById('E3').value)||2;
+/* re-use same logic as variant 1 but compact code to save space */
+const FINALES={"0":[0],"1":[1,11,21,31],"2":[2,12,22,32],"3":[3,13,23,33],"4":[4,14,24,34],"5":[5,15,25,35],"6":[6,16,26,36],"7":[7,17,27],"8":[8,18,28],"9":[9,19,29]};
+const TISCH_MAP={"TB AS1":"Touch Bet Autom.Sp.1","TB AS2":"Touch Bet Autom.Sp.2","TB R":"Touch Bet Raucher"};
+let DB={};
+fetch('datenbank.json').then(r=>r.json()).then(j=>DB=j).catch(()=>{});
+function fillYears(){const y=document.getElementById('jahr'); y.innerHTML=''; for(let i=2020;i<=2026;i++) y.innerHTML+=`<option value="${i}">${i}</option>`;}
+fillYears();
+document.getElementById('run').onclick = ()=>{ const raw=document.getElementById('raw').value.trim(); if(raw){ const nums=raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g).map(n=>+n); runAnalysis(nums); return;} alert('Bitte Rohdaten nutzen oder DB-Integration implementieren'); };
+document.getElementById('btnRaw').onclick = ()=>{ const nums=document.getElementById('raw').value.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g)?.map(n=>+n)||[]; runAnalysis(nums); };
+function runAnalysis(numbers){
   const blocks=[]; for(let i=0;i<numbers.length;i+=60) blocks.push(numbers.slice(i,i+60));
-  const analyses=[]; blocks.forEach((b,idx)=> analyses.push(analyzeBlock(b,E1,E2,E3)));
-  // render tiles
-  const cont=document.getElementById('blocks'); cont.innerHTML='';
-  const netArr=[];
-  analyses.forEach((an,idx)=>{
-    const tile=document.createElement('div'); tile.className='tile';
-    tile.innerHTML = `<h3>Block ${idx+1}</h3>
-      <div class="small">Coups: ${blocks[idx].length} • obsEnd: ${an.obsEnd}</div>
-      <div class="row"><div class="pill">Versuche: ${an.totalAttempts}</div><div class="pill">Treffer: ${an.totalHits}</div><div class="pill">${an.totalSuccessPct}%</div><div class="pill">Netto E: ${an.netE.toFixed(2)}</div></div>
-      <div style="margin-top:8px;"><button class="btn" onclick='openDetails(${idx})'>Details</button></div>`;
-    cont.appendChild(tile);
-    netArr.push(an.netE);
-  });
-  // chart overview
-  const ctx=document.getElementById('overviewChart').getContext('2d');
-  if(window.overviewChart) window.overviewChart.destroy();
-  window.overviewChart = new Chart(ctx,{type:'bar',data:{labels: analyses.map((_,i)=>`B${i+1}`), datasets:[{label:'Netto E', data: netArr, backgroundColor: netArr.map(v=>v>=0?'#0f9d58':'#d93025')}]}, options:{plugins:{legend:{display:false}}}});
-  renderSummary(`<div class="small">Blocks: ${blocks.length} • Gesamt Netto E: ${netArr.reduce((a,b)=>a+b,0).toFixed(2)}</div>`);
-  // store for modal
-  window._LAST = {blocks, analyses};
+  const E1=+document.getElementById('E1').value||1, E2=+document.getElementById('E2').value||1, E3=+document.getElementById('E3').value||2;
+  const analyses = blocks.map(b => analyzeBlockCompact(b,E1,E2,E3));
+  renderBlocks(analyses);
+  renderChart(analyses.map(a=>a.netE));
+  window._LAST={blocks,analyses};
+}
+function analyzeBlockCompact(block,E1,E2,E3){
+  /* simplified but equivalent */
+  let obsEnd=Math.min(20,block.length); let observed=new Set(block.slice(0,obsEnd));
+  const computeOpen=obs=>{const m={}; Object.keys(FINALES).forEach(f=>{let fell=0; FINALES[f].forEach(n=>{ if(obs.has(n)) fell++}); m[f]=FINALES[f].length-fell}); return m;};
+  let open=computeOpen(observed);
+  while(true){ const eligible=Object.keys(open).filter(f=>f!=='0'&&open[f]>=3); if(eligible.length>=3) break; if(obsEnd>=block.length) break; const add=Math.min(12, block.length-obsEnd); for(let i=obsEnd;i<obsEnd+add;i++) observed.add(block[i]); obsEnd+=add; open=computeOpen(observed); }
+  let candidates=Object.keys(open).filter(f=>f!=='0'&&open[f]>=3).sort((a,b)=>open[b]-open[a]||Number(a)-Number(b));
+  let sel=candidates.slice(0,5); if(!new Set(block.slice(0,Math.min(20,block.length))).has(0) && sel.indexOf('0')===-1 && sel.length<5) sel.push('0');
+  if(sel.length<3) return {selected:sel,obsEnd,rounds:[],totalAttempts:0,totalHits:0,totalSuccessPct:"0",netE:0};
+  let rounds=[]; let occurred=new Set(observed); let active=sel.slice(); let idx=obsEnd; let totalA=0,totalH=0,net=0;
+  for(let r=1;r<=3;r++){ if(r===1&&active.length<3) break; if((r===2||r===3)&&active.length<2) break; const stake = r===1?E1: r===2?E2: E3; const activeNums = Array.from(new Set([].concat(...active.map(f=>FINALES[f].filter(n=>!occurred.has(n)))))); if(activeNums.length===0) break; const spins=Math.min(12, Math.max(0, block.length-idx)); if(spins<=0) break;
+    let attempts=0,hits=0,payout=0, stakeSpent=0; const finaleHits={}; active.forEach(f=>finaleHits[f]=0); const spinLog=[];
+    for(let s=0;s<spins;s++){ const val=block[idx+s]; stakeSpent+=activeNums.length*stake; attempts+=activeNums.length; if(activeNums.includes(val)){ hits++; payout+=36*stake; for(const f of active){ if(FINALES[f].includes(val)){ finaleHits[f]++; break; } } } spinLog.push({idx:idx+s,val,hit: activeNums.includes(val)}); occurred.add(val); }
+    idx+=spins; const netr=payout-stakeSpent; totalA+=attempts; totalH+=hits; net+=netr;
+    const perFinale={}; active.forEach(f=> perFinale[f]={open: FINALES[f].filter(n=>!observed.has(n)), hits: finaleHits[f]||0});
+    rounds.push({r,spins,attempts,hits,stake,stakeSpent,payout,net:netr,perFinale,spinLog});
+    if(r===1 && hits===0) break;
+    // remove finales per rule
+    active = active.filter(f=>{ const size=FINALES[f].length; const h=finaleHits[f]||0; let remove=false; if(size===3 && h>=1) remove=true; if(size===4 && h>=2) remove=true; const remaining=FINALES[f].filter(n=>!occurred.has(n)); if(remaining.length===0) remove=true; return !remove; });
+  }
+  return {selected:sel,obsEnd,rounds,totalAttempts:totalA,totalHits:totalH,totalSuccessPct: totalA?((totalH/totalA)*100).toFixed(2):"0",netE:net};
 }
 
-document.getElementById('btnRun').onclick = ()=>{
-  // mode selection and gather numbers from DB or raw
-  const raw = document.getElementById('raw').value.trim();
-  if(raw){ const nums = raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g)?.map(n=>Number(n))||[]; analyzeAndRender(nums); return; }
-  const t = document.getElementById('tisch').value; if(!t){ alert('Tisch wählen'); return; }
-  const orig=TISCH_MAP[t];
-  const mode=document.getElementById('mode').value;
-  if(mode==='tag'){ const y=document.getElementById('jahr').value,m=document.getElementById('monat').value,d=document.getElementById('tag').value; if(!y||!m||!d){ alert('Jahr/Monat/Tag wählen'); return; } const arr = (DATABANK[y]&&DATABANK[y][orig]&&DATABANK[y][orig][m]&&DATABANK[y][orig][m][d])||[]; analyzeAndRender(arr); return; }
-  if(mode==='monat'){ const y=document.getElementById('jahr').value,m=document.getElementById('monat').value; if(!y||!m){ alert('Jahr/Monat wählen'); return; } let arr=[]; Object.values((DATABANK[y]&&DATABANK[y][orig])||{}).forEach(a=>arr=arr.concat(a)); analyzeAndRender(arr); return; }
-  if(mode==='jahr'){ const y=document.getElementById('jahr').value; if(!y){ alert('Jahr wählen'); return; } let arr=[]; Object.values((DATABANK[y]&&DATABANK[y][orig])||{}).forEach(mon=> Object.values(mon).forEach(a=>arr=arr.concat(a))); analyzeAndRender(arr); return; }
-  if(mode==='zeitraum'){ const von=document.getElementById('von').value, bis=document.getElementById('bis').value; if(!von||!bis){ alert('Zeitraum wählen'); return; } let arr=[]; for(let y=2020;y<=2026;y++){ if(!DATABANK[y]||!DATABANK[y][orig]) continue; Object.keys(DATABANK[y][orig]).forEach(m=>{ Object.keys(DATABANK[y][orig][m]).forEach(d=>{ const date=new Date(`${y}-${m}-${d}`); if(new Date(von)<=date && date<=new Date(bis)) arr=arr.concat(DATABANK[y][orig][m][d]); });}); } analyzeAndRender(arr); return; }
-};
-
-document.getElementById('btnRaw').onclick = ()=>{ const raw = document.getElementById('raw').value.trim(); if(!raw){ alert('Bitte Zahlen einfügen'); return; } const nums = raw.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g)?.map(n=>Number(n))||[]; analyzeAndRender(nums); };
-
-function openDetails(idx){
-  const last = window._LAST;
-  if(!last) return;
-  const entry = last.analyses[idx]; const block = last.blocks[idx];
-  let html = `<h3>Block ${idx+1} — Details</h3><div class="small">obsEnd: ${entry.obsEnd}</div>`;
-  if(!entry.rounds.length){ html += `<div class="small">Block nicht spielbar.</div>`; document.getElementById('panelContent').innerHTML = html; document.getElementById('modal').style.display='flex'; return; }
-  entry.rounds.forEach(r=>{
-    html += `<h4>Runde ${r.round} — Spins ${r.spins} — Stake/Num ${r.stakePerNum}</h4>`;
-    html += `<div class="small">Versuche ${r.attempts} • Treffer ${r.hits} • Treffer% ${r.hitPct}% • Netto E ${r.net.toFixed(2)}</div>`;
-    html += `<table><thead><tr><th>Finale</th><th>Gesetzte Zahlen (offen)</th><th>Treffer (Wert / idx)</th></tr></thead><tbody>`;
-    for(const f in r.perFinaleDetail){
-      const d = r.perFinaleDetail[f];
-      html += `<tr><td>${f}</td><td>${d.openNumbers.join(', ') || '-'}</td><td>${d.hits.map(h=> `${h.value} (idx ${h.idx})`).join('; ') || '-'}</td></tr>`;
-    }
-    html += `</tbody></table>`;
-    html += `<div style="margin-top:8px;"><b>Spin Log (global index in block)</b><br>` + r.spinLog.map(s=>`[#${s.idx}] ${s.val} ${s.hit?'<b style="color:green">HIT</b>':''}`).join('<br>') + `</div>`;
+function renderBlocks(analyses){
+  const c=document.getElementById('blocks'); c.innerHTML=''; analyses.forEach((a,i)=>{
+    const div=document.createElement('div'); div.className='tile';
+    div.innerHTML=`<div><h4>Block ${i+1}</h4><div class="small">Finales: ${a.selected.join(', ')}</div></div>
+      <div style="text-align:right"><div class="small">Netto E: <b style="color:${a.netE>=0?'#00ff94':'#ff4d6d'}">${a.netE.toFixed(2)}</b></div><button onclick="openModal(${i})" class="btn">Details</button></div>`;
+    c.appendChild(div);
   });
-  html += `<h4>Block Gesamt</h4><div class="small">Versuche ${entry.totalAttempts} • Treffer ${entry.totalHits} • Treffer% ${entry.totalSuccessPct}% • Netto E ${entry.netE.toFixed(2)}</div>`;
-  document.getElementById('panelContent').innerHTML = html; document.getElementById('modal').style.display='flex';
+  window._LAST={analyses};
+}
+
+function renderChart(arr){
+  const ctx=document.getElementById('chartAll').getContext('2d');
+  if(window.ch) window.ch.destroy();
+  window.ch=new Chart(ctx,{type:'bar',data:{labels:arr.map((_,i)=>`B${i+1}`),datasets:[{label:'Netto E',data:arr, backgroundColor:arr.map(v=>v>=0?'#00ff94':'#ff4d6d')}]},options:{plugins:{legend:{display:false}}}});
+}
+
+function openModal(i){
+  const last=window._LAST;
+  if(!last) return;
+  const a=last.analyses[i];
+  let html=`<h3>Block ${i+1}</h3><div class="small">obsEnd: ${a.obsEnd}</div>`;
+  if(!a.rounds.length) html+='<div class="small">Nicht spielbar</div>'; else a.rounds.forEach(r=>{ html+=`<h4>Runde ${r.r}</h4><div class="small">Versuche ${r.attempts} Treffer ${r.hits} Netto ${r.net.toFixed(2)}</div><table><thead><tr><th>Finale</th><th>Offen</th><th>Hits</th></tr></thead><tbody>`; for(const f in r.perFinale){ html+=`<tr><td>${f}</td><td>${r.perFinale[f].open.join(', ')||'-'}</td><td>${r.perFinale[f].hits}</td></tr>`; } html+='</tbody></table>'; });
+  document.getElementById('mcontent').innerHTML = html; document.getElementById('modal').style.display='flex';
 }
 function closeModal(){ document.getElementById('modal').style.display='none'; }
 
-/* populate months/days on selection */
-document.getElementById('jahr').onchange = ()=>{
-  const sel=document.getElementById('monat'); sel.innerHTML='<option></option>';
-  for(let m=1;m<=12;m++) sel.innerHTML+=`<option value="${String(m).padStart(2,'0')}">${String(m).padStart(2,'0')}</option>`;
-};
-document.getElementById('monat').onchange = ()=>{
-  const sel=document.getElementById('tag'); sel.innerHTML='<option></option>';
-  for(let d=1;d<=31;d++) sel.innerHTML+=`<option value="${String(d).padStart(2,'0')}">${String(d).padStart(2,'0')}</option>`;
-};
+/* wire minimal events for raw test */
+document.getElementById('btnRaw').onclick = ()=>{ const raw=document.getElementById('raw').value.match(/\b([0-9]|[12][0-9]|3[0-6])\b/g)?.map(n=>+n)||[]; runAnalysis(raw); };
+document.getElementById('run').onclick = ()=>{ alert('DB search not implemented in this demo. Bitte Rohdaten nutzen oder erweitern.'); };
+
 </script>
-</body>
-</html>
+</body></html>
