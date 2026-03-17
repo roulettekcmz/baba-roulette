@@ -3,36 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roulette - für Baba</title>
-    <script src="[cdn.jsdelivr.net](https://cdn.jsdelivr.net/npm/chart.js)"></script>
+    <title>Roulette - für wählen...</title>
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --primary-light: #818cf8;
-            --success: #10b981;
-            --success-light: #d1fae5;
-            --danger: #ef4444;
-            --danger-light: #fee2e2;
-            --warning: #f59e0b;
-            --warning-light: #fef3c7;
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --bg-dark: #1e293b;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-muted: #94a3b8;
-            --border: #e2e8f0;
-            --border-light: #f1f5f9;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
-            --radius-sm: 6px;
-            --radius: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 24px;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -40,2355 +12,1142 @@
         }
 
         body {
-            font-family: 'Rockwell', 'Segoe UI', 'Georgia', serif;
-            background: var(--bg-main);
-            color: var(--text-primary);
-            line-height: 1.6;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', sans-serif;
             min-height: 100vh;
         }
 
-        /* ===== HEADER ===== */
         .header {
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #0f172a 100%);
-            padding: 0;
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #c9a84c;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: repeating-conic-gradient(
-                from 0deg,
-                #dc2626 0deg 10deg,
-                #1e293b 10deg 20deg
-            );
-            animation: rotateBg 60s linear infinite;
-            opacity: 0.07;
+        .header h1 {
+            color: #c9a84c;
+            font-size: 1.8em;
+            margin-bottom: 5px;
         }
 
-        @keyframes rotateBg {
-            to { transform: rotate(360deg); }
+        .header p {
+            color: #888;
+            font-size: 0.9em;
         }
 
-        .header-content {
-            position: relative;
-            z-index: 1;
+        .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 1rem;
+            padding: 20px;
         }
 
-        .logo h1 {
-            color: white;
-            font-size: 1.75rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .logo h1 span {
-            color: #fbbf24;
-        }
-
-        .header-stats {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .header-stat {
+        .stat-card {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
             text-align: center;
-            padding: 0.75rem 1.5rem;
-            background: rgba(255,255,255,0.1);
-            border-radius: var(--radius);
-            backdrop-filter: blur(10px);
         }
 
-        .header-stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
+        .stat-card .label {
+            font-size: 0.75em;
+            color: #888;
+            margin-bottom: 4px;
         }
 
-        .header-stat-value.positive { color: #34d399; }
-        .header-stat-value.negative { color: #f87171; }
-
-        .header-stat-label {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.7);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .stat-card .value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #c9a84c;
         }
 
-        /* ===== TABS ===== */
-        .tabs {
-            max-width: 1400px;
-            margin: 1.5rem auto 0;
-            padding: 0 1.5rem;
-            display: flex;
-            gap: 0.5rem;
-            border-bottom: 2px solid var(--border);
+        .stat-card .value.green { color: #4caf50; }
+        .stat-card .value.red { color: #f44336; }
+
+        .input-section {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
-        .tab-btn {
-            padding: 0.75rem 1.5rem;
+        .input-section h3 {
+            color: #c9a84c;
+            margin-bottom: 10px;
+        }
+
+        .input-section p {
+            color: #888;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+        }
+
+        textarea {
+            width: 100%;
+            background: #0d0d1a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #e0e0e0;
+            padding: 12px;
+            font-size: 0.9em;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #c9a84c;
+        }
+
+        .btn {
+            padding: 10px 20px;
             border: none;
-            background: transparent;
-            font-family: inherit;
-            font-size: 0.9375rem;
-            font-weight: 600;
-            color: var(--text-secondary);
+            border-radius: 6px;
             cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
+            font-size: 0.9em;
+            font-weight: bold;
             transition: all 0.2s;
         }
-
-        .tab-btn:hover {
-            color: var(--primary);
-        }
-
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
-        /* ===== CONTAINER ===== */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-
-        .tab-panel {
-            display: none;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
-
-        /* ===== GRID ===== */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 1.5rem;
-        }
-
-        @media (max-width: 1100px) {
-            .main-grid { grid-template-columns: 1fr; }
-        }
-
-        /* ===== CARDS ===== */
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .card-title {
-            font-size: 1.0625rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        /* ===== BUTTONS ===== */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.4rem;
-            padding: 0.6rem 1.2rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            font-family: inherit;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .btn:active { transform: scale(0.97); }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+            background: #c9a84c;
+            color: #0a0a0a;
         }
 
-        .btn-primary:hover {
-            box-shadow: 0 4px 12px rgba(99,102,241,0.5);
-            transform: translateY(-1px);
+        .btn-primary:hover { background: #e0bc5a; }
+
+        .btn-secondary {
+            background: #333;
+            color: #e0e0e0;
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, var(--success), #059669);
-            color: white;
-            box-shadow: 0 2px 8px rgba(16,185,129,0.35);
-        }
-
-        .btn-success:hover {
-            box-shadow: 0 4px 12px rgba(16,185,129,0.5);
-            transform: translateY(-1px);
-        }
+        .btn-secondary:hover { background: #444; }
 
         .btn-danger {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
+            background: #c0392b;
             color: white;
-            box-shadow: 0 2px 8px rgba(239,68,68,0.35);
         }
 
-        .btn-danger:hover {
-            box-shadow: 0 4px 12px rgba(239,68,68,0.5);
-            transform: translateY(-1px);
-        }
+        .btn-danger:hover { background: #e74c3c; }
 
-        .btn-outline {
-            background: transparent;
-            color: var(--text-primary);
-            border: 2px solid var(--border);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
-        .btn-lg { padding: 0.875rem 1.75rem; font-size: 1rem; }
-
-        .btn-group {
+        .input-controls {
             display: flex;
-            gap: 0.5rem;
+            gap: 10px;
+            margin-top: 12px;
             flex-wrap: wrap;
         }
 
-        /* ===== FORM ===== */
-        .form-group { margin-bottom: 1rem; }
-
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 0.375rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.625rem 0.875rem;
-            font-size: 0.9375rem;
-            font-family: inherit;
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            transition: all 0.2s;
-            box-sizing: border-box;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-        }
-
-        /* ===== BET INPUTS ===== */
-        .bet-inputs {
+        .blocks-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .bet-input-group {
-            background: var(--bg-main);
-            padding: 0.875rem;
-            border-radius: var(--radius);
-            text-align: center;
-        }
-
-        .bet-input-group label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            margin-bottom: 0.375rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .bet-input-group input {
-            width: 100%;
-            padding: 0.5rem;
-            font-size: 1rem;
-            font-weight: 700;
-            text-align: center;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            background: white;
-            transition: border-color 0.2s;
-        }
-
-        .bet-input-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* ===== ROUND TRACKER ===== */
-        .round-tracker {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: var(--bg-main);
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
-        }
-
-        .round-dot {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.875rem;
-            background: white;
-            border: 3px solid var(--border);
-            color: var(--text-secondary);
-            transition: all 0.3s;
-        }
-
-        .round-dot.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-            transform: scale(1.15);
-            box-shadow: 0 4px 12px rgba(99,102,241,0.4);
-        }
-
-        .round-dot.completed {
-            background: var(--success);
-            border-color: var(--success);
-            color: white;
-        }
-
-        .round-dot.completed.lost {
-            background: var(--danger);
-            border-color: var(--danger);
-        }
-
-        /* ===== CURRENT ENTRIES ===== */
-        .current-entries {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.375rem;
-            min-height: 40px;
-            padding: 0.75rem;
-            background: var(--bg-main);
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
-            align-items: center;
-        }
-
-        .entry-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.625rem;
-            font-size: 0.8125rem;
-            font-weight: 700;
-            border-radius: 9999px;
-            color: white;
-        }
-
-        .entry-chip.red { background: #ef4444; }
-        .entry-chip.black { background: #374151; }
-        .entry-chip.green { background: #22c55e; }
-
-        .entry-chip .remove-entry {
-            cursor: pointer;
-            opacity: 0.7;
-        }
-
-        .entry-chip .remove-entry:hover { opacity: 1; }
-
-        /* ===== NUMBERS GRID ===== */
-        .numbers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
-            gap: 5px;
-            margin-bottom: 1rem;
-        }
-
-        .number-btn {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9375rem;
-            font-weight: 700;
-            font-family: inherit;
-            border: 2px solid transparent;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .number-btn:hover { transform: scale(1.1); z-index: 1; position: relative; }
-        .number-btn:active { transform: scale(0.93); }
-
-        .number-btn.red {
-            background: linear-gradient(145deg, #ef4444, #dc2626);
-            color: white;
-        }
-
-        .number-btn.black {
-            background: linear-gradient(145deg, #374151, #1f2937);
-            color: white;
-        }
-
-        .number-btn.green {
-            background: linear-gradient(145deg, #22c55e, #16a34a);
-            color: white;
-        }
-
-        /* ===== BLOCKS CONTAINER ===== */
-        .blocks-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
         .block-card {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1rem;
+            background: #1a1a2e;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 14px;
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
         }
 
         .block-card:hover {
-            border-color: var(--primary);
-            box-shadow: var(--shadow);
+            border-color: #c9a84c;
             transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(201, 168, 76, 0.2);
         }
 
-        .block-card.won {
-            border-color: var(--success);
-            background: linear-gradient(135deg, white, var(--success-light));
-        }
+        .block-card.win { border-left: 4px solid #4caf50; }
+        .block-card.loss { border-left: 4px solid #f44336; }
 
-        .block-card.lost {
-            border-color: var(--danger);
-            background: linear-gradient(135deg, white, var(--danger-light));
-        }
-
-        .block-card-header {
+        .block-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 0.75rem;
+            align-items: center;
+            margin-bottom: 8px;
         }
 
         .block-number {
-            font-weight: 700;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
+            font-weight: bold;
+            color: #c9a84c;
+            font-size: 0.9em;
         }
 
         .block-result {
-            font-weight: 700;
-            font-size: 0.9375rem;
-            padding: 0.2rem 0.7rem;
-            border-radius: 9999px;
+            font-size: 0.8em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
         }
 
-        .block-result.positive {
-            background: var(--success-light);
-            color: var(--success);
+        .block-result.win { background: #1b5e20; color: #4caf50; }
+        .block-result.loss { background: #b71c1c; color: #ef9a9a; }
+
+        .block-finale {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #e0e0e0;
+            margin-bottom: 4px;
         }
 
-        .block-result.negative {
-            background: var(--danger-light);
-            color: var(--danger);
+        .block-stats {
+            font-size: 0.75em;
+            color: #888;
         }
 
-        .block-numbers {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 3px;
-            margin-bottom: 0.75rem;
-        }
-
-        .block-num {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.6875rem;
-            font-weight: 700;
-            border-radius: 4px;
-            color: white;
-        }
-
-        .block-num.red { background: #ef4444; }
-        .block-num.black { background: #374151; }
-        .block-num.green { background: #22c55e; }
-
-        .block-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .block-delete {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--danger-light);
-            color: var(--danger);
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.2s;
-            font-size: 0.875rem;
-            font-family: inherit;
-        }
-
-        .block-card:hover .block-delete { opacity: 1; }
-        .block-delete:hover { background: var(--danger); color: white; }
-
-        /* ===== PAGINATION ===== */
-        .pagination {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.4rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-light);
-            flex-wrap: wrap;
-        }
-
-        .pagination-btn {
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-main);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-weight: 600;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-
-        .pagination-btn:hover:not(:disabled) {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .pagination-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
-
-        .pagination-info {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            padding: 0 0.25rem;
-        }
-
-        /* ===== CHART ===== */
-        .chart-container {
-            position: relative;
-            height: 260px;
-        }
-
-        /* ===== STATS ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .stat-card {
-            background: var(--bg-main);
-            padding: 0.875rem;
-            border-radius: var(--radius);
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.375rem;
-            font-weight: 700;
-        }
-
-        .stat-value.positive { color: var(--success); }
-        .stat-value.negative { color: var(--danger); }
-
-        .stat-label {
-            font-size: 0.6875rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
-        }
-
-        /* ===== MODAL ===== */
+        /* ── Modal ── */
         .modal-overlay {
+            display: none;
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.88);
             z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            overflow-y: auto;
         }
 
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
+        .modal-overlay.active { display: flex; }
 
         .modal {
-            background: var(--bg-card);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-lg);
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            transform: scale(0.9) translateY(20px);
-            transition: transform 0.3s;
-        }
-
-        .modal-overlay.active .modal {
-            transform: scale(1) translateY(0);
+            background: #1a1a2e;
+            border: 1px solid #c9a84c;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 980px;
+            width: 100%;
+            margin: auto;
         }
 
         .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-light);
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 12px;
         }
 
-        .modal-title { font-size: 1.125rem; font-weight: 700; }
+        .modal-header h2 { color: #c9a84c; }
 
-        .modal-close {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-main);
+        .close-btn {
+            background: none;
             border: none;
-            border-radius: 50%;
+            color: #888;
+            font-size: 1.5em;
             cursor: pointer;
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            font-family: inherit;
-            transition: all 0.2s;
+            padding: 4px 8px;
         }
 
-        .modal-close:hover { background: var(--danger-light); color: var(--danger); }
-        .modal-body { padding: 1.5rem; }
+        .close-btn:hover { color: #e0e0e0; }
 
-        /* ===== DETAIL ROUNDS ===== */
-        .detail-round {
-            background: var(--bg-main);
-            padding: 1rem;
-            border-radius: var(--radius);
-            margin-bottom: 0.75rem;
-        }
-
-        .detail-round-header {
+        /* ── Tabs ── */
+        .tab-bar {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-
-        .detail-round-title { font-weight: 700; font-size: 0.9375rem; }
-
-        .detail-round-result {
-            font-weight: 700;
-            padding: 0.2rem 0.7rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-        }
-
-        .detail-round-result.won { background: var(--success-light); color: var(--success); }
-        .detail-round-result.lost { background: var(--danger-light); color: var(--danger); }
-
-        .detail-numbers {
-            display: flex;
+            gap: 6px;
+            margin-bottom: 18px;
             flex-wrap: wrap;
-            gap: 0.35rem;
         }
 
-        .detail-num {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8125rem;
-            font-weight: 700;
-            border-radius: var(--radius-sm);
-            color: white;
-        }
-
-        .detail-num.red { background: #ef4444; }
-        .detail-num.black { background: #374151; }
-        .detail-num.green { background: #22c55e; }
-
-        /* ===== DEVELOPER SECTION ===== */
-        .dev-section { margin-top: 2rem; }
-
-        .dev-toggle {
-            width: 100%;
-            padding: 1rem 1.5rem;
-            background: var(--bg-dark);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
+        .tab-btn {
+            padding: 7px 14px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background: #0d0d1a;
+            color: #aaa;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-family: inherit;
-            font-size: 0.9375rem;
-            font-weight: 600;
+            font-size: 0.82em;
+            font-weight: bold;
             transition: all 0.2s;
         }
 
-        .dev-toggle:hover { background: #0f172a; }
+        .tab-btn:hover { border-color: #c9a84c; color: #e0e0e0; }
+        .tab-btn.active { background: #c9a84c; color: #0a0a0a; border-color: #c9a84c; }
 
-        .dev-toggle-icon { transition: transform 0.3s; }
-        .dev-toggle.open .dev-toggle-icon { transform: rotate(180deg); }
+        /* ── Detail panels ── */
+        .detail-panel { display: none; }
+        .detail-panel.active { display: block; }
 
-        .dev-content {
-            background: var(--bg-card);
-            border: 2px solid var(--bg-dark);
-            border-top: none;
-            border-radius: 0 0 var(--radius) var(--radius);
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease, padding 0.3s;
+        .section-title {
+            color: #c9a84c;
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #2a2a3e;
         }
 
-        .dev-content.open {
-            max-height: 2000px;
-            padding: 1.5rem;
+        /* Zahlen-Chips */
+        .number-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 0.78em;
+            margin: 3px;
+            font-weight: bold;
+            border: 2px solid transparent;
         }
 
-        .dev-tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
+        .number-chip.red   { background: #c0392b; color: #fff; }
+        .number-chip.black { background: #2c2c2c; color: #fff; border-color: #555; }
+        .number-chip.green { background: #27ae60; color: #fff; }
+
+        /* Hit = die Zahl gehört zum gewählten Finale → goldener Ring */
+        .number-chip.hit { border-color: #c9a84c; box-shadow: 0 0 6px rgba(201,168,76,0.7); }
+
+        /* Finale-Balkendiagramm */
+        .finale-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .dev-tool-card {
-            background: var(--bg-main);
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.25rem;
-            transition: border-color 0.2s;
-        }
-
-        .dev-tool-card.active { border-color: var(--primary); }
-
-        .dev-tool-header {
+        .finale-row {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.375rem;
+            gap: 10px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
         }
 
-        .dev-tool-checkbox {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-            cursor: pointer;
+        .finale-row.chosen { background: #16213e; }
+
+        .finale-label {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.82em;
+            flex-shrink: 0;
         }
 
-        .dev-tool-title { font-weight: 700; font-size: 0.9375rem; }
+        .finale-label.chosen-label { background: #c9a84c; color: #0a0a0a; }
+        .finale-label.other-label  { background: #333; color: #aaa; }
 
-        .dev-tool-desc {
-            font-size: 0.8125rem;
-            color: var(--text-secondary);
-            margin-left: 30px;
-            margin-bottom: 0;
+        .finale-bar-wrap {
+            flex: 1;
         }
 
-        .dev-tool-body {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-            display: none;
-        }
-
-        .dev-tool-body.visible { display: block; }
-
-        /* ===== ANALYSIS RESULTS ===== */
-        .analysis-result {
-            background: white;
-            padding: 1rem;
-            border-radius: var(--radius-sm);
-            margin-top: 0.75rem;
-        }
-
-        .analysis-item {
+        .finale-bar-meta {
             display: flex;
             justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border-light);
-            font-size: 0.875rem;
+            font-size: 0.75em;
+            margin-bottom: 3px;
+            color: #aaa;
         }
 
-        .analysis-item:last-child { border-bottom: none; }
-        .analysis-label { color: var(--text-secondary); }
-        .analysis-value { font-weight: 700; }
-
-        /* ===== PROGRESS ===== */
-        .progress-bar {
+        .finale-bar-bg {
             height: 8px;
-            background: var(--border);
+            background: #222;
             border-radius: 4px;
             overflow: hidden;
-            margin-top: 0.5rem;
+        }
+
+        .finale-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: #555;
+            transition: width 0.4s;
+        }
+
+        .finale-bar-fill.chosen-fill { background: #c9a84c; }
+
+        .finale-numbers-list {
+            font-size: 0.72em;
+            color: #666;
+            width: 90px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* Profit-Verlauf */
+        .profit-canvas-wrap {
+            background: #0d0d1a;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        canvas {
+            width: 100%;
+            display: block;
+        }
+
+        /* Info-Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .info-box {
+            background: #0d0d1a;
+            border: 1px solid #2a2a3e;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .info-box .ib-label { font-size: 0.72em; color: #777; margin-bottom: 4px; }
+        .info-box .ib-value { font-size: 1.25em; font-weight: bold; color: #c9a84c; }
+        .info-box .ib-value.green { color: #4caf50; }
+        .info-box .ib-value.red   { color: #f44336; }
+
+        /* Entscheidungsbox */
+        .decision-box {
+            background: #0d0d1a;
+            border-left: 4px solid #c9a84c;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            font-size: 0.85em;
+            line-height: 1.7;
+        }
+
+        .decision-box .dec-title {
+            color: #c9a84c;
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 6px;
+        }
+
+        /* Tool-Outputs */
+        .tool-output {
+            background: #0d0d1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .tool-card {
+            background: #0d0d1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tool-card:hover { border-color: #c9a84c; background: #16213e; }
+        .tool-icon { font-size: 1.8em; margin-bottom: 6px; }
+        .tool-name { font-weight: bold; color: #e0e0e0; font-size: 0.82em; margin-bottom: 3px; }
+        .tool-desc { font-size: 0.72em; color: #777; }
+
+        .progress-bar {
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            border-radius: 4px;
-            transition: width 0.5s;
+            background: #c9a84c;
+            border-radius: 3px;
         }
 
-        /* ===== TABLES ===== */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.875rem;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .data-table th {
-            background: var(--bg-main);
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-        }
-
-        .data-table tr:hover td { background: var(--bg-main); }
-
-        /* ===== TOAST ===== */
-        .toast-container {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .toast {
-            background: var(--bg-dark);
-            color: white;
-            padding: 0.875rem 1.25rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 0.625rem;
-            font-size: 0.9rem;
-            animation: toastIn 0.3s ease;
-        }
-
-        @keyframes toastIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .toast.success { border-left: 4px solid var(--success); }
-        .toast.error { border-left: 4px solid var(--danger); }
-        .toast.warning { border-left: 4px solid var(--warning); }
-
-        /* ===== EMPTY STATE ===== */
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-muted);
-        }
-
-        .empty-state-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-
-        /* ===== ROHDATEN ===== */
-        .rawdata-section {
-            background: var(--bg-main);
-            border-radius: var(--radius);
-            padding: 1.25rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .rawdata-section textarea {
-            width: 100%;
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            padding: 0.75rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-            background: white;
-            color: var(--text-primary);
-            resize: vertical;
-            transition: border-color 0.2s;
-            box-sizing: border-box;
-        }
-
-        .rawdata-section textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-        }
-
-        .final-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            background: var(--primary);
-            color: white;
+        .finale-badge {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            font-weight: 700;
-            font-size: 0.8125rem;
+            background: #c9a84c;
+            color: #0a0a0a;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            font-size: 0.82em;
+            margin: 2px;
         }
 
-        /* ===== MOBILE ===== */
         @media (max-width: 768px) {
-            .header-content { flex-direction: column; text-align: center; }
-            .header-stats { justify-content: center; }
-            .container { padding: 1rem; }
-            .bet-inputs { grid-template-columns: 1fr; }
-            .numbers-grid { grid-template-columns: repeat(auto-fill, minmax(36px, 1fr)); }
-            .blocks-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .dev-tools-grid { grid-template-columns: 1fr; }
-            .toast-container { left: 1rem; right: 1rem; bottom: 1rem; }
-            .tabs { overflow-x: auto; padding-bottom: 0; }
-            .tab-btn { white-space: nowrap; }
+            .stats-bar { grid-template-columns: repeat(3, 1fr); }
+            .blocks-container { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+            .tab-btn { font-size: 0.75em; padding: 6px 10px; }
         }
     </style>
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
-<header class="header">
-    <div class="header-content">
-        <div class="logo">
-            <h1>Roulette – <span>für Baba</span></h1>
-        </div>
-        <div class="header-stats">
-            <div class="header-stat">
-                <div class="header-stat-value" id="headerTotalBlocks">0</div>
-                <div class="header-stat-label">Blöcke</div>
-            </div>
-            <div class="header-stat">
-                <div class="header-stat-value" id="headerWinRate">0%</div>
-                <div class="header-stat-label">Gewinnrate</div>
-            </div>
-            <div class="header-stat">
-                <div class="header-stat-value" id="headerProfit">0.00</div>
-                <div class="header-stat-label">Profit (E)</div>
-            </div>
-        </div>
-    </div>
-</header>
-
-<!-- ===== TABS ===== -->
-<div class="tabs" style="max-width:1400px;margin:1.5rem auto 0;padding:0 1.5rem;">
-    <button class="tab-btn active" onclick="switchTab('live')">Live-Eingabe</button>
-    <button class="tab-btn" onclick="switchTab('raw')">Rohdaten testen</button>
-    <button class="tab-btn" onclick="switchTab('history')">Verlauf</button>
+<div class="header">
+    <h1>🎰 Roulette Analyse</h1>
+    <p>für wählen...</p>
 </div>
 
-<!-- ===== MAIN ===== -->
-<div class="container">
+<div class="main-container">
 
-    <!-- TAB: LIVE -->
-    <div class="tab-panel active" id="tab-live">
-        <div class="main-grid">
-            <div>
-                <!-- Einsätze & Zahlen -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Neue Runde</span>
-                        <div class="btn-group">
-                            <button class="btn btn-outline btn-sm" onclick="undoLastEntry()">Rückgängig</button>
-                            <button class="btn btn-outline btn-sm" onclick="clearCurrentRound()">Leeren</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="bet-inputs">
-                            <div class="bet-input-group">
-                                <label>Runde 1 (E)</label>
-                                <input type="number" id="bet1" value="1" min="0.1" step="0.1">
-                            </div>
-                            <div class="bet-input-group">
-                                <label>Runde 2 (E)</label>
-                                <input type="number" id="bet2" value="1" min="0.1" step="0.1">
-                            </div>
-                            <div class="bet-input-group">
-                                <label>Runde 3 (E)</label>
-                                <input type="number" id="bet3" value="2" min="0.1" step="0.1">
-                            </div>
-                        </div>
-                        <div class="round-tracker">
-                            <div class="round-dot active" id="roundDot1">R1</div>
-                            <div class="round-dot" id="roundDot2">R2</div>
-                            <div class="round-dot" id="roundDot3">R3</div>
-                        </div>
-                        <div class="current-entries" id="currentEntries">
-                            <span style="color:var(--text-muted);font-size:0.875rem;">Zahlen wählen...</span>
-                        </div>
-                        <div class="numbers-grid" id="numbersGrid"></div>
-                        <div class="btn-group" style="justify-content:center;margin-top:0.5rem;">
-                            <button class="btn btn-success btn-lg" onclick="confirmRoundWin()">Gewonnen</button>
-                            <button class="btn btn-danger btn-lg" onclick="confirmRoundLoss()">Verloren</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chart -->
-                <div class="card" style="margin-top:1.5rem;">
-                    <div class="card-header">
-                        <span class="card-title">Gewinn / Verlauf</span>
-                        <select id="chartRange" class="form-input" style="width:auto;padding:0.4rem 0.8rem;" onchange="updateChart()">
-                            <option value="10">Letzte 10</option>
-                            <option value="25">Letzte 25</option>
-                            <option value="50">Letzte 50</option>
-                            <option value="all" selected>Alle</option>
-                        </select>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="profitChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SIDEBAR -->
-            <div class="sidebar">
-                <div class="card">
-                    <div class="card-header"><span class="card-title">Statistiken</span></div>
-                    <div class="card-body">
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-value positive" id="statWins">0</div>
-                                <div class="stat-label">Gewonnen</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value negative" id="statLosses">0</div>
-                                <div class="stat-label">Verloren</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="statTotalBet">0.00</div>
-                                <div class="stat-label">Einsatz (E)</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="statAvgProfit">0.00</div>
-                                <div class="stat-label">Ø/Block</div>
-                            </div>
-                        </div>
-                        <div style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.4rem;">
-                            <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
-                                <span style="color:var(--text-secondary);">Aktuelle Serie</span>
-                                <span id="currentStreak" style="font-weight:700;">–</span>
-                            </div>
-                            <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
-                                <span style="color:var(--text-secondary);">Längste Gewinnserie</span>
-                                <span id="longestWinStreak" style="font-weight:700;color:var(--success);">0</span>
-                            </div>
-                            <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
-                                <span style="color:var(--text-secondary);">Längste Verlustserie</span>
-                                <span id="longestLoseStreak" style="font-weight:700;color:var(--danger);">0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><span class="card-title">Aktionen</span></div>
-                    <div class="card-body">
-                        <div class="quick-actions">
-                            <button class="btn btn-outline" onclick="showImportModal()">Import</button>
-                            <button class="btn btn-outline" onclick="exportData()">Export</button>
-                            <button class="btn btn-outline" onclick="resetAllData()">Reset</button>
-                            <button class="btn btn-outline" onclick="switchTab('history')">Verlauf</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><span class="card-title">Häufige Zahlen</span></div>
-                    <div class="card-body">
-                        <div id="hotNumbers" style="display:flex;flex-wrap:wrap;gap:0.5rem;">
-                            <span style="color:var(--text-muted);font-size:0.875rem;">Noch keine Daten</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="label">Blöcke</div>
+            <div class="value" id="totalBlocks">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Gewonnen</div>
+            <div class="value green" id="wonBlocks">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Verloren</div>
+            <div class="value red" id="lostBlocks">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Einsatz (€)</div>
+            <div class="value" id="totalBet">0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Ø/Block</div>
+            <div class="value" id="avgPerBlock">0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Aktuelle Serie</div>
+            <div class="value" id="currentStreak">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Längste Gewinnserie</div>
+            <div class="value green" id="bestStreak">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Längste Verlustserie</div>
+            <div class="value red" id="worstStreak">—</div>
         </div>
     </div>
 
-    <!-- TAB: ROHDATEN -->
-    <div class="tab-panel" id="tab-raw">
-        <div class="card">
-            <div class="card-header">
-                <span class="card-title">Rohdaten-Auswertung</span>
+    <!-- Input Section -->
+    <div class="input-section">
+        <h3>📋 Zahlen eingeben</h3>
+        <p>Gib eine Folge von Roulette-Zahlen (0–36) ein, getrennt durch Kommas, Leerzeichen oder Zeilenumbrüche.<br>
+        Die App teilt sie automatisch in 60er-Blöcke und wertet jede nach deinem System aus.</p>
+        <textarea id="numberInput" placeholder="Beispiel: 14, 7, 23, 0, 36, 12..."></textarea>
+        <div class="input-controls">
+            <button class="btn btn-primary" onclick="analyzeNumbers()">🔍 Analysieren</button>
+            <button class="btn btn-secondary" onclick="loadExample()">📂 Beispiel laden</button>
+            <button class="btn btn-danger" onclick="clearAll()">🗑️ Alles löschen</button>
+        </div>
+    </div>
+
+    <!-- Blocks Display -->
+    <div id="blocksContainer" class="blocks-container"></div>
+
+    <!-- Block Detail Modal -->
+    <div class="modal-overlay" id="blockModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Block Details</h2>
+                <button class="close-btn" onclick="closeModal()">✕</button>
             </div>
-            <div class="card-body">
-                <p style="color:var(--text-secondary);margin-bottom:1rem;">
-                    Gib eine Folge von Roulette-Zahlen (0–36) ein, getrennt durch Kommas, Leerzeichen oder Zeilenumbrüche.
-                    Die App teilt sie automatisch in 60er-Blöcke und wertet jede nach deinem System aus.
+
+            <!-- Tab-Leiste -->
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('overview')">📋 Übersicht</button>
+                <button class="tab-btn" onclick="switchTab('numbers')">🔢 Alle Zahlen</button>
+                <button class="tab-btn" onclick="switchTab('finale')">🎯 Finale-Analyse</button>
+                <button class="tab-btn" onclick="switchTab('chart')">📈 Profit-Verlauf</button>
+                <button class="tab-btn" onclick="switchTab('tools')">🛠️ Tools</button>
+            </div>
+
+            <!-- Tab: Übersicht -->
+            <div class="detail-panel active" id="tab-overview">
+                <div class="decision-box">
+                    <div class="dec-title">🤖 Warum wurde dieses Finale gewählt?</div>
+                    <div id="decisionExplanation">—</div>
+                </div>
+                <div class="info-grid" id="overviewGrid"></div>
+            </div>
+
+            <!-- Tab: Alle Zahlen -->
+            <div class="detail-panel" id="tab-numbers">
+                <div class="section-title">Alle Zahlen des Blocks <span id="numbersSubtitle" style="color:#888; font-weight:normal; font-size:0.85em;"></span></div>
+                <p style="color:#777; font-size:0.78em; margin-bottom:10px;">
+                    🟡 Goldener Ring = gehört zum gewählten Finale &nbsp;|&nbsp;
+                    🔴 Rot &nbsp;⚫ Schwarz &nbsp;🟢 Grün (0)
                 </p>
+                <div id="numbersDisplay" style="line-height:1.2;"></div>
+            </div>
 
-                <!-- Einsatz-Konfiguration -->
-                <div style="background:var(--bg-main);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;">
-                    <div style="font-weight:600;margin-bottom:0.75rem;font-size:0.875rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;">Einsätze für Simulation</div>
-                    <div class="bet-inputs">
-                        <div class="bet-input-group">
-                            <label>Runde 1 (E)</label>
-                            <input type="number" id="rawBet1" value="1" min="0.1" step="0.1">
-                        </div>
-                        <div class="bet-input-group">
-                            <label>Runde 2 (E)</label>
-                            <input type="number" id="rawBet2" value="1" min="0.1" step="0.1">
-                        </div>
-                        <div class="bet-input-group">
-                            <label>Runde 3 (E)</label>
-                            <input type="number" id="rawBet3" value="2" min="0.1" step="0.1">
-                        </div>
+            <!-- Tab: Finale-Analyse -->
+            <div class="detail-panel" id="tab-finale">
+                <div class="section-title">Finale-Verteilung — wie das Programm entscheidet</div>
+                <p style="color:#777; font-size:0.78em; margin-bottom:12px;">
+                    Das System zählt, wie oft jede Endziffer (0–9) im Block vorkommt.
+                    Das <strong style="color:#c9a84c">häufigste Finale</strong> wird für den nächsten Block gespielt.
+                    Bei Gleichstand gewinnt die kleinere Zahl.
+                </p>
+                <div class="finale-chart" id="finaleChart"></div>
+            </div>
+
+            <!-- Tab: Profit-Verlauf -->
+            <div class="detail-panel" id="tab-chart">
+                <div class="section-title">Kumulativer Profit-Verlauf im Block</div>
+                <div class="profit-canvas-wrap">
+                    <canvas id="profitCanvas" height="200"></canvas>
+                </div>
+                <div id="chartLegend" style="font-size:0.78em; color:#777; text-align:center;"></div>
+            </div>
+
+            <!-- Tab: Tools -->
+            <div class="detail-panel" id="tab-tools">
+                <div class="tools-grid">
+                    <div class="tool-card" onclick="runTool('monteCarlo')">
+                        <div class="tool-icon">🎲</div>
+                        <div class="tool-name">Monte Carlo</div>
+                        <div class="tool-desc">Simuliert 10.000 Durchläufe</div>
+                    </div>
+                    <div class="tool-card" onclick="runTool('strategyTest')">
+                        <div class="tool-icon">⚙️</div>
+                        <div class="tool-name">Strategie-Test</div>
+                        <div class="tool-desc">Flat / Progressiv / Martingale</div>
+                    </div>
+                    <div class="tool-card" onclick="runTool('performance')">
+                        <div class="tool-icon">📊</div>
+                        <div class="tool-name">Performance</div>
+                        <div class="tool-desc">ROI & Treffer-Statistik</div>
+                    </div>
+                    <div class="tool-card" onclick="runTool('trendProjection')">
+                        <div class="tool-icon">📈</div>
+                        <div class="tool-name">Trend</div>
+                        <div class="tool-desc">1. vs. 2. Blockhälfte</div>
                     </div>
                 </div>
-
-                <div class="rawdata-section">
-                    <textarea id="rawInput" rows="8" placeholder="Beispiel: 23, 17, 4, 9, 2, 14, 35, 21, 7, 28, 19, 5 ..."></textarea>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="processRawData()">Auswerten</button>
-                    <button class="btn btn-outline" onclick="loadSampleData()">Beispieldaten laden</button>
-                    <button class="btn btn-outline" onclick="clearRawData()">Leeren</button>
-                </div>
+                <div class="tool-output" id="toolOutput">Wähle ein Tool aus…</div>
             </div>
-        </div>
 
-        <!-- Rohdaten Ergebnisse -->
-        <div id="rawResultsSection" style="display:none;">
-            <div class="card" style="margin-top:1.5rem;">
-                <div class="card-header">
-                    <span class="card-title">Auswertungs-Ergebnisse</span>
-                    <span id="rawSummary" style="font-size:0.875rem;color:var(--text-secondary);"></span>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" style="margin-bottom:1.5rem;">
-                        <canvas id="rawChart"></canvas>
-                    </div>
-                    <div id="rawBlocksGrid" class="blocks-grid"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB: VERLAUF -->
-    <div class="tab-panel" id="tab-history">
-        <div class="card">
-            <div class="card-header">
-                <span class="card-title">Block-Verlauf</span>
-                <div class="btn-group">
-                    <select id="filterSelect" class="form-input" style="width:auto;padding:0.4rem 0.8rem;" onchange="filterBlocks()">
-                        <option value="all">Alle</option>
-                        <option value="won">Gewonnen</option>
-                        <option value="lost">Verloren</option>
-                        <option value="today">Heute</option>
-                        <option value="week">Diese Woche</option>
-                    </select>
-                    <button class="btn btn-outline btn-sm" onclick="exportData()">Export</button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div id="blocksGrid" class="blocks-grid"></div>
-                <div class="pagination" id="pagination"></div>
-            </div>
         </div>
     </div>
 
-    <!-- ===== DEVELOPER SECTION ===== -->
-    <div class="dev-section">
-        <button class="dev-toggle" id="devToggle" onclick="toggleDevSection()">
-            <span>Erweiterte Entwickler-Einstellungen</span>
-            <span class="dev-toggle-icon">▼</span>
-        </button>
-        <div class="dev-content" id="devContent">
-            <div class="dev-tools-grid">
-
-                <!-- KI Analyse -->
-                <div class="dev-tool-card" id="card-ai">
-                    <div class="dev-tool-header">
-                        <input type="checkbox" class="dev-tool-checkbox" id="toolAI" onchange="toggleDevTool('ai')">
-                        <span class="dev-tool-title">KI Finalzahlen-Analyse</span>
-                    </div>
-                    <div class="dev-tool-desc">Analysiert Muster in Finalzahlen und gibt Empfehlungen</div>
-                    <div class="dev-tool-body" id="body-ai">
-                        <button class="btn btn-primary btn-sm" onclick="runAIAnalysis()">Analyse starten</button>
-                        <div id="aiResult"></div>
-                    </div>
-                </div>
-
-                <!-- Monte Carlo -->
-                <div class="dev-tool-card" id="card-mc">
-                    <div class="dev-tool-header">
-                        <input type="checkbox" class="dev-tool-checkbox" id="toolMC" onchange="toggleDevTool('mc')">
-                        <span class="dev-tool-title">Monte-Carlo Simulation</span>
-                    </div>
-                    <div class="dev-tool-desc">Simuliert tausende Durchläufe für Wahrscheinlichkeitsanalyse</div>
-                    <div class="dev-tool-body" id="body-mc">
-                        <div class="form-group">
-                            <label class="form-label">Anzahl Simulationen</label>
-                            <input type="number" class="form-input" id="mcSims" value="10000" min="1000" max="100000">
-                        </div>
-                        <button class="btn btn-primary btn-sm" onclick="runMonteCarlo()">Starten</button>
-                        <div id="mcResult"></div>
-                    </div>
-                </div>
-
-                <!-- Langzeit-Prognose -->
-                <div class="dev-tool-card" id="card-prognosis">
-                    <div class="dev-tool-header">
-                        <input type="checkbox" class="dev-tool-checkbox" id="toolPrognosis" onchange="toggleDevTool('prognosis')">
-                        <span class="dev-tool-title">Langzeit-Profit-Prognose</span>
-                    </div>
-                    <div class="dev-tool-desc">Projiziert Profitentwicklung basierend auf aktuellen Daten</div>
-                    <div class="dev-tool-body" id="body-prognosis">
-                        <div class="form-group">
-                            <label class="form-label">Prognose für X Blöcke</label>
-                            <input type="number" class="form-input" id="progBlocks" value="100">
-                        </div>
-                        <button class="btn btn-primary btn-sm" onclick="runPrognosis()">Berechnen</button>
-                        <div id="prognosisResult"></div>
-                    </div>
-                </div>
-
-                <!-- Strategie-Tester -->
-                <div class="dev-tool-card" id="card-strategy">
-                    <div class="dev-tool-header">
-                        <input type="checkbox" class="dev-tool-checkbox" id="toolStrategy" onchange="toggleDevTool('strategy')">
-                        <span class="dev-tool-title">Strategie-Tester</span>
-                    </div>
-                    <div class="dev-tool-desc">Testet verschiedene Einsatzstrategien mit deinen Daten</div>
-                    <div class="dev-tool-body" id="body-strategy">
-                        <div class="form-group">
-                            <label class="form-label">Strategie</label>
-                            <select class="form-input" id="stratSelect">
-                                <option value="martingale">Martingale (1-3-9)</option>
-                                <option value="conservative">Konservativ (1-2-4)</option>
-                                <option value="aggressive">Aggressiv (1-4-16)</option>
-                                <option value="flat">Flat (1-1-1)</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary btn-sm" onclick="runStrategyTest()">Testen</button>
-                        <div id="strategyResult"></div>
-                    </div>
-                </div>
-
-                <!-- Performance -->
-                <div class="dev-tool-card" id="card-perf">
-                    <div class="dev-tool-header">
-                        <input type="checkbox" class="dev-tool-checkbox" id="toolPerf" onchange="toggleDevTool('perf')">
-                        <span class="dev-tool-title">Performance-Statistik</span>
-                    </div>
-                    <div class="dev-tool-desc">Detaillierte Leistungsmetriken und Trends</div>
-                    <div class="dev-tool-body" id="body-perf">
-                        <button class="btn btn-primary btn-sm" onclick="runPerformance()">Anzeigen</button>
-                        <div id="perfResult"></div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
 </div>
 
-<!-- ===== MODALS ===== -->
-<div class="modal-overlay" id="blockDetailModal">
-    <div class="modal">
-        <div class="modal-header">
-            <span class="modal-title" id="modalTitle">Block Details</span>
-            <button class="modal-close" onclick="closeModal('blockDetailModal')">x</button>
-        </div>
-        <div class="modal-body" id="modalBody"></div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="importModal">
-    <div class="modal">
-        <div class="modal-header">
-            <span class="modal-title">Daten importieren</span>
-            <button class="modal-close" onclick="closeModal('importModal')">x</button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">JSON-Daten einfügen</label>
-                <textarea class="form-input" id="importData" rows="10" placeholder='{"blocks": [...]}'></textarea>
-            </div>
-            <button class="btn btn-primary" onclick="importData()">Importieren</button>
-        </div>
-    </div>
-</div>
-
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- ===== JAVASCRIPT ===== -->
 <script>
-// ============================================================
-// STATE
-// ============================================================
-const state = {
-    blocks: [],
-    currentBlock: { rounds: [], startTime: null },
-    currentRound: { numbers: [], roundNumber: 1 },
-    settings: { bets: [1, 1, 2], blocksPerPage: 12 },
-    pagination: { currentPage: 1, totalPages: 1 },
-    chart: null,
-    rawChart: null
-};
+    const RED_NUMBERS  = [1,3,5,7,9,12,14,16,18,21,23,25,27,30,32,34,36];
+    const BLACK_NUMBERS= [2,4,6,8,10,11,13,15,17,19,20,22,24,26,28,29,31,33,35];
 
-const RED_NUMBERS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-const numColor = n => n === 0 ? 'green' : RED_NUMBERS.includes(n) ? 'red' : 'black';
-
-// ============================================================
-// INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-    loadData();
-    buildNumbersGrid();
-    refreshRoundDots();
-    renderHistoryBlocks();
-    updateStats();
-    initChart();
-    refreshHotNumbers();
-});
-
-// ============================================================
-// STORAGE
-// ============================================================
-function saveData() {
-    localStorage.setItem('roulette_baba', JSON.stringify({
-        blocks: state.blocks,
-        settings: state.settings,
-        currentBlock: state.currentBlock,
-        currentRound: state.currentRound
-    }));
-}
-
-function loadData() {
-    const raw = localStorage.getItem('roulette_baba');
-    if (!raw) return;
-    const d = JSON.parse(raw);
-    state.blocks = d.blocks || [];
-    state.settings = { ...state.settings, ...(d.settings || {}) };
-    state.currentBlock = d.currentBlock || { rounds: [], startTime: null };
-    state.currentRound = d.currentRound || { numbers: [], roundNumber: 1 };
-    document.getElementById('bet1').value = state.settings.bets[0];
-    document.getElementById('bet2').value = state.settings.bets[1];
-    document.getElementById('bet3').value = state.settings.bets[2];
-}
-
-// ============================================================
-// TABS
-// ============================================================
-function switchTab(name) {
-    document.querySelectorAll('.tab-btn').forEach((b, i) => {
-        const tabs = ['live', 'raw', 'history'];
-        b.classList.toggle('active', tabs[i] === name);
-    });
-    document.querySelectorAll('.tab-panel').forEach(p => {
-        p.classList.toggle('active', p.id === 'tab-' + name);
-    });
-    if (name === 'history') renderHistoryBlocks();
-}
-
-// ============================================================
-// NUMBERS GRID
-// ============================================================
-function buildNumbersGrid() {
-    const grid = document.getElementById('numbersGrid');
-    grid.innerHTML = '';
-    for (let i = 0; i <= 36; i++) {
-        const btn = document.createElement('button');
-        btn.className = `number-btn ${numColor(i)}`;
-        btn.textContent = i;
-        btn.onclick = () => addNumber(i);
-        grid.appendChild(btn);
-    }
-}
-
-function addNumber(n) {
-    state.currentRound.numbers.push(n);
-    refreshEntryChips();
-    saveData();
-}
-
-function refreshEntryChips() {
-    const c = document.getElementById('currentEntries');
-    if (!state.currentRound.numbers.length) {
-        c.innerHTML = '<span style="color:var(--text-muted);font-size:0.875rem;">Zahlen wählen...</span>';
-        return;
-    }
-    c.innerHTML = state.currentRound.numbers.map((n, i) =>
-        `<span class="entry-chip ${numColor(n)}">${n}<span class="remove-entry" onclick="removeEntry(${i})"> x</span></span>`
-    ).join('');
-}
-
-function removeEntry(i) {
-    state.currentRound.numbers.splice(i, 1);
-    refreshEntryChips();
-    saveData();
-}
-
-function undoLastEntry() {
-    if (!state.currentRound.numbers.length) return;
-    state.currentRound.numbers.pop();
-    refreshEntryChips();
-    saveData();
-    toast('Letzte Zahl entfernt', 'success');
-}
-
-function clearCurrentRound() {
-    state.currentRound.numbers = [];
-    refreshEntryChips();
-    saveData();
-}
-
-// ============================================================
-// ROUND DOTS
-// ============================================================
-function refreshRoundDots() {
-    for (let i = 1; i <= 3; i++) {
-        const dot = document.getElementById(`roundDot${i}`);
-        dot.className = 'round-dot';
-        if (i < state.currentRound.roundNumber) {
-            const r = state.currentBlock.rounds[i - 1];
-            dot.classList.add('completed');
-            if (r && !r.won) dot.classList.add('lost');
-        } else if (i === state.currentRound.roundNumber) {
-            dot.classList.add('active');
-        }
-    }
-}
-
-function getBets() {
-    return [
-        parseFloat(document.getElementById('bet1').value) || 1,
-        parseFloat(document.getElementById('bet2').value) || 1,
-        parseFloat(document.getElementById('bet3').value) || 2
-    ];
-}
-
-// ============================================================
-// ROUND WIN / LOSS
-// ============================================================
-function confirmRoundWin() {
-    if (!state.currentRound.numbers.length) { toast('Bitte Zahlen eingeben', 'warning'); return; }
-    const bets = getBets();
-    const idx = state.currentRound.roundNumber - 1;
-    const bet = bets[idx];
-    const numCount = state.currentRound.numbers.length;
-    const payout = 36 * bet;
-    const cost = numCount * bet;
-    state.currentBlock.rounds.push({
-        numbers: [...state.currentRound.numbers],
-        won: true,
-        bet,
-        profit: payout - cost
-    });
-    finalizeBlock(true);
-}
-
-function confirmRoundLoss() {
-    if (!state.currentRound.numbers.length) { toast('Bitte Zahlen eingeben', 'warning'); return; }
-    const bets = getBets();
-    const idx = state.currentRound.roundNumber - 1;
-    const bet = bets[idx];
-    const numCount = state.currentRound.numbers.length;
-    state.currentBlock.rounds.push({
-        numbers: [...state.currentRound.numbers],
-        won: false,
-        bet,
-        profit: -(numCount * bet)
-    });
-    if (state.currentRound.roundNumber >= 3) {
-        finalizeBlock(false);
-    } else {
-        state.currentRound.roundNumber++;
-        state.currentRound.numbers = [];
-        refreshEntryChips();
-        refreshRoundDots();
-        saveData();
-        toast(`Runde ${state.currentRound.roundNumber - 1} verloren — weiter zu Runde ${state.currentRound.roundNumber}`, 'warning');
-    }
-}
-
-function finalizeBlock(won) {
-    const bets = getBets();
-    const totalProfit = state.currentBlock.rounds.reduce((s, r) => s + r.profit, 0);
-    const totalBet = state.currentBlock.rounds.reduce((s, r) => s + r.bet, 0);
-    state.blocks.unshift({
-        id: Date.now(),
-        rounds: state.currentBlock.rounds,
-        won,
-        totalProfit,
-        totalBet,
-        bets: [...bets],
-        timestamp: new Date().toISOString()
-    });
-    state.currentBlock = { rounds: [], startTime: null };
-    state.currentRound = { numbers: [], roundNumber: 1 };
-    state.settings.bets = bets;
-    refreshEntryChips();
-    refreshRoundDots();
-    renderHistoryBlocks();
-    updateStats();
-    updateChart();
-    refreshHotNumbers();
-    saveData();
-    toast(won
-        ? `Block gewonnen! +${totalProfit.toFixed(2)} E`
-        : `Block verloren. ${totalProfit.toFixed(2)} E`,
-        won ? 'success' : 'error');
-}
-
-// ============================================================
-// HISTORY BLOCKS
-// ============================================================
-function getFilteredBlocks() {
-    const f = document.getElementById('filterSelect')?.value || 'all';
-    const now = new Date();
-    return state.blocks.filter(b => {
-        const d = new Date(b.timestamp);
-        if (f === 'won') return b.won;
-        if (f === 'lost') return !b.won;
-        if (f === 'today') return d.toDateString() === now.toDateString();
-        if (f === 'week') return d >= new Date(now - 7 * 86400000);
-        return true;
-    });
-}
-
-function filterBlocks() {
-    state.pagination.currentPage = 1;
-    renderHistoryBlocks();
-}
-
-function renderHistoryBlocks() {
-    const grid = document.getElementById('blocksGrid');
-    if (!grid) return;
-    const filtered = getFilteredBlocks();
-    if (!filtered.length) {
-        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-title">Keine Blöcke vorhanden</div><p>Starte das erste Spiel im Reiter "Live-Eingabe".</p></div>`;
-        document.getElementById('pagination').innerHTML = '';
-        return;
-    }
-    const perPage = state.settings.blocksPerPage;
-    state.pagination.totalPages = Math.ceil(filtered.length / perPage);
-    state.pagination.currentPage = Math.min(state.pagination.currentPage, state.pagination.totalPages);
-    const start = (state.pagination.currentPage - 1) * perPage;
-    const page = filtered.slice(start, start + perPage);
-
-    grid.innerHTML = page.map((b, i) => {
-        const allNums = b.rounds.flatMap(r => r.numbers);
-        const show = allNums.slice(0, 14);
-        const more = allNums.length - 14;
-        return `
-        <div class="block-card ${b.won ? 'won' : 'lost'}" onclick="showBlockDetail(${b.id})">
-            <button class="block-delete" onclick="event.stopPropagation();deleteBlock(${b.id})">x</button>
-            <div class="block-card-header">
-                <span class="block-number">#${filtered.length - start - i}</span>
-                <span class="block-result ${b.totalProfit >= 0 ? 'positive' : 'negative'}">
-                    ${b.totalProfit >= 0 ? '+' : ''}${b.totalProfit.toFixed(2)} E
-                </span>
-            </div>
-            <div class="block-numbers">
-                ${show.map(n => `<span class="block-num ${numColor(n)}">${n}</span>`).join('')}
-                ${more > 0 ? `<span class="block-num" style="background:var(--text-muted);">+${more}</span>` : ''}
-            </div>
-            <div class="block-meta">
-                <span>${b.rounds.length} Runde${b.rounds.length !== 1 ? 'n' : ''}</span>
-                <span>${fmtDate(b.timestamp)}</span>
-            </div>
-        </div>`;
-    }).join('');
-
-    renderPagination(filtered.length);
-}
-
-function renderPagination(total) {
-    const pg = document.getElementById('pagination');
-    if (state.pagination.totalPages <= 1) { pg.innerHTML = ''; return; }
-    let h = `<button class="pagination-btn" onclick="goPage(${state.pagination.currentPage - 1})" ${state.pagination.currentPage === 1 ? 'disabled' : ''}>&#8249;</button>`;
-    const max = 5;
-    let s = Math.max(1, state.pagination.currentPage - 2);
-    let e = Math.min(state.pagination.totalPages, s + max - 1);
-    if (e - s < max - 1) s = Math.max(1, e - max + 1);
-    if (s > 1) { h += `<button class="pagination-btn" onclick="goPage(1)">1</button>`; if (s > 2) h += `<span class="pagination-info">...</span>`; }
-    for (let i = s; i <= e; i++) h += `<button class="pagination-btn ${i === state.pagination.currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
-    if (e < state.pagination.totalPages) { if (e < state.pagination.totalPages - 1) h += `<span class="pagination-info">...</span>`; h += `<button class="pagination-btn" onclick="goPage(${state.pagination.totalPages})">${state.pagination.totalPages}</button>`; }
-    h += `<button class="pagination-btn" onclick="goPage(${state.pagination.currentPage + 1})" ${state.pagination.currentPage === state.pagination.totalPages ? 'disabled' : ''}>&#8250;</button>`;
-    pg.innerHTML = h;
-}
-
-function goPage(p) {
-    state.pagination.currentPage = p;
-    renderHistoryBlocks();
-}
-
-function deleteBlock(id) {
-    if (!confirm('Block wirklich löschen?')) return;
-    state.blocks = state.blocks.filter(b => b.id !== id);
-    renderHistoryBlocks();
-    updateStats();
-    updateChart();
-    saveData();
-    toast('Block gelöscht', 'success');
-}
-
-// ============================================================
-// BLOCK DETAIL MODAL
-// ============================================================
-function showBlockDetail(id) {
-    const b = state.blocks.find(x => x.id === id);
-    if (!b) return;
-    document.getElementById('modalTitle').textContent = `Block vom ${fmtDate(b.timestamp)}`;
-    document.getElementById('modalBody').innerHTML = `
-        <div style="display:flex;justify-content:space-between;padding:1rem;background:var(--bg-main);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem;">
-            <div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;">Status</div>
-                <div style="font-weight:700;color:${b.won ? 'var(--success)' : 'var(--danger)'};">${b.won ? 'Gewonnen' : 'Verloren'}</div></div>
-            <div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;">Einsatz</div>
-                <div style="font-weight:700;">${b.totalBet.toFixed(2)} E</div></div>
-            <div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;">Netto</div>
-                <div style="font-weight:700;color:${b.totalProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${b.totalProfit >= 0 ? '+' : ''}${b.totalProfit.toFixed(2)} E</div></div>
-        </div>
-        ${b.rounds.map((r, i) => `
-            <div class="detail-round">
-                <div class="detail-round-header">
-                    <span class="detail-round-title">Runde ${i + 1}</span>
-                    <span class="detail-round-result ${r.won ? 'won' : 'lost'}">${r.won ? '+' : ''}${r.profit.toFixed(2)} E</span>
-                </div>
-                <div class="detail-numbers">
-                    ${r.numbers.map(n => `<span class="detail-num ${numColor(n)}">${n}</span>`).join('')}
-                </div>
-                <div style="margin-top:.5rem;font-size:.75rem;color:var(--text-muted);">Einsatz pro Zahl: ${r.bet.toFixed(2)} E</div>
-            </div>
-        `).join('')}
-    `;
-    document.getElementById('blockDetailModal').classList.add('active');
-}
-
-// ============================================================
-// STATS
-// ============================================================
-function updateStats() {
-    const bs = state.blocks;
-    const wins = bs.filter(b => b.won).length;
-    const profit = bs.reduce((s, b) => s + b.totalProfit, 0);
-    const bet = bs.reduce((s, b) => s + b.totalBet, 0);
-    const avg = bs.length ? profit / bs.length : 0;
-    const wr = bs.length ? (wins / bs.length * 100) : 0;
-
-    document.getElementById('headerTotalBlocks').textContent = bs.length;
-    document.getElementById('headerWinRate').textContent = `${wr.toFixed(1)}%`;
-    const pel = document.getElementById('headerProfit');
-    pel.textContent = `${profit >= 0 ? '+' : ''}${profit.toFixed(2)}`;
-    pel.className = `header-stat-value ${profit >= 0 ? 'positive' : 'negative'}`;
-
-    document.getElementById('statWins').textContent = wins;
-    document.getElementById('statLosses').textContent = bs.length - wins;
-    document.getElementById('statTotalBet').textContent = bet.toFixed(2);
-    const ap = document.getElementById('statAvgProfit');
-    ap.textContent = `${avg >= 0 ? '+' : ''}${avg.toFixed(2)}`;
-    ap.className = `stat-value ${avg >= 0 ? 'positive' : 'negative'}`;
-
-    refreshStreaks();
-}
-
-function refreshStreaks() {
-    if (!state.blocks.length) {
-        document.getElementById('currentStreak').textContent = '–';
-        document.getElementById('longestWinStreak').textContent = '0';
-        document.getElementById('longestLoseStreak').textContent = '0';
-        return;
-    }
-    let cs = 1, ct = state.blocks[0].won;
-    for (let i = 1; i < state.blocks.length; i++) {
-        if (state.blocks[i].won === ct) cs++; else break;
-    }
-    let lw = 0, ll = 0, ts = 0, tt = null;
-    for (const b of [...state.blocks].reverse()) {
-        if (tt === null) { tt = b.won; ts = 1; }
-        else if (b.won === tt) ts++;
-        else { if (tt) lw = Math.max(lw, ts); else ll = Math.max(ll, ts); tt = b.won; ts = 1; }
-    }
-    if (tt) lw = Math.max(lw, ts); else ll = Math.max(ll, ts);
-    const sel = document.getElementById('currentStreak');
-    sel.textContent = `${cs}x ${ct ? 'Gewonnen' : 'Verloren'}`;
-    sel.style.color = ct ? 'var(--success)' : 'var(--danger)';
-    document.getElementById('longestWinStreak').textContent = lw;
-    document.getElementById('longestLoseStreak').textContent = ll;
-}
-
-// ============================================================
-// CHART (Live)
-// ============================================================
-function initChart() {
-    const ctx = document.getElementById('profitChart').getContext('2d');
-    state.chart = new Chart(ctx, {
-        type: 'line',
-        data: { labels: [], datasets: [{
-            label: 'Kumulativer Profit',
-            data: [],
-            borderColor: '#6366f1',
-            backgroundColor: 'rgba(99,102,241,0.08)',
-            fill: true,
-            tension: 0.35,
-            pointRadius: 4,
-            pointHoverRadius: 7,
-            pointBackgroundColor: '#6366f1'
-        }]},
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false },
-                tooltip: { callbacks: { label: c => `Profit: ${c.parsed.y.toFixed(2)} E` } }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: { grid: { color: '#e2e8f0' }, ticks: { callback: v => `${v} E` } }
-            }
-        }
-    });
-    updateChart();
-}
-
-function updateChart() {
-    if (!state.chart) return;
-    const r = document.getElementById('chartRange').value;
-    let bs = [...state.blocks].reverse();
-    if (r !== 'all') bs = bs.slice(-parseInt(r));
-    let cum = 0;
-    const data = bs.map(b => { cum += b.totalProfit; return +cum.toFixed(2); });
-    const labels = bs.map((_, i) => `#${i + 1}`);
-    const last = data[data.length - 1] || 0;
-    const color = last >= 0 ? '#10b981' : '#ef4444';
-    state.chart.data.labels = labels;
-    state.chart.data.datasets[0].data = data;
-    state.chart.data.datasets[0].borderColor = color;
-    state.chart.data.datasets[0].backgroundColor = last >= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)';
-    state.chart.data.datasets[0].pointBackgroundColor = data.map(v => v >= 0 ? '#10b981' : '#ef4444');
-    state.chart.update();
-}
-
-// ============================================================
-// HOT NUMBERS
-// ============================================================
-function refreshHotNumbers() {
-    const c = document.getElementById('hotNumbers');
-    if (!state.blocks.length) { c.innerHTML = '<span style="color:var(--text-muted);font-size:.875rem;">Noch keine Daten</span>'; return; }
-    const counts = {};
-    state.blocks.forEach(b => b.rounds.forEach(r => r.numbers.forEach(n => { counts[n] = (counts[n] || 0) + 1; })));
-    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-    c.innerHTML = sorted.map(([n, cnt]) => `
-        <div style="display:flex;flex-direction:column;align-items:center;padding:.4rem;background:var(--bg-main);border-radius:var(--radius-sm);">
-            <span class="block-num ${numColor(parseInt(n))}" style="width:28px;height:28px;font-size:.75rem;">${n}</span>
-            <span style="font-size:.625rem;color:var(--text-muted);margin-top:.2rem;">${cnt}x</span>
-        </div>`).join('');
-}
-
-// ============================================================
-// ROHDATEN AUSWERTUNG (vollständige System-Logik)
-// ============================================================
-
-// Gibt zurück: welche Zahlen (0-36) gehören zu Finale f?
-function numbersOfFinal(f) {
-    const result = [];
-    for (let n = 0; n <= 36; n++) {
-        if (n % 10 === f) result.push(n);
-    }
-    return result;
-}
-
-// Anzahl offener (noch nicht gefallener) Zahlen eines Finals
-// nach Beobachtung der ersten `obsCount` Züge
-function openNumbersOfFinal(f, drawn) {
-    const all = numbersOfFinal(f);
-    const drawnSet = new Set(drawn);
-    return all.filter(n => !drawnSet.has(n));
-}
-
-// System-Analyse für einen 60er Block
-function analyzeBlockSystem(numbers, bets) {
-    const block = numbers.slice(0, 60);
-
-    // ---- 1. Beobachtungsphase: start 20, +12 bis Bedingung ----
-    let obsLen = 20;
-    let qualifiedFinals = [];
-    while (obsLen <= 60) {
-        const drawn = block.slice(0, obsLen);
-        // Finale 0-9: Zähle offene Zahlen (0 ausgenommen bei Bedingungsprüfung)
-        const finalesWithOpen = [];
-        for (let f = 0; f <= 9; f++) {
-            const open = openNumbersOfFinal(f, drawn);
-            finalesWithOpen.push({ f, open: open.length, openNums: open });
-        }
-        // Bedingung: mind. 3 Finales (0 ausgenommen) mit >=3 offenen Zahlen
-        const eligible = finalesWithOpen.filter(x => x.f !== 0 && x.open >= 3);
-        if (eligible.length >= 3) {
-            qualifiedFinals = finalesWithOpen;
-            break;
-        }
-        obsLen += 12;
-        if (obsLen > 60) { return { skipped: true, reason: 'Bedingung nicht erfüllt', obsLen }; }
-    }
-
-    // ---- 2. Finalauswahl: bis zu 5, nach offenen Zahlen ----
-    const drawn0 = block.slice(0, obsLen);
-    // 3er-Finales: 7,8,9 (3 Zahlen: z.B. 7,17,27); 4er-Finales: 1-6 (4 Zahlen: z.B. 1,11,21,31)
-    // Sortiere nach Anzahl offener Zahlen absteigend
-    const sorted = [...qualifiedFinals].sort((a, b) => b.open - a.open);
-    let selected = sorted.slice(0, 5);
-    // 0-Sonderregel: wenn 0 in ersten 20 nicht gefallen und Platz frei
-    if (!drawn0.slice(0, 20).includes(0) && selected.length < 5) {
-        const zeroEntry = qualifiedFinals.find(x => x.f === 0);
-        if (zeroEntry && !selected.find(x => x.f === 0)) selected.push(zeroEntry);
-    }
-    // Gesetzte Zahlen (alle offenen Zahlen der gewählten Finales)
-    let setNums = [];
-    selected.forEach(fx => { setNums.push(...fx.openNums); });
-    setNums = [...new Set(setNums)];
-
-    // ---- 3. Runden spielen ----
-    const rounds = [];
-    let cursor = obsLen;
-    let blockStopped = false;
-
-    for (let r = 0; r < 3; r++) {
-        // Runde nur spielen wenn mind. 2 Finales (R2/R3) bzw. 3 Finales (R1) qualifiziert
-        const minRequired = r === 0 ? 3 : 2;
-        const activeFinales = selected.filter(fx => fx.open > 0);
-        if (activeFinales.length < minRequired) {
-            rounds.push({ round: r + 1, skipped: true, reason: `Zu wenige Finales (${activeFinales.length} < ${minRequired})` });
-            break;
-        }
-
-        const roundNums = block.slice(cursor, cursor + 12);
-        cursor += 12;
-        const stake = bets[r];
-        const hits = roundNums.filter(n => setNums.includes(n));
-        const totalStake = setNums.length * stake;
-        let roundProfit = -totalStake;
-        if (hits.length > 0) {
-            roundProfit += hits.length * 36 * stake;
-        }
-        rounds.push({
-            round: r + 1,
-            nums: roundNums,
-            setNums: [...setNums],
-            hits,
-            stake,
-            totalStake,
-            profit: roundProfit,
-            won: hits.length > 0
-        });
-
-        // Spezialregel R1: kein Treffer → Block-Auswertung stopp
-        if (r === 0 && hits.length === 0) {
-            blockStopped = true;
-            break;
-        }
-
-        // ---- Auflösungslogik nach Runde ----
-        const newDrawn = [...drawn0, ...block.slice(obsLen, cursor)];
-        // 3er-Finale (7,8,9): rausnehmen bei >=1 Treffer
-        // 4er-Finale (1-6): rausnehmen bei >=2 Treffern
-        selected = selected.filter(fx => {
-            const roundHits = hits.filter(n => n % 10 === fx.f).length;
-            if ([7, 8, 9].includes(fx.f)) return roundHits < 1;
-            return roundHits < 2;
-        });
-        // Offene Zahlen neu berechnen
-        selected = selected.map(fx => ({
-            ...fx,
-            open: openNumbersOfFinal(fx.f, newDrawn).length,
-            openNums: openNumbersOfFinal(fx.f, newDrawn)
-        }));
-        setNums = [...new Set(selected.flatMap(fx => fx.openNums))];
-    }
-
-    const totalProfit = rounds.filter(r => !r.skipped).reduce((s, r) => s + r.profit, 0);
-    return {
-        skipped: false,
-        obsLen,
-        selected: selected.map(fx => fx.f),
-        setNums,
-        rounds,
-        totalProfit,
-        won: totalProfit > 0
+    const FINALE_NUMBERS = {
+        0:[0,10,20,30], 1:[1,11,21,31], 2:[2,12,22,32],
+        3:[3,13,23,33], 4:[4,14,24,34], 5:[5,15,25,35],
+        6:[6,16,26,36], 7:[7,17,27],    8:[8,18,28],    9:[9,19,29]
     };
-}
 
-function processRawData() {
-    const raw = document.getElementById('rawInput').value.trim();
-    if (!raw) { toast('Keine Daten eingegeben', 'warning'); return; }
-    const numbers = raw.split(/[^0-9]+/).map(x => parseInt(x)).filter(x => !isNaN(x) && x >= 0 && x <= 36);
-    if (numbers.length < 20) { toast('Mindestens 20 Zahlen benötigt', 'warning'); return; }
-
-    const bets = [
-        parseFloat(document.getElementById('rawBet1').value) || 1,
-        parseFloat(document.getElementById('rawBet2').value) || 1,
-        parseFloat(document.getElementById('rawBet3').value) || 2
-    ];
-
-    const results = [];
-    for (let i = 0; i + 20 <= numbers.length; i += 60) {
-        const slice = numbers.slice(i, Math.min(i + 60, numbers.length));
-        if (slice.length >= 20) results.push(analyzeBlockSystem(slice, bets));
+    function getColor(n) {
+        if (n === 0) return 'green';
+        return RED_NUMBERS.includes(n) ? 'red' : 'black';
     }
 
-    if (!results.length) { toast('Keine auswertbaren Blöcke gefunden', 'warning'); return; }
+    function getFinale(n) { return n % 10; }
 
-    renderRawResults(results);
-    toast(`${results.length} Block${results.length > 1 ? 'e' : ''} ausgewertet`, 'success');
-}
+    let blocks = [];
+    let currentBlockIndex = null;
 
-function renderRawResults(results) {
-    const section = document.getElementById('rawResultsSection');
-    const grid = document.getElementById('rawBlocksGrid');
-    section.style.display = 'block';
+    /* ── Parsing & Chunking ── */
+    function parseNumbers(input) {
+        return input.split(/[\s,;\n]+/)
+            .map(s => s.trim()).filter(s => s !== '')
+            .map(s => parseInt(s))
+            .filter(n => !isNaN(n) && n >= 0 && n <= 36);
+    }
 
-    const played = results.filter(r => !r.skipped);
-    const won = played.filter(r => r.won).length;
-    const totalProfit = played.reduce((s, r) => s + r.totalProfit, 0);
-    document.getElementById('rawSummary').textContent =
-        `${results.length} Blöcke | ${played.length} gespielt | ${won} gewonnen | Gesamt: ${totalProfit >= 0 ? '+' : ''}${totalProfit.toFixed(2)} E`;
+    function chunkArray(arr, size) {
+        const chunks = [];
+        for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
+        return chunks;
+    }
 
-    grid.innerHTML = results.map((r, i) => {
-        if (r.skipped) return `
-            <div class="block-card" style="opacity:.6;">
-                <div class="block-card-header">
-                    <span class="block-number">Block ${i + 1}</span>
-                    <span class="block-result" style="background:var(--bg-main);color:var(--text-muted);">Übersprungen</span>
-                </div>
-                <div style="font-size:.8rem;color:var(--text-muted);">${r.reason || ''}</div>
-            </div>`;
-        return `
-            <div class="block-card ${r.won ? 'won' : 'lost'}" onclick="showRawBlockDetail(${i})" data-raw-idx="${i}">
-                <div class="block-card-header">
-                    <span class="block-number">Block ${i + 1}</span>
-                    <span class="block-result ${r.totalProfit >= 0 ? 'positive' : 'negative'}">
-                        ${r.totalProfit >= 0 ? '+' : ''}${r.totalProfit.toFixed(2)} E
-                    </span>
-                </div>
-                <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.5rem;">
-                    ${r.selected.map(f => `<span class="final-badge">${f}</span>`).join('')}
-                </div>
-                <div style="font-size:.75rem;color:var(--text-muted);">
-                    Beobachtung: ${r.obsLen} Züge | ${r.rounds.filter(x => !x.skipped).length} Runden
-                </div>
-            </div>`;
-    }).join('');
+    /* ── Block-Analyse ── */
+    function analyzeBlock(numbers, blockIndex) {
+        const finaleCounts = {};
+        for (let f = 0; f <= 9; f++) finaleCounts[f] = 0;
+        numbers.forEach(n => finaleCounts[getFinale(n)]++);
 
-    // Chart für Rohdaten
-    const cumData = [];
-    let cum = 0;
-    results.forEach(r => { if (!r.skipped) { cum += r.totalProfit; cumData.push(+cum.toFixed(2)); } });
-    const ctx = document.getElementById('rawChart').getContext('2d');
-    if (state.rawChart) state.rawChart.destroy();
-    state.rawChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: cumData.map((_, i) => `#${i + 1}`),
-            datasets: [{
-                data: cumData,
-                borderColor: cumData[cumData.length - 1] >= 0 ? '#10b981' : '#ef4444',
-                backgroundColor: cumData[cumData.length - 1] >= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
-                fill: true,
-                tension: 0.3,
-                pointBackgroundColor: cumData.map(v => v >= 0 ? '#10b981' : '#ef4444'),
-                pointRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { grid: { display: false } },
-                y: { grid: { color: '#e2e8f0' }, ticks: { callback: v => `${v} E` } }
+        // Höchste Häufigkeit → bei Gleichstand kleinere Finale-Nummer
+        let maxCount = 0, chosenFinale = 0;
+        for (let f = 0; f <= 9; f++) {
+            if (finaleCounts[f] > maxCount) {
+                maxCount = finaleCounts[f];
+                chosenFinale = f;
             }
         }
-    });
 
-    // Speichere für Detail-Modal
-    window._rawResults = results;
-}
+        const finaleNums = FINALE_NUMBERS[chosenFinale];
+        const betsPerSpin = finaleNums.length;
+        let profit = 0, totalBet = 0;
 
-function showRawBlockDetail(idx) {
-    const r = window._rawResults?.[idx];
-    if (!r || r.skipped) return;
-    document.getElementById('modalTitle').textContent = `Block ${idx + 1} – Detailansicht`;
-    document.getElementById('modalBody').innerHTML = `
-        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.75rem;padding:1rem;background:var(--bg-main);border-radius:var(--radius);margin-bottom:1rem;">
-            <div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;">Status</div>
-                <div style="font-weight:700;color:${r.won ? 'var(--success)' : 'var(--danger)'};">${r.won ? 'Gewonnen' : 'Verloren'}</div></div>
-            <div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;">Beobachtung</div>
-                <div style="font-weight:700;">${r.obsLen} Züge</div></div>
-            <div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;">Gewählte Finals</div>
-                <div style="font-weight:700;display:flex;gap:.3rem;">${r.selected.map(f => `<span class="final-badge">${f}</span>`).join('')}</div></div>
-            <div><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;">Netto</div>
-                <div style="font-weight:700;color:${r.totalProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${r.totalProfit >= 0 ? '+' : ''}${r.totalProfit.toFixed(2)} E</div></div>
-        </div>
-        <div style="margin-bottom:.75rem;">
-            <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:.4rem;">Gesetzte Zahlen</div>
-            <div style="display:flex;flex-wrap:wrap;gap:.3rem;">
-                ${r.setNums.map(n => `<span class="detail-num ${numColor(n)}">${n}</span>`).join('')}
-            </div>
-        </div>
-        ${r.rounds.map(rnd => rnd.skipped ? `
-            <div class="detail-round"><span style="color:var(--text-muted);font-size:.875rem;">Runde ${rnd.round} übersprungen: ${rnd.reason}</span></div>` : `
-            <div class="detail-round">
-                <div class="detail-round-header">
-                    <span class="detail-round-title">Runde ${rnd.round} (${rnd.stake} E/Zahl)</span>
-                    <span class="detail-round-result ${rnd.won ? 'won' : 'lost'}">${rnd.profit >= 0 ? '+' : ''}${rnd.profit.toFixed(2)} E</span>
-                </div>
-                <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.4rem;">Gezogen: ${rnd.nums.join(', ')}</div>
-                <div style="font-size:.75rem;color:var(--text-secondary);margin-bottom:.4rem;">Treffer: ${rnd.hits.length > 0 ? rnd.hits.join(', ') : '–'}</div>
-                <div style="font-size:.75rem;color:var(--text-muted);">Gesamteinsatz: ${rnd.totalStake.toFixed(2)} E</div>
-            </div>`).join('')}
-    `;
-    document.getElementById('blockDetailModal').classList.add('active');
-}
-
-function loadSampleData() {
-    // 180 zufällige Zahlen als Demo
-    const sample = Array.from({ length: 180 }, () => Math.floor(Math.random() * 37));
-    document.getElementById('rawInput').value = sample.join(', ');
-    toast('Beispieldaten geladen', 'success');
-}
-
-function clearRawData() {
-    document.getElementById('rawInput').value = '';
-    document.getElementById('rawResultsSection').style.display = 'none';
-}
-
-// ============================================================
-// IMPORT / EXPORT
-// ============================================================
-function exportData() {
-    const blob = new Blob([JSON.stringify({ blocks: state.blocks, settings: state.settings, exportDate: new Date().toISOString() }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `roulette-baba-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast('Export abgeschlossen', 'success');
-}
-
-function showImportModal() {
-    document.getElementById('importModal').classList.add('active');
-}
-
-function importData() {
-    try {
-        const d = JSON.parse(document.getElementById('importData').value);
-        if (!Array.isArray(d.blocks)) throw new Error();
-        state.blocks = [...d.blocks, ...state.blocks];
-        if (d.settings) state.settings = { ...state.settings, ...d.settings };
-        renderHistoryBlocks();
-        updateStats();
-        updateChart();
-        refreshHotNumbers();
-        saveData();
-        closeModal('importModal');
-        toast(`${d.blocks.length} Blöcke importiert`, 'success');
-    } catch { toast('Ungültiges JSON-Format', 'error'); }
-}
-
-function resetAllData() {
-    if (!confirm('Alle gespeicherten Daten wirklich löschen?')) return;
-    state.blocks = [];
-    state.currentBlock = { rounds: [], startTime: null };
-    state.currentRound = { numbers: [], roundNumber: 1 };
-    refreshEntryChips();
-    refreshRoundDots();
-    renderHistoryBlocks();
-    updateStats();
-    updateChart();
-    refreshHotNumbers();
-    saveData();
-    toast('Alle Daten gelöscht', 'success');
-}
-
-// ============================================================
-// MODAL
-// ============================================================
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-document.querySelectorAll('.modal-overlay').forEach(o => {
-    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
-});
-
-// ============================================================
-// DEVELOPER TOOLS
-// ============================================================
-function toggleDevSection() {
-    const btn = document.getElementById('devToggle');
-    const con = document.getElementById('devContent');
-    btn.classList.toggle('open');
-    con.classList.toggle('open');
-}
-
-function toggleDevTool(name) {
-    const cb = document.querySelector(`#card-${name} input[type=checkbox]`);
-    const body = document.getElementById(`body-${name}`);
-    const card = document.getElementById(`card-${name}`);
-    if (!cb || !body || !card) return;
-    body.classList.toggle('visible', cb.checked);
-    card.classList.toggle('active', cb.checked);
-}
-
-function runAIAnalysis() {
-    const el = document.getElementById('aiResult');
-    if (state.blocks.length < 5) { el.innerHTML = '<p style="color:var(--warning);margin-top:.5rem;">Mindestens 5 Blöcke benötigt.</p>'; return; }
-    const counts = {};
-    state.blocks.forEach(b => b.rounds.forEach(r => r.numbers.forEach(n => { const f = n % 10; counts[f] = (counts[f] || 0) + 1; })));
-    const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    el.innerHTML = `<div class="analysis-result">
-        <div style="font-weight:700;margin-bottom:.5rem;font-size:.875rem;">Finalzahlen-Verteilung</div>
-        ${sorted.map(([f, c]) => `<div class="analysis-item"><span class="analysis-label">Final ${f}</span><span class="analysis-value">${c}x (${(c/total*100).toFixed(1)}%)</span></div>`).join('')}
-        <div style="margin-top:.75rem;padding:.75rem;background:var(--bg-main);border-radius:var(--radius-sm);font-size:.875rem;">
-            Empfehlung: Finals ${sorted.slice(0, 3).map(s => s[0]).join(', ')} erscheinen am häufigsten.
-        </div>
-    </div>`;
-}
-
-function runMonteCarlo() {
-    const el = document.getElementById('mcResult');
-    const n = parseInt(document.getElementById('mcSims').value) || 10000;
-    const bets = getBets();
-    let wins = 0, profit = 0;
-    const wp = 12 / 37;
-    for (let i = 0; i < n; i++) {
-        let bp = 0, bc = 0;
-        for (let r = 0; r < 3; r++) {
-            bc += bets[r];
-            if (Math.random() < wp) { bp = bets[r] * 3 - bc; wins++; break; }
-            else if (r === 2) bp = -bc;
-        }
-        profit += bp;
-    }
-    const avg = profit / n;
-    el.innerHTML = `<div class="analysis-result">
-        <div style="font-weight:700;margin-bottom:.5rem;font-size:.875rem;">Monte-Carlo (${n.toLocaleString()} Simulationen)</div>
-        <div class="analysis-item"><span class="analysis-label">Gewinnrate</span><span class="analysis-value">${(wins/n*100).toFixed(2)}%</span></div>
-        <div class="analysis-item"><span class="analysis-label">Ø Profit/Block</span><span class="analysis-value" style="color:${avg>=0?'var(--success)':'var(--danger)'};">${avg.toFixed(4)} E</span></div>
-        <div class="analysis-item"><span class="analysis-label">Theoretischer Hausvorteil</span><span class="analysis-value">2.70%</span></div>
-    </div>`;
-}
-
-function runPrognosis() {
-    const el = document.getElementById('prognosisResult');
-    const fb = parseInt(document.getElementById('progBlocks').value) || 100;
-    if (state.blocks.length < 10) { el.innerHTML = '<p style="color:var(--warning);margin-top:.5rem;">Mindestens 10 Blöcke benötigt.</p>'; return; }
-    const profits = state.blocks.map(b => b.totalProfit);
-    const avg = profits.reduce((a, b) => a + b, 0) / profits.length;
-    const variance = profits.reduce((s, p) => s + Math.pow(p - avg, 2), 0) / profits.length;
-    const std = Math.sqrt(variance);
-    const proj = avg * fb;
-    const margin = 1.96 * std * Math.sqrt(fb);
-    el.innerHTML = `<div class="analysis-result">
-        <div style="font-weight:700;margin-bottom:.5rem;font-size:.875rem;">Prognose für ${fb} Blöcke</div>
-        <div class="analysis-item"><span class="analysis-label">Ø Profit/Block</span><span class="analysis-value">${avg.toFixed(2)} E</span></div>
-        <div class="analysis-item"><span class="analysis-label">Projizierter Profit</span><span class="analysis-value" style="color:${proj>=0?'var(--success)':'var(--danger)'};">${proj>=0?'+':''}${proj.toFixed(2)} E</span></div>
-        <div class="analysis-item"><span class="analysis-label">95% Konfidenzintervall</span><span class="analysis-value">${(proj-margin).toFixed(2)} bis ${(proj+margin).toFixed(2)} E</span></div>
-        <div class="analysis-item"><span class="analysis-label">Volatilität</span><span class="analysis-value">${std.toFixed(2)} E</span></div>
-        <div class="progress-bar" style="margin-top:.75rem;"><div class="progress-fill" style="width:${Math.min(state.blocks.length,100)}%;"></div></div>
-        <div style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem;">Datenbasis: ${state.blocks.length} Blöcke</div>
-    </div>`;
-}
-
-function runStrategyTest() {
-    const el = document.getElementById('strategyResult');
-    const strats = { martingale: [1,3,9], conservative: [1,2,4], aggressive: [1,4,16], flat: [1,1,1] };
-    const s = document.getElementById('stratSelect').value;
-    const testBets = strats[s];
-    if (state.blocks.length < 5) { el.innerHTML = '<p style="color:var(--warning);margin-top:.5rem;">Mindestens 5 Blöcke benötigt.</p>'; return; }
-    let tProfit = 0, tBet = 0;
-    state.blocks.forEach(b => {
-        let bp = 0, bc = 0;
-        b.rounds.forEach((r, i) => {
-            bc += testBets[i] || testBets[testBets.length - 1];
-            if (r.won) bp = (testBets[i] || testBets[testBets.length - 1]) * 3 - bc;
-            else if (i === b.rounds.length - 1 && !r.won) bp = -bc;
+        numbers.forEach(n => {
+            totalBet += betsPerSpin;
+            if (finaleNums.includes(n)) profit += 36 - betsPerSpin;
+            else                         profit -= betsPerSpin;
         });
-        tProfit += bp; tBet += bc;
+
+        // Kumulativer Verlauf
+        const profitCurve = [];
+        let running = 0;
+        numbers.forEach(n => {
+            if (finaleNums.includes(n)) running += 36 - betsPerSpin;
+            else                         running -= betsPerSpin;
+            profitCurve.push(running);
+        });
+
+        // Ties (gleiche Häufigkeit wie chosenFinale)
+        const ties = Object.entries(finaleCounts)
+            .filter(([f, c]) => c === maxCount && parseInt(f) !== chosenFinale)
+            .map(([f]) => parseInt(f));
+
+        return {
+            blockIndex, numbers, finaleCounts,
+            chosenFinale, maxCount, ties,
+            finaleNums, profit, totalBet,
+            isWin: profit > 0,
+            totalSpins: numbers.length,
+            profitCurve
+        };
+    }
+
+    /* ── Render Blocks ── */
+    function analyzeNumbers() {
+        const input = document.getElementById('numberInput').value;
+        const allNumbers = parseNumbers(input);
+        if (allNumbers.length === 0) { alert('Bitte gib gültige Roulette-Zahlen ein (0–36).'); return; }
+        const chunks = chunkArray(allNumbers, 60);
+        blocks = chunks.map((chunk, i) => analyzeBlock(chunk, i));
+        renderBlocks();
+        updateStats();
+    }
+
+    function renderBlocks() {
+        const container = document.getElementById('blocksContainer');
+        container.innerHTML = '';
+        blocks.forEach((block, i) => {
+            const card = document.createElement('div');
+            card.className = `block-card ${block.isWin ? 'win' : 'loss'}`;
+            card.onclick = () => openBlockDetail(i);
+            const sign = block.profit >= 0 ? '+' : '';
+            card.innerHTML = `
+                <div class="block-header">
+                    <span class="block-number">Block ${i + 1}</span>
+                    <span class="block-result ${block.isWin ? 'win' : 'loss'}">${block.isWin ? 'GEWINN' : 'VERLUST'}</span>
+                </div>
+                <div class="block-finale">Finale ${block.chosenFinale}</div>
+                <div class="block-stats">${block.totalSpins} Zahlen • ${sign}${block.profit.toFixed(2)}€</div>
+                <div style="font-size:0.7em; color:#666; margin-top:4px;">klicken für Details</div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function updateStats() {
+        const won  = blocks.filter(b =>  b.isWin).length;
+        const lost = blocks.filter(b => !b.isWin).length;
+        const totalBet = blocks.reduce((s, b) => s + b.totalBet, 0);
+        const avg = blocks.length > 0 ? totalBet / blocks.length : 0;
+
+        document.getElementById('totalBlocks').textContent = blocks.length;
+        document.getElementById('wonBlocks').textContent   = won;
+        document.getElementById('lostBlocks').textContent  = lost;
+        document.getElementById('totalBet').textContent    = totalBet.toFixed(2);
+        document.getElementById('avgPerBlock').textContent = avg.toFixed(2);
+
+        let bestWin = 0, bestLoss = 0, tw = 0, tl = 0;
+        blocks.forEach(b => {
+            if (b.isWin) { tw++; tl = 0; if (tw > bestWin) bestWin = tw; }
+            else         { tl++; tw = 0; if (tl > bestLoss) bestLoss = tl; }
+        });
+
+        if (blocks.length > 0) {
+            const last = blocks[blocks.length - 1];
+            let streak = 0;
+            for (let i = blocks.length - 1; i >= 0; i--) {
+                if (blocks[i].isWin === last.isWin) streak++;
+                else break;
+            }
+            document.getElementById('currentStreak').textContent = `${streak}× ${last.isWin ? '✅' : '❌'}`;
+        }
+        document.getElementById('bestStreak').textContent  = bestWin;
+        document.getElementById('worstStreak').textContent = bestLoss || '—';
+    }
+
+    /* ── Modal öffnen ── */
+    function openBlockDetail(index) {
+        currentBlockIndex = index;
+        const block = blocks[index];
+        const sign = block.profit >= 0 ? '+' : '';
+
+        document.getElementById('modalTitle').textContent =
+            `Block ${index + 1} — Finale ${block.chosenFinale} — ${sign}${block.profit.toFixed(2)}€`;
+
+        switchTab('overview');
+        fillOverview(block);
+        fillNumbers(block);
+        fillFinaleChart(block);
+        document.getElementById('toolOutput').innerHTML = 'Wähle ein Tool aus…';
+
+        document.getElementById('blockModal').classList.add('active');
+    }
+
+    /* ── Tab-Switching ── */
+    function switchTab(name) {
+        document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            if (b.getAttribute('onclick').includes("'" + name + "'")) b.classList.add('active');
+        });
+
+        if (name === 'chart' && currentBlockIndex !== null) drawProfitChart(blocks[currentBlockIndex]);
+    }
+
+    /* ── Übersicht ── */
+    function fillOverview(block) {
+        const hitCount = block.numbers.filter(n => block.finaleNums.includes(n)).length;
+        const hitPct   = ((hitCount / block.totalSpins) * 100).toFixed(1);
+        const expected = ((block.finaleNums.length / 37) * block.totalSpins).toFixed(1);
+        const roi      = ((block.profit / block.totalBet) * 100).toFixed(1);
+        const sign     = block.profit >= 0 ? '+' : '';
+
+        // Entscheidungs-Erklärung
+        const sortedFinales = Object.entries(block.finaleCounts).sort((a, b) => b[1] - a[1]);
+        const topTwo = sortedFinales.slice(0, 3);
+        let tieNote = '';
+        if (block.ties.length > 0) {
+            tieNote = ` Bei Gleichstand mit Finale ${block.ties.join(', ')} wurde die kleinere Nummer gewählt.`;
+        }
+        const numbersOfChosen = block.finaleNums.join(', ');
+        document.getElementById('decisionExplanation').innerHTML = `
+            Im Block kamen die Zahlen ${block.totalSpins}× vor.<br>
+            <strong style="color:#c9a84c">Finale ${block.chosenFinale}</strong> erschien am häufigsten:
+            <strong>${block.maxCount}×</strong> (${((block.maxCount/block.totalSpins)*100).toFixed(1)}% aller Spins).${tieNote}<br>
+            Dahinter: ${topTwo.filter(([f])=>parseInt(f)!==block.chosenFinale).map(([f,c])=>`Finale ${f} (${c}×)`).join(', ')}.<br>
+            Gespielt wurden die Zahlen <strong>${numbersOfChosen}</strong>
+            (${block.finaleNums.length} Nummern → ${block.finaleNums.length}€/Spin).
+        `;
+
+        // Info-Boxen
+        document.getElementById('overviewGrid').innerHTML = `
+            <div class="info-box">
+                <div class="ib-label">Gewähltes Finale</div>
+                <div class="ib-value">${block.chosenFinale}</div>
+            </div>
+            <div class="info-box">
+                <div class="ib-label">Häufigkeit im Block</div>
+                <div class="ib-value">${block.maxCount}×</div>
+            </div>
+            <div class="info-box">
+                <div class="ib-label">Treffer</div>
+                <div class="ib-value">${hitCount} / ${block.totalSpins}</div>
+            </div>
+            <div class="info-box">
+                <div class="ib-label">Trefferquote</div>
+                <div class="ib-value">${hitPct}% <span style="color:#555;font-size:0.7em">(erw. ${((block.finaleNums.length/37)*100).toFixed(1)}%)</span></div>
+            </div>
+            <div class="info-box">
+                <div class="ib-label">Gesamteinsatz</div>
+                <div class="ib-value">${block.totalBet.toFixed(2)}€</div>
+            </div>
+            <div class="info-box">
+                <div class="ib-label">Profit</div>
+                <div class="ib-value ${block.isWin ? 'green' : 'red'}">${sign}${block.profit.toFixed(2)}€</div>
+            </div>
+            <div class="info-box">
+                <div class="ib-label">ROI</div>
+                <div class="ib-value ${roi >= 0 ? 'green' : 'red'}">${roi}%</div>
+            </div>
+            <div class="info-box">
+                <div class="ib-label">Einsatz/Spin</div>
+                <div class="ib-value">${block.finaleNums.length}€</div>
+            </div>
+        `;
+    }
+
+    /* ── Alle Zahlen ── */
+    function fillNumbers(block) {
+        document.getElementById('numbersSubtitle').textContent =
+            `(${block.totalSpins} Spins, Finale ${block.chosenFinale} = goldener Ring)`;
+
+        let html = '';
+        block.numbers.forEach((n, idx) => {
+            const col = getColor(n);
+            const isHit = block.finaleNums.includes(n);
+            html += `<span class="number-chip ${col}${isHit ? ' hit' : ''}" title="Spin ${idx+1}: ${n}">${n}</span>`;
+        });
+        document.getElementById('numbersDisplay').innerHTML = html;
+    }
+
+    /* ── Finale-Balkendiagramm ── */
+    function fillFinaleChart(block) {
+        const maxCount = Math.max(...Object.values(block.finaleCounts));
+        let html = '';
+
+        // Sortiert: gewähltes oben, dann absteigend
+        const order = [block.chosenFinale, ...[...Array(10).keys()].filter(f => f !== block.chosenFinale)];
+
+        order.forEach(f => {
+            const count = block.finaleCounts[f];
+            const pct   = maxCount > 0 ? (count / maxCount * 100).toFixed(1) : 0;
+            const absPct= ((count / block.totalSpins) * 100).toFixed(1);
+            const isChosen = f === block.chosenFinale;
+            const nums  = FINALE_NUMBERS[f].join(', ');
+
+            html += `
+                <div class="finale-row ${isChosen ? 'chosen' : ''}">
+                    <div class="finale-label ${isChosen ? 'chosen-label' : 'other-label'}">${f}</div>
+                    <div class="finale-bar-wrap">
+                        <div class="finale-bar-meta">
+                            <span>${isChosen ? '⭐ Gewählt — ' : ''}Finale ${f}</span>
+                            <span>${count}× &nbsp;(${absPct}%)</span>
+                        </div>
+                        <div class="finale-bar-bg">
+                            <div class="finale-bar-fill ${isChosen ? 'chosen-fill' : ''}"
+                                 style="width:${pct}%"></div>
+                        </div>
+                    </div>
+                    <div class="finale-numbers-list" style="color:#555; font-size:0.7em;">${nums}</div>
+                </div>
+            `;
+        });
+
+        document.getElementById('finaleChart').innerHTML = html;
+    }
+
+    /* ── Profit-Chart (Canvas) ── */
+    function drawProfitChart(block) {
+        const canvas = document.getElementById('profitCanvas');
+        const wrap   = canvas.parentElement;
+        canvas.width  = wrap.clientWidth - 24;
+        canvas.height = 200;
+        const ctx = canvas.getContext('2d');
+        const data = block.profitCurve;
+
+        const pad = { top: 20, right: 20, bottom: 30, left: 50 };
+        const w = canvas.width - pad.left - pad.right;
+        const h = canvas.height - pad.top - pad.bottom;
+
+        const minVal = Math.min(...data, 0);
+        const maxVal = Math.max(...data, 0);
+        const range  = maxVal - minVal || 1;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Hintergrund
+        ctx.fillStyle = '#0d0d1a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        function xPos(i)   { return pad.left + (i / (data.length - 1)) * w; }
+        function yPos(val) { return pad.top  + h - ((val - minVal) / range) * h; }
+
+        // Nulllinie
+        const zeroY = yPos(0);
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, zeroY);
+        ctx.lineTo(pad.left + w, zeroY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Füllung unter / über Nulllinie
+        ctx.beginPath();
+        ctx.moveTo(xPos(0), yPos(data[0]));
+        data.forEach((v, i) => ctx.lineTo(xPos(i), yPos(v)));
+        ctx.lineTo(xPos(data.length - 1), zeroY);
+        ctx.lineTo(xPos(0), zeroY);
+        ctx.closePath();
+        const lastPositive = data[data.length - 1] >= 0;
+        ctx.fillStyle = lastPositive ? 'rgba(76,175,80,0.15)' : 'rgba(244,67,54,0.15)';
+        ctx.fill();
+
+        // Linie
+        ctx.beginPath();
+        ctx.moveTo(xPos(0), yPos(data[0]));
+        data.forEach((v, i) => ctx.lineTo(xPos(i), yPos(v)));
+        ctx.strokeStyle = lastPositive ? '#4caf50' : '#f44336';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Y-Achse Labels
+        ctx.fillStyle = '#666';
+        ctx.font = '11px Segoe UI';
+        ctx.textAlign = 'right';
+        [minVal, 0, maxVal].forEach(v => {
+            const y = yPos(v);
+            ctx.fillText(v.toFixed(0) + '€', pad.left - 6, y + 4);
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + w, y);
+            ctx.stroke();
+        });
+
+        // X-Achse Labels
+        ctx.fillStyle = '#555';
+        ctx.textAlign = 'center';
+        const step = Math.ceil(data.length / 10);
+        for (let i = 0; i < data.length; i += step) {
+            ctx.fillText(i + 1, xPos(i), canvas.height - 6);
+        }
+        ctx.fillText(data.length, xPos(data.length - 1), canvas.height - 6);
+
+        // Endwert-Punkt
+        const endX = xPos(data.length - 1);
+        const endY = yPos(data[data.length - 1]);
+        ctx.beginPath();
+        ctx.arc(endX, endY, 5, 0, Math.PI * 2);
+        ctx.fillStyle = lastPositive ? '#4caf50' : '#f44336';
+        ctx.fill();
+
+        document.getElementById('chartLegend').textContent =
+            `Spin 1 → ${data.length} | Min: ${minVal.toFixed(2)}€ | Max: ${maxVal.toFixed(2)}€ | End: ${data[data.length-1].toFixed(2)}€`;
+    }
+
+    /* ── Tools ── */
+    function runTool(tool) {
+        if (currentBlockIndex === null) return;
+        const block = blocks[currentBlockIndex];
+        const out   = document.getElementById('toolOutput');
+
+        if (tool === 'monteCarlo') {
+            const sims = 10000;
+            let wins = 0;
+            for (let s = 0; s < sims; s++) {
+                let p = 0;
+                for (let i = 0; i < block.totalSpins; i++) {
+                    const spin = Math.floor(Math.random() * 37);
+                    if (block.finaleNums.includes(spin)) p += 36 - block.finaleNums.length;
+                    else p -= block.finaleNums.length;
+                }
+                if (p > 0) wins++;
+            }
+            const wr = ((wins / sims) * 100).toFixed(1);
+            out.innerHTML = `
+                <h4 style="color:#c9a84c; margin-bottom:10px;">🎲 Monte Carlo — ${sims.toLocaleString()} Simulationen</h4>
+                <p>Finale ${block.chosenFinale} auf ${block.totalSpins} Spins:</p><br>
+                <div style="font-size:1.6em; font-weight:bold; color:${wr > 50 ? '#4caf50' : '#f44336'}">
+                    Gewinnwahrscheinlichkeit: ${wr}%
+                </div>
+                <br><p style="color:#777;">Theoretische Trefferchance/Spin: ${((block.finaleNums.length/37)*100).toFixed(1)}%
+                (${block.finaleNums.length} von 37 Feldern)</p>
+            `;
+        }
+
+        if (tool === 'strategyTest') {
+            const strategies = [
+                { name: '🟡 Flat (1€/Zahl)',     factor: null },
+                { name: '🔵 Progressiv (×1.5)',   factor: 1.5  },
+                { name: '🔴 Martingale (×2)',      factor: 2    },
+            ];
+            let html = `<h4 style="color:#c9a84c; margin-bottom:12px;">⚙️ Strategie-Vergleich</h4>`;
+            strategies.forEach(strat => {
+                let p = 0, bet = 1;
+                block.numbers.forEach(n => {
+                    const tb = bet * block.finaleNums.length;
+                    if (block.finaleNums.includes(n)) { p += bet * 36 - tb; bet = 1; }
+                    else { p -= tb; if (strat.factor) bet = Math.min(bet * strat.factor, 100); }
+                });
+                html += `<div style="padding:10px; background:#16213e; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between;">
+                    <span>${strat.name}</span>
+                    <strong style="color:${p >= 0 ? '#4caf50' : '#f44336'}">${p >= 0 ? '+' : ''}${p.toFixed(2)}€</strong>
+                </div>`;
+            });
+            out.innerHTML = html;
+        }
+
+        if (tool === 'performance') {
+            const hits  = block.numbers.filter(n => block.finaleNums.includes(n)).length;
+            const roi   = ((block.profit / block.totalBet) * 100).toFixed(1);
+            const exp   = ((block.finaleNums.length / 37) * block.totalSpins).toFixed(1);
+            const sign  = block.profit >= 0 ? '+' : '';
+            out.innerHTML = `
+                <h4 style="color:#c9a84c; margin-bottom:12px;">📊 Performance-Analyse</h4>
+                <div class="info-grid">
+                    <div class="info-box"><div class="ib-label">Treffer</div><div class="ib-value">${hits}</div></div>
+                    <div class="info-box"><div class="ib-label">Erwartet</div><div class="ib-value">${exp}</div></div>
+                    <div class="info-box"><div class="ib-label">Trefferquote</div><div class="ib-value">${((hits/block.totalSpins)*100).toFixed(1)}%</div></div>
+                    <div class="info-box"><div class="ib-label">Profit</div><div class="ib-value ${block.isWin?'green':'red'}">${sign}${block.profit.toFixed(2)}€</div></div>
+                    <div class="info-box"><div class="ib-label">ROI</div><div class="ib-value ${roi>=0?'green':'red'}">${roi}%</div></div>
+                    <div class="info-box"><div class="ib-label">Einsatz</div><div class="ib-value">${block.totalBet.toFixed(2)}€</div></div>
+                </div>
+            `;
+        }
+
+        if (tool === 'trendProjection') {
+            const curve = block.profitCurve;
+            const mid   = Math.floor(curve.length / 2);
+            const h1end = curve[mid - 1];
+            const h2end = curve[curve.length - 1];
+            const trend = h2end - h1end;
+            out.innerHTML = `
+                <h4 style="color:#c9a84c; margin-bottom:12px;">📈 Trend-Projektion</h4>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div class="info-box"><div class="ib-label">1. Hälfte (Spin 1–${mid})</div>
+                        <div class="ib-value ${h1end>=0?'green':'red'}">${h1end>=0?'+':''}${h1end.toFixed(2)}€</div></div>
+                    <div class="info-box"><div class="ib-label">2. Hälfte (Spin ${mid+1}–${curve.length})</div>
+                        <div class="ib-value ${(h2end-h1end)>=0?'green':'red'}">${(h2end-h1end)>=0?'+':''}${(h2end-h1end).toFixed(2)}€</div></div>
+                    <div class="info-box"><div class="ib-label">Trend</div>
+                        <div class="ib-value ${trend>=0?'green':'red'}">${trend>=0?'↑ Steigend':'↓ Fallend'}</div></div>
+                    <div class="info-box"><div class="ib-label">Endprofit</div>
+                        <div class="ib-value ${h2end>=0?'green':'red'}">${h2end>=0?'+':''}${h2end.toFixed(2)}€</div></div>
+                </div>
+                <p style="color:#666; font-size:0.78em; margin-top:10px;">
+                    Min: ${Math.min(...curve).toFixed(2)}€ &nbsp;|&nbsp; Max: ${Math.max(...curve).toFixed(2)}€
+                </p>
+            `;
+        }
+    }
+
+    /* ── Schließen ── */
+    function closeModal() {
+        document.getElementById('blockModal').classList.remove('active');
+        currentBlockIndex = null;
+    }
+
+    document.getElementById('blockModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
     });
-    const roi = tBet > 0 ? tProfit / tBet * 100 : 0;
-    const current = state.blocks.reduce((s, b) => s + b.totalProfit, 0);
-    el.innerHTML = `<div class="analysis-result">
-        <div style="font-weight:700;margin-bottom:.5rem;font-size:.875rem;">Strategie: ${s} (${testBets.join('-')})</div>
-        <div class="analysis-item"><span class="analysis-label">Theoretischer Profit</span><span class="analysis-value" style="color:${tProfit>=0?'var(--success)':'var(--danger)'};">${tProfit>=0?'+':''}${tProfit.toFixed(2)} E</span></div>
-        <div class="analysis-item"><span class="analysis-label">ROI</span><span class="analysis-value">${roi.toFixed(2)}%</span></div>
-        <div class="analysis-item"><span class="analysis-label">vs. aktuelle Strategie</span><span class="analysis-value" style="color:${(tProfit-current)>=0?'var(--success)':'var(--danger)'};">${(tProfit-current)>=0?'+':''}${(tProfit-current).toFixed(2)} E</span></div>
-    </div>`;
-}
 
-function runPerformance() {
-    const el = document.getElementById('perfResult');
-    if (!state.blocks.length) { el.innerHTML = '<p style="color:var(--warning);margin-top:.5rem;">Keine Daten vorhanden.</p>'; return; }
-    const profits = state.blocks.map(b => b.totalProfit);
-    const avg = profits.reduce((a, b) => a + b, 0) / profits.length;
-    const std = Math.sqrt(profits.reduce((s, p) => s + Math.pow(p - avg, 2), 0) / profits.length);
-    const sharpe = std > 0 ? avg / std : 0;
-    const last20 = state.blocks.slice(0, 20);
-    const byDay = {};
-    state.blocks.forEach(b => { const d = new Date(b.timestamp).toDateString(); byDay[d] = (byDay[d] || 0) + b.totalProfit; });
-    const days = Object.entries(byDay);
-    const best = days.length ? days.reduce((a, b) => a[1] > b[1] ? a : b) : ['–', 0];
-    const worst = days.length ? days.reduce((a, b) => a[1] < b[1] ? a : b) : ['–', 0];
-    el.innerHTML = `<div class="analysis-result">
-        <div style="font-weight:700;margin-bottom:.5rem;font-size:.875rem;">Performance-Kennzahlen</div>
-        <div class="analysis-item"><span class="analysis-label">Bester Block</span><span class="analysis-value" style="color:var(--success);">+${Math.max(...profits).toFixed(2)} E</span></div>
-        <div class="analysis-item"><span class="analysis-label">Schlechtester Block</span><span class="analysis-value" style="color:var(--danger);">${Math.min(...profits).toFixed(2)} E</span></div>
-        <div class="analysis-item"><span class="analysis-label">Sharpe Ratio</span><span class="analysis-value">${sharpe.toFixed(3)}</span></div>
-        <div class="analysis-item"><span class="analysis-label">Letzte 20 Blöcke</span><span class="analysis-value">${last20.filter(b=>b.won).length}/${last20.length} gewonnen</span></div>
-        <div class="analysis-item"><span class="analysis-label">Bester Tag</span><span class="analysis-value" style="color:var(--success);">+${best[1].toFixed(2)} E</span></div>
-        <div class="analysis-item"><span class="analysis-label">Schlechtester Tag</span><span class="analysis-value" style="color:var(--danger);">${worst[1].toFixed(2)} E</span></div>
-        <div class="analysis-item"><span class="analysis-label">Volatilität</span><span class="analysis-value">${std.toFixed(2)} E</span></div>
-    </div>`;
-}
+    /* ── Beispiel / Clear ── */
+    function loadExample() {
+        const example = Array.from({length: 180}, () => Math.floor(Math.random() * 37)).join(', ');
+        document.getElementById('numberInput').value = example;
+        analyzeNumbers();
+    }
 
-// ============================================================
-// UTILITIES
-// ============================================================
-function fmtDate(iso) {
-    const d = new Date(iso), now = new Date(), diff = now - d;
-    if (diff < 60000) return 'Gerade eben';
-    if (diff < 3600000) return `Vor ${Math.floor(diff/60000)} Min.`;
-    if (diff < 86400000) return `Vor ${Math.floor(diff/3600000)} Std.`;
-    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
-}
-
-function toast(msg, type = 'success') {
-    const c = document.getElementById('toastContainer');
-    const t = document.createElement('div');
-    t.className = `toast ${type}`;
-    t.textContent = msg;
-    c.appendChild(t);
-    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; t.style.transition = '.3s'; setTimeout(() => t.remove(), 300); }, 3000);
-}
-
-// ============================================================
-// KEYBOARD SHORTCUTS
-// ============================================================
-document.addEventListener('keydown', e => {
-    if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
-    if (e.key === 'w') confirmRoundWin();
-    if (e.key === 'l') confirmRoundLoss();
-    if (e.key === 'z' && (e.ctrlKey || e.metaKey)) undoLastEntry();
-});
-
-['bet1','bet2','bet3'].forEach(id => {
-    document.getElementById(id).addEventListener('change', () => {
-        state.settings.bets = getBets();
-        saveData();
-    });
-});
+    function clearAll() {
+        document.getElementById('numberInput').value = '';
+        document.getElementById('blocksContainer').innerHTML = '';
+        blocks = [];
+        currentBlockIndex = null;
+        updateStats();
+    }
 </script>
 </body>
 </html>
+
